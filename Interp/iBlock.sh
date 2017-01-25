@@ -10,9 +10,11 @@ export VTIDIR=$3
 module restore lfmtp
 module list
 
-export JOBID=$LSB_JOBINDEX
-printf -v PID %"02d" $JOBID 
+#Subtract 1 to remap 1-24 to 0-23
+export JOBID=$(echo $(($LSB_JOBINDEX-1)))
 
+printf -v PID %"02d" $JOBID 
+echo "Using ID $PID"
 
 echo "Converting files ..."
 echo "Stub = $FSTUB"
