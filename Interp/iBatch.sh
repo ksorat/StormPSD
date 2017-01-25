@@ -16,8 +16,7 @@ export DEND=${2:-0}
 #Job parameters
 export WALL="8:00" #Wallclock time
 export QUEUE="regular"
-export T0=0
-export T1=23
+
 for d in $(seq $D0 $DEND)
 do
 
@@ -26,5 +25,5 @@ do
 	echo $FSTUB
 	export LOG="Interp.$DD.%I.log" #Set names for log files
 	#bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "iBatch[$T0-$T1]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
-	bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "$NAME[$T0-$T1]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
+	bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "$NAME[0-23]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
 done
