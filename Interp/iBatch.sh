@@ -9,12 +9,11 @@ export DATESTUB="2013-03"
 export MAP="../maps/Quad2Hirez.h5"
 export VTIDIR="$HOME/Work/StormPSD/StormPSD_Data/"
 
-
 export D0=${1:-0}
 export DEND=${2:-0}
 
 #Job parameters
-export WALL="12:00" #Wallclock time
+export WALL="8:00" #Wallclock time
 export QUEUE="regular"
 export T0=0
 export T1=23
