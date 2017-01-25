@@ -25,5 +25,5 @@ do
 	echo $FSTUB
 	export LOG="Interp.$DD.%I.log" #Set names for log files
 	#bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "iBatch[$T0-$T1]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
-	bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "StormPSD[0-23]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
+	bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "StormPSD [0-23]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
 done
