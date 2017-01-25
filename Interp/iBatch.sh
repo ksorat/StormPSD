@@ -24,7 +24,6 @@ do
 	printf -v DD %"02d" $d
 	export FSTUB=${TAG}_$DATESTUB-${DD}T
 	echo $FSTUB
-	echo $T1 $T2
 	export LOG="Interp.$DD.%I.log" #Set names for log files
-	bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "iBatch[${T0}-${T1}]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
+	echo bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "iBatch[$T0-$T1]" -e ${LOG} -o ${LOG} "iBlock.sh $FSTUB $MAP $VTIDIR"
 done
