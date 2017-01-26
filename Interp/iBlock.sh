@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-#Format, iBlock.sh <FSTUB> <MAP> <VTIDIR>
+#Format, iBlock.sh <FSTUB> <MAP> <LFMDIR>
 
 export FSTUB=$1
 export MAP=$2
-export VTIDIR=$3
+export LFMDIR=$3
 
 
 module restore lfmtp
@@ -19,12 +19,13 @@ echo "Using ID $PID"
 echo "Converting files ..."
 echo "Stub = $FSTUB"
 echo "Map = $MAP"
-echo "VTI Directory = $VTIDIR"
+echo "LFM HDF Directory = $LFMDIR"
 
-ls -lh ${FSTUB}${PID}-??-??Z.hdf
+ls -lh ${LFMDIR}/${FSTUB}${PID}-??-??Z.hdf
 
-lfm2cart.py $MAP ${FSTUB}${PID}-??-??Z.hdf
+lfm2cart.py $MAP ${LFMDIR}/${FSTUB}${PID}-??-??Z.hdf
 echo "Finished converting files ..."
-echo "Moving files ..."
-mv -v ${FSTUB}${PID}-??-??Z.vti $VTIDIR
+
+#echo "Moving files ..."
+#mv -v ${FSTUB}${PID}-??-??Z.vti $VTIDIR
 
