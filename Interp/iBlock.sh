@@ -20,6 +20,7 @@ echo "Converting files ..."
 echo "Stub = $FSTUB"
 echo "Map = $MAP"
 echo "LFM HDF Directory = $LFMDIR"
+echo "VTI Directory = $VTIDIR"
 
 ls -lh ${LFMDIR}/${FSTUB}${PID}-??-??Z.hdf
 
