@@ -7,6 +7,9 @@ export MAP=$2
 export LFMDIR=$3
 export VTIDIR=$4
 
+export OMP_NUM_THREADS="16"
+export OMP_SCHEDULE="dynamic"
+
 module restore lfmi
 module list
 
