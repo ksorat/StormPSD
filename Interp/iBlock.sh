@@ -7,11 +7,13 @@ export MAP=$2
 export LFMDIR=$3
 export VTIDIR=$4
 
-export OMP_NUM_THREADS="16"
-export OMP_SCHEDULE="dynamic"
-
 module restore lfmi
 module list
+
+export OMP_NUM_THREADS=16
+export OMP_SCHEDULE=dynamic
+export OMP_STACKSIZE=64M
+
 
 #Subtract 1 to remap 1-24 to 0-23
 export JOBID=$(echo $(($LSB_JOBINDEX-1)))
