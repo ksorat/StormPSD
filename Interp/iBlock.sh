@@ -7,7 +7,7 @@ export MAP=$2
 export LFMDIR=$3
 export VTIDIR=$4
 
-module restore lfmtp
+module restore lfmi
 module list
 
 #Subtract 1 to remap 1-24 to 0-23
