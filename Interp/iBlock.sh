@@ -18,7 +18,7 @@ export JOBID=$(echo $(($LSB_JOBINDEX-1)))
 
 printf -v PID %"02d" $JOBID 
 echo "Using ID $PID"
-
+echo "Using $OMP_NUM_THREADS threads."
 echo "Converting files ..."
 echo "Stub = $FSTUB"
 echo "Map = $MAP"
