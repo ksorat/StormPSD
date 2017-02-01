@@ -6,8 +6,8 @@
   <phi min="120" max="220" N="10"/>
   <psi min="0" max="360" N="2"/>
   <alpha min="40" max="140" N="5"/>
-  <time tfin="197000" Ns="60" Nf="600" T0="0"/>
-  <integrator dt="1" method="dynamic"/>
+  <time tfin="197000" Ns="600" Nf="6000" T0="2000"/>
+  <integrator dt="0.1" method="dynamic"/>
   <field infile = "ebtab.txt"/>
   <output outdir="Data/H5p" />
   <run tag="Storm"/>
