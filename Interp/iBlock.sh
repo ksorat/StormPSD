@@ -7,7 +7,7 @@ export MAP=$2
 export LFMDIR=$3
 export VTIDIR=$4
 
-module restore lfmi
+module restore lfmtp
 module list
 
 export OMP_NUM_THREADS=16
