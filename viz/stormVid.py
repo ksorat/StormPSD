@@ -20,7 +20,7 @@ pSz = 5
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 pFile = "Storm.Min3D.h5part"
-Quiet = False
+Quiet = True
 
 
 dbP = Base + "/H5p/" + pFile
