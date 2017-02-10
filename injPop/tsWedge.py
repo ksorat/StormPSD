@@ -22,7 +22,7 @@ kTt = np.zeros(Nf)
 Nt = np.zeros(Nf)
 Nkt = np.zeros(Nf)
 
-I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z,K0=K0)
+I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
 
 for i in range(Nf):
 	fIn = fIns[i]
