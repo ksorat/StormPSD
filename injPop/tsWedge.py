@@ -20,7 +20,6 @@ fOut = "tsWedge.pkl"
 fIns =glob.glob(lfmDir + "/*.hdf")
 
 Nf = len(fIns)
-Nf = 10
 
 t = np.zeros(Nf)
 Vst = np.zeros(Nf)
