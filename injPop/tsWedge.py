@@ -24,7 +24,11 @@ Nkt = np.zeros(Nf)
 
 I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
 
-for i in range(Nf):
+for i in range(10):
 	fIn = fIns[i]
 
 	t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=K0)
+
+#Got all data, now sort
+Is = np.argsort(t)
+t = t[Is]
