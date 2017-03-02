@@ -7,6 +7,7 @@ import cPickle as pickle
 import matplotlib.gridspec as gridspec
 from matplotlib.colors import LogNorm
 import scipy.interpolate as interpolate
+import lfmPreproc as lfmpre
 
 fPkl = "tsWedge.pkl"
 doPanel = False
@@ -50,19 +51,21 @@ if (doPanel):
 	plt.close('all')
 
 #Create probability distribution using bulk/Nk0
-
-fTot = Vst*Nkt
-nScl = fTot.sum()
-f = fTot/nScl
-#Use normalized PDF to get CDF 
-F = np.cumsum(f)
-#Interpolate the inverse cdf
-cdf = interpolate.interp1d(t,F)
-icdf = interpolate.interp1d(F,t)
-
 Nr = 10000
-r = np.random.rand(Nr)
-tR = icdf(r)
+fTot = Vst*Nkt
+f = fTot/fTot.sum()
+# nScl = fTot.sum()
+# f = fTot/nScl
+# #Use normalized PDF to get CDF 
+# F = np.cumsum(f)
+# #Interpolate the inverse cdf
+# cdf = interpolate.interp1d(t,F)
+# icdf = interpolate.interp1d(F,t)
+
+# r = np.random.rand(Nr)
+# tR = icdf(r)
+tR = lfmpre.genSample(t,fTot,Nr)
+
 
 #Show both
 T0 = t.min()
