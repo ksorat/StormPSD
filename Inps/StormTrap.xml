@@ -6,9 +6,9 @@
   <phi min="0" max="360" N="5"/>
   <psi min="0" max="360" N="1"/>
   <alpha min="40" max="140" N="5"/>
-  <time tfin="197000" Ns="60" Nf="600" T0="2000"/>
+  <time tfin="197000" Ns="60" Nf="600" T0="30000"/>
   <integrator dt="1" method="dynamic"/>
   <field infile = "ebtab.txt"/>
-  <output outdir="Data/H5p" />
-  <run tag="Storm"/>
+  <output outdir="Data/Trap" />
+  <run tag="StormTrap"/>
 </Params>
