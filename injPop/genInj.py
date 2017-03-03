@@ -13,18 +13,18 @@ rDir = os.path.expanduser('~') + "/Work/StormPSD/"
 fPkl = "tsWedge.pkl"
 
 #Wedge info
-R = [12,12.5]
+R = [11.5,12.5]
 Z = [-0.25,0.25]
-P = [160,180]
+P = [165,195]
 Kc = 10 #Cutoff for high-energy
 
 #Run info
-T0 = 2000
+T0 = 30000
 Tfin = 197000
 Ns = 60
 Nf = 600
 Alpha = [40,140]
-K0 = [200,2000]
+K0 = [10,1000]
 
 #PBlock info
 Np = 10000 #Number of particles
