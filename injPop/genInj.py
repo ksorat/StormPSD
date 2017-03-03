@@ -91,6 +91,7 @@ else:
 #Start by calculating injection times
 fTot = Vst*Nkt #High-energy number flux in wedge
 T0p = lfmpre.genSample(t,fTot,Np)
+T0p = np.maximum(T0p,T0)
 
 #Create particle block
 pBlock = lfmpre.ParticleBlock(0,T0,Np)
