@@ -64,7 +64,7 @@ else:
 	for i in range(Nf):
 		print("Reading file %d of %d\n"%(i,Nf))
 		fIn = fIns[i]
-		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=Kc)
+		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=Kc,T0=T0)
 	#Got all data, now sort
 	Is = np.argsort(t)
 	
