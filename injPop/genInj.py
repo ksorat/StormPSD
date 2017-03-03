@@ -74,7 +74,7 @@ else:
 	Nt = Nt[Is]
 	Nkt = Nkt[Is]
 	#Save data
-	print("Saving data to %s"%fOut)
+	print("Saving data to %s"%fPkl)
 	with open(fPkl,"wb") as f:
 		pickle.dump(t,f)
 		pickle.dump(Vst,f)
