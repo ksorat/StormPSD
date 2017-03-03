@@ -62,6 +62,7 @@ else:
 	I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
 	#Loop through files, get wedge data
 	for i in range(Nf):
+		print("Reading file %d of %d\n"%(i,Nf))
 		fIn = fIns[i]
 		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=Kc)
 	#Got all data, now sort
