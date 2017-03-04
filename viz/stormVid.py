@@ -82,7 +82,7 @@ pyv.onlyIn()
 
 ActivateDatabase(dbs[2])
 pyv.lfmPScat(dbs[2],v4=pVar,vBds=pBds,cMap=pMapI,Log=False,Inv=False,pSize=pSz)
-#pyv.onlyIn()
+pyv.onlyIn()
 
 
 #Gussy things up
