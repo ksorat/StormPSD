@@ -7,34 +7,36 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
-titS = "St. Patrick's Storm"
+titS = "St. Patrick's Storm 2013"
 outVid ="StPattys.mp4"
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
-dT0s = 2000 #Start time [s] from T0
-dT0 = datetime.timedelta(seconds=dT0s)
-T0 = dT0 + datetime.datetime.strptime("2013-03-17T10:00:00Z","%Y-%m-%dT%H:%M:%SZ")
 
 #Field
 fBds = [1,250]
 fMap = "viridis"
 
-#Particles
-pMap = "Reds"
+#Particles (T)rap, (I)injected
+#Using files Base/(Trap/Inj)/Storm(Trap/Inj).h5part
+
+pMapT = "Reds"
+pMapI = "Blues"
 pSz = 5
+
 #pBds = [4,6]
 pVar = "kev"
-pBds = [100,2000]
+pLab = "Particle Energy [keV]"
+pBds = [10,1000]
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 pFile = "Storm.Min3D.h5part"
 Quiet = True
 
-
-dbP = Base + "/H5p/" + pFile
+dbPI = Base + "/Inj/StormInj.Min3D.h5part"
+dbPT = Base + "/Trap/StormTrap.Min3D.h5part"
 dbF = Base + "/eqSlc/eqSlc.*.vti database"
-dbs = [dbF, dbP]
+dbs = [dbF,dbPT,dbPI]
 
 if (Quiet):
 	LaunchNowin()
@@ -55,8 +57,16 @@ mdH5p = GetMetaData(dbs[1])
 
 dt = md0.times[1] - md0.times[0]
 
+#Get time info
+#dT0s = 2000 #Start time [s] from T0
+dT0s = md0.times[0]
+dT0 = datetime.timedelta(seconds=dT0s)
+T0 = dT0 + datetime.datetime.strptime(T0Str,T0Fmt)
+
+
 OpenDatabase(dbs[0])
 OpenDatabase(dbs[1])
+OpenDatabase(dbs[2])
 
 #Create database correlation
 CreateDatabaseCorrelation("P2Fld",dbs,0)
@@ -67,17 +77,27 @@ pyv.lfmPCol(dbs[0],"Bmag",vBds=fBds,pcOpac=0.7,Inv=False,Log=True,cMap=fMap)
 pyv.chopInner2D()
 
 ActivateDatabase(dbs[1])
-pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMap,Log=False,Inv=False,pSize=pSz)
+pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=False,pSize=pSz)
 pyv.onlyIn()
+
+ActivateDatabase(dbs[2])
+pyv.lfmPScat(dbs[2],v4=pVar,vBds=pBds,cMap=pMapI,Log=False,Inv=False,pSize=pSz)
+#pyv.onlyIn()
+
 
 #Gussy things up
 tit = pyv.genTit( titS=titS)
-plXs = [0.03,0.03]
-plYs = [0.9,0.4]
-#plTits = ["Field Strength [nT]", "Particle Energy [keV]"]
-plTits = ["Field Strength [nT]", "Log(K) [eV]"]
+plXs = [0.03,0.05,0.01]
+plYs = [0.9,0.4,0.4]
+
+plTits = ["Field Strength [nT]", "",pLab]
+
 pyv.cleanLegends(plXs,plYs,plTits)
 pyv.setAtts()
+
+AnLab = 'Plot0002'
+GetAnnotationObject(AnLab).drawTitle = 0
+GetAnnotationObject(AnLab).drawLabels = 0
 
 #Let's see what we got
 DrawPlots()
