@@ -27,8 +27,8 @@ Alpha = [40,140]
 K0 = [10,1000]
 
 #PBlock info
-Npp = 10000 #Number of particles per block
-Nb = 20 #Number of particle blocks
+Npp = 20000 #Number of particles per block
+Nb = 100 #Number of particle blocks
 Np = Npp*Nb #Number of particles
 
 #HDF directory/H5 IC data/Input decks/Output
