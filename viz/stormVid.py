@@ -31,12 +31,12 @@ pVar = "kev"
 pLab = "Particle Energy [keV]"
 pBds = [10,1000]
 
-Base = os.path.expanduser('~') + "/Work/StormPSD/Data/H5p/"
+Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
 Quiet = True
 
-dbPI = Base + "StormInj.Min3D.h5part"
-dbPT = Base + "StormTrap.Min3D.h5part"
+dbPI = Base + "/H5p/StormInj.Min3D.h5part"
+dbPT = Base + "/H5p/StormTrap.Min3D.h5part"
 dbF = Base + "/eqSlc/eqSlc.*.vti database"
 dbs = [dbF,dbPT,dbPI]
 
