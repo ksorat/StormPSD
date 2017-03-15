@@ -15,21 +15,21 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 vidScl = 4 #>1 to slow down
 #Field
-fBds = [1,250]
+fBds = [0.1,250]
 fMap = "viridis"
 
 #Particles (T)rap, (I)injected
 #Using files Base/(Trap/Inj)/Storm(Trap/Inj).h5part
 
-pMapT = "Reds"
-pMapI = "Blues"
+pMapT = "RdYlBu"
+pMapI = "Cool"
 
-pSzI = 6
-pSzT = 4
+pSzI = 4
+pSzT = 3
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
-pBds = [10,1000]
+pBds = [100,1000]
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
@@ -79,7 +79,7 @@ pyv.lfmPCol(dbs[0],"Bmag",vBds=fBds,pcOpac=0.7,Inv=False,Log=True,cMap=fMap)
 pyv.chopInner2D()
 
 ActivateDatabase(dbs[1])
-pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=False,pSize=pSzT)
+pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=True,pSize=pSzT)
 pyv.onlyIn()
 
 ActivateDatabase(dbs[2])
