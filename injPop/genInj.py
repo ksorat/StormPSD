@@ -27,9 +27,22 @@ Alpha = [40,140]
 K0 = [10,1000]
 
 #PBlock info
+#Sweep has blocks, blocks have particles
+Nswp = 2 #Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 Npp = 20000 #Number of particles per block
 Nb = 100 #Number of particle blocks
 Np = Npp*Nb #Number of particles
+
+#Some derived quantities
+rSeed = 31337+Nswp
+np.random.seed(rSeed)
+id0 = 1+(Nswp-1)*Np #First particle ID
+pb0 = 1+(Nswp-1)*Nb #First block ID
+
+print("Generating injected popuation")
+print("\tParticles %d to %d"%(id0,id0+Np-1))
+print("\tBlocks %d to %d"%(pb0,pb0+Nb-1))
+print("\tUsing random # seed %d"%rSeed)
 
 #HDF directory/H5 IC data/Input decks/Output
 oTag = "StormInj"
@@ -95,7 +108,7 @@ T0p = lfmpre.genSample(t,fTot,Np)
 T0p = np.maximum(T0p,T0)
 
 #Create particle block
-pBlock = lfmpre.ParticleBlock(0,T0,Np)
+pBlock = lfmpre.ParticleBlock(0,T0,Np,id0)
 
 Rp = lfmpre.genLinR(R[0],R[1],Np)
 Pp = (np.pi/180.0)*lfmpre.genLinR(P[0],P[1],Np)
@@ -121,12 +134,12 @@ pBlock.GC[:] = False #Start off as FP, calculate Mu
 pList = lfmpre.splitBlock(pBlock,Nb)
 
 #Write out blocks
-lfmpre.writeBlocks(ipDir + oTag+".",pList)
+lfmpre.writeBlocks(ipDir + oTag+".",pList,pb0=pb0)
 
 #--------------------------
 #Generate input decks
 for n in range(Nb):
-	nId = n+1 #Handle offset
+	nId = n+pb0 #Handle offset
 	resFile = ipDir + "%s.%04d.h5part"%(oTag,nId)
 	ideckFile = "%s%s.%04d.xml"%(inpDir,oTag,nId)
 	iDeck = lfmpre.genDeck(spc="e",tagStr=oTag,outDir=outDir)
