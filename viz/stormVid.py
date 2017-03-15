@@ -25,7 +25,7 @@ pMapT = "Reds"
 pMapI = "Blues"
 
 pSzI = 8
-pSizT = 4
+pSzT = 4
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
