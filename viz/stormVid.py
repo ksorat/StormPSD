@@ -13,6 +13,7 @@ outVid ="StPattys.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
+vidScl = 4 #>1 to slow down
 #Field
 fBds = [1,250]
 fMap = "viridis"
@@ -22,19 +23,20 @@ fMap = "viridis"
 
 pMapT = "Reds"
 pMapI = "Blues"
-pSz = 5
 
+pSzI = 8
+pSizT = 4
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
 pBds = [10,1000]
 
-Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
-pFile = "Storm.Min3D.h5part"
+Base = os.path.expanduser('~') + "/Work/StormPSD/Data/H5p/"
+
 Quiet = True
 
-dbPI = Base + "/Inj/StormInj.Min3D.h5part"
-dbPT = Base + "/Trap/StormTrap.Min3D.h5part"
+dbPI = Base + "StormInj.Min3D.h5part"
+dbPT = Base + "StormTrap.Min3D.h5part"
 dbF = Base + "/eqSlc/eqSlc.*.vti database"
 dbs = [dbF,dbPT,dbPI]
 
@@ -77,11 +79,11 @@ pyv.lfmPCol(dbs[0],"Bmag",vBds=fBds,pcOpac=0.7,Inv=False,Log=True,cMap=fMap)
 pyv.chopInner2D()
 
 ActivateDatabase(dbs[1])
-pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=False,pSize=pSz)
+pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=False,pSize=pSzT)
 pyv.onlyIn()
 
 ActivateDatabase(dbs[2])
-pyv.lfmPScat(dbs[2],v4=pVar,vBds=pBds,cMap=pMapI,Log=False,Inv=False,pSize=pSz)
+pyv.lfmPScat(dbs[2],v4=pVar,vBds=pBds,cMap=pMapI,Log=False,Inv=False,pSize=pSzI)
 pyv.onlyIn()
 
 
@@ -104,7 +106,7 @@ DrawPlots()
 
 #Do time loop
 pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
-pyv.makeVid(Clean=True,outVid=outVid,tScl=1)
+pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 DeleteAllPlots()
 CloseDatabase(dbs[0])
 CloseDatabase(dbs[1])
