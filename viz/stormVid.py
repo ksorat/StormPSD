@@ -24,7 +24,7 @@ fMap = "viridis"
 pMapT = "Reds"
 pMapI = "Blues"
 
-pSzI = 8
+pSzI = 6
 pSzT = 4
 #pBds = [4,6]
 pVar = "kev"
