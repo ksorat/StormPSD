@@ -21,7 +21,7 @@ fMap = "viridis"
 #Particles (T)rap, (I)injected
 #Using files Base/(Trap/Inj)/Storm(Trap/Inj).h5part
 
-pMapT = "RdYlBu"
+pMapT = "Reds"
 pMapI = "Cool"
 
 pSzI = 4
@@ -79,7 +79,7 @@ pyv.lfmPCol(dbs[0],"Bmag",vBds=fBds,pcOpac=0.7,Inv=False,Log=True,cMap=fMap)
 pyv.chopInner2D()
 
 ActivateDatabase(dbs[1])
-pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=True,pSize=pSzT)
+pyv.lfmPScat(dbs[1],v4=pVar,vBds=pBds,cMap=pMapT,Log=False,Inv=False,pSize=pSzT)
 pyv.onlyIn()
 
 ActivateDatabase(dbs[2])
