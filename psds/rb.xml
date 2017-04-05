@@ -6,14 +6,14 @@
     <population2 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part" weighting="maxNTSeries" seriesfile="tsWedge.csv"/>    
   </particles>
 
-  <timing weighting="30000.0" calculation="30000.0:3600.0:188400.0"/>
+  <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
 
   <options background="F" relativistic="T"/>
 
   <phasespace>
-    <r N="40" min="1.5" max="20"/>
-    <theta N="5"/>
-    <phi N="31"/>
+    <r N="25" min="1.5" max="20"/>
+    <theta N="3"/>
+    <phi N="21"/>
     <k N="100" min="10" max="4000" log="T"/>
     <alpha N="9"/>
     <psi N="1"/>
