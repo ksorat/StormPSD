@@ -6,11 +6,14 @@ import glob
 import os
 import cPickle as pickle
 import lfmPreproc as lfmpre
+from sys import exit
 
 #Root dir
 rDir = os.path.expanduser('~') + "/Work/StormPSD/"
 #Output pickle
 fPkl = "tsWedge.pkl"
+#Only do wedge
+doWedgeOnly = True
 
 #Wedge info
 R = [11.5,12.5]
@@ -95,7 +98,8 @@ else:
 		pickle.dump(Nt,f)
 		pickle.dump(Nkt,f)
 
-
+if (doWedgeOnly):
+	exit()
 #Done wedge data
 #----------------------------
 
