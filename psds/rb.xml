@@ -11,18 +11,18 @@
   <options background="F" relativistic="T"/>
 
   <phasespace>
-    <r N="60" min="3.0" max="20"/>
+    <r N="40" min="1.5" max="20"/>
     <theta N="5"/>
-    <phi N="41"/>
+    <phi N="31"/>
     <k N="100" min="10" max="4000" log="T"/>
-    <alpha N="20"/>
+    <alpha N="9"/>
     <psi N="1"/>
   </phasespace>
 
   <output base="Storm" fullevery="0">
     <slice3D1 dim1="r" dim2="theta" dim3="phi"/>
     <slice3D2 dim1="r" dim2="theta" dim3="phi">
-      <k min="500" max="4000">
+      <k min="100" max="4000">
     </slice3D2>
   </output>
 
