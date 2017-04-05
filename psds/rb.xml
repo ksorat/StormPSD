@@ -6,9 +6,9 @@
     <population2 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part" weighting="maxNT" n0="1.0" kT0="5.0"/>
   </particles>
 
-  <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
+  <timing weighting="30000.0" calculation="30000.0:3600.0:188400.0"/>
 
-  <options background="F" relativistic="F"/>
+  <options background="F" relativistic="T"/>
 
   <phasespace>
     <r N="40" min="3.0" max="20"/>
@@ -22,7 +22,7 @@
   <output base="Storm" fullevery="0">
     <slice3D1 dim1="r" dim2="theta" dim3="phi"/>
     <slice3D2 dim1="r" dim2="theta" dim3="phi">
-      <k min="250" max="2000">
+      <k min="500" max="2000">
     </slice3D2>
   </output>
 
