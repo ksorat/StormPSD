@@ -10,7 +10,7 @@ import pyVisit as pyv
 
 #Config
 #----------
-Quiet = True
+Quiet = False
 outVid = "ilk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
@@ -97,6 +97,19 @@ plTits = ["Intensity"]
 
 pyv.cleanLegends(plXs,plYs,plTits)
 pyv.setAtts(xLab=xLab,yLab=yLab)
+
+anAt = AnnotationAttributes()
+anAt.axes2D.xAxis.grid = 1
+anAt.axes2D.yAxis.grid = 1
+anAt.foregroundColor = (0, 204, 255, 255)
+anAt.userInfoFlag = 0
+anAt.databaseInfoFlag = 0
+anAt.timeInfoFlag = 0
+anAt.axes2D.xAxis.title.userTitle = 1
+anAt.axes2D.yAxis.title.userTitle = 1
+anAt.axes2D.xAxis.title.title = xLab
+anAt.axes2D.yAxis.title.title = yLab
+SetAnnotationAttributes(anAt)
 
 #Let's see what we got
 DrawPlots()
