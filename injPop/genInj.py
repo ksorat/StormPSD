@@ -8,18 +8,19 @@ import cPickle as pickle
 import lfmPreproc as lfmpre
 from sys import exit
 
+ipID = 1 #Which injected population
+
+#Universal constants
+#-------------------
 #Root dir
 rDir = os.path.expanduser('~') + "/Work/StormPSD/"
-#Output pickle
-fPkl = "tsWedge.pkl"
-#Only do wedge
-doWedgeOnly = True
-
-#Wedge info
-R = [11.5,12.5]
-Z = [-0.25,0.25]
-P = [165,195]
+doWedgeOnly = False #Only create wedge TS
 Kc = 10 #Cutoff for high-energy
+
+#PBlock info / Sweep has blocks, blocks have particles
+Nswp = 1 #Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
+Npp = 20000 #Number of particles per block
+Nb = 100 #Number of particle blocks
 
 #Run info
 T0 = 30000
@@ -27,13 +28,25 @@ Tfin = 197000
 Ns = 60
 Nf = 600
 Alpha = [40,140]
-K0 = [10,1000]
 
-#PBlock info
-#Sweep has blocks, blocks have particles
-Nswp = 2 #Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
-Npp = 20000 #Number of particles per block
-Nb = 100 #Number of particle blocks
+#Output pickle
+fPkl = "tsWedge_%d.pkl"%(ipID)
+
+if (ipID == 0):
+	#Standard wedge
+	#Wedge info
+	R = [11.5,12.5]
+	Z = [-0.25,0.25]
+	P = [165,195]
+	K0 = [10,1000]
+elif (ipID == 1):
+	#Fat wedge w/ same injection data as ip0
+	fPkl = "tsWedge_0.pkl"
+	#Wedge info
+	R = [10.0,11.0]
+	P = [135,225]
+	K0 = [10,1000]
+
 Np = Npp*Nb #Number of particles
 
 #Some derived quantities
@@ -50,9 +63,15 @@ print("\tUsing random # seed %d"%rSeed)
 #HDF directory/H5 IC data/Input decks/Output
 oTag = "StormInj"
 lfmDir = rDir + "lfmData"
-ipDir = rDir + "Data/ip0/"
+ipDir = rDir + "Data/ip%d/"%ipID
 inpDir = rDir + "Inps/"
-outDir = rDir + "Data/Inj"
+outDir = rDir + "Data/Inj%d/"%ipID
+
+#Create directories if necessary
+if not os.path.exists(ipDir):
+	os.makedirs(ipDir)
+if not os.path.exists(outDir):
+	os.makedirs(outDir)
 
 #Generate wedge time series if necessary, otherwise load
 if (os.path.isfile(fPkl)):
@@ -67,28 +86,8 @@ else:
 	print("Generating Wedge TS")
 	fIns =glob.glob(lfmDir + "/*.hdf")
 
-	Nf = len(fIns)
+	t,Vst,kTt,Nt,Nkt = lfmpre.tsWedge(fIns,R,P,Z)
 
-	t = np.zeros(Nf)
-	Vst = np.zeros(Nf)
-	kTt = np.zeros(Nf)
-	Nt = np.zeros(Nf)
-	Nkt = np.zeros(Nf)
-	#Volume info for wedge
-	I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
-	#Loop through files, get wedge data
-	for i in range(Nf):
-		print("Reading file %d of %d\n"%(i,Nf))
-		fIn = fIns[i]
-		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=Kc,T0=T0)
-	#Got all data, now sort
-	Is = np.argsort(t)
-	
-	t = t[Is]
-	Vst = Vst[Is]
-	kTt = kTt[Is]
-	Nt = Nt[Is]
-	Nkt = Nkt[Is]
 	#Save data
 	print("Saving data to %s"%fPkl)
 	with open(fPkl,"wb") as f:
@@ -147,7 +146,7 @@ for n in range(Nb):
 	resFile = ipDir + "%s.%04d.h5part"%(oTag,nId)
 	ideckFile = "%s%s.%04d.xml"%(inpDir,oTag,nId)
 	iDeck = lfmpre.genDeck(spc="e",tagStr=oTag,outDir=outDir)
-	iDeck = lfmpre.itDeck(iDeck,T0=T0,Tf=Tfin,dt=1.0,dtS=60,dtF=600,iMeth="dynamic")
-	iDeck = lfmpre.resDeck(iDeck,resFile,outTag="StormInj",doApp=False,Ts=T0)
+	iDeck = lfmpre.itDeck(iDeck,T0=T0,Tf=Tfin,dt=1.0,dtS=Ns,dtF=Nf,iMeth="dynamic")
+	iDeck = lfmpre.resDeck(iDeck,resFile,outTag=oTag,doApp=False,Ts=T0)
 	iDeck = lfmpre.streamDeck(iDeck)
 	lfmpre.writeDeck(iDeck,fOut=ideckFile)
