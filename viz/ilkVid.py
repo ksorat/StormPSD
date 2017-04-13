@@ -10,14 +10,14 @@ import pyVisit as pyv
 
 #Config
 #----------
-Quiet = False
+Quiet = True
 outVid = "ilk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
 vidScl = 4 #>1 to slow down
-IBds = [1.0e-5,1.0e+2]
+IBds = [1.0e-4,1.0e+2]
 Nk = 50
-Nl = 50
+Nl = 40
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 kDB = Base + "/Merge/KCyl.xmf"
@@ -78,8 +78,8 @@ dbOps.dim1MaxRange = 18.0
 
 dbOps.dim2Var = "LogK"
 dbOps.dim2SpecifyRange = 1
-dbOps.dim2MinRange = 0.0
-dbOps.dim2MaxRange = 3.5
+dbOps.dim2MinRange = 1.0
+dbOps.dim2MaxRange = 3.6
 
 dbOps.dim2NumBins = Nk
 dbOps.reductionOperator = 0 #Sum
