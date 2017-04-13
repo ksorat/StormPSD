@@ -10,7 +10,7 @@ import pyVisit as pyv
 
 #Config
 #----------
-Quiet = True
+Quiet = False
 outVid = "ilk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
