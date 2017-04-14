@@ -2,10 +2,10 @@
 <Params>
 
   <particles species="" equatorial="T">
-    <population1 files="~/Work/StormPSD/Data/Trap/StormTrap.*.h5part"  weighting="rbtrap"/>
-    <population1 files="~/Work/StormPSD/Data/TrapC/StormTrap.*.h5part" weighting="rbtrap"/>
-    <population3 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"    weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
-    <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"   weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
+    <population1 files="~/Work/StormPSD/Data/Trap/StormTrap.*.h5part"   weighting="rbtrap"/>
+    <population2 files="~/Work/StormPSD/Data/TrapC/StormTrapC.*.h5part" weighting="rbtrap"/>
+    <population3 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"     weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
+    <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"    weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
   </particles>
 
   <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
