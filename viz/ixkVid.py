@@ -10,19 +10,24 @@ import pyVisit as pyv
 
 #Config
 #----------
+pHeight = 1200
+pWidth = 1600
+
 Quiet = True
-outVid = "ilk.mp4"
+doAvg = False
+
+outVid = "ixk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
 vidScl = 4 #>1 to slow down
 IBds = [1.0e-4,1.0e+2]
-Nk = 50
-Nl = 40
+Nk = 75
+Nx = 100
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 kDB = Base + "/Merge/KCyl.xmf"
 cMap = "magma"
-xLab = "L [Re]"
+xLab = "X [Re]"
 yLab = "Log(K) [keV]"
 
 #------------
@@ -49,54 +54,60 @@ T0 = dT0 + datetime.datetime.strptime(T0Str,T0Fmt)
 
 OpenDatabase(kDB)
 DefineScalarExpression("L","cylindrical_radius(mesh)")
+DefineScalarExpression("X","coord(mesh)[0]")
+DefineScalarExpression("Y","coord(mesh)[1]")
 DefineScalarExpression("K","10^coord(mesh)[2]")
 DefineScalarExpression("LogK","log10(K)")
 DefineScalarExpression("IScl","2.9979E10*recenter(I)")
 
-#Get time evolution of # of test particles
-pyv.lfmPCol(kDB,"Ntp")
-DrawPlots()
-QueryOverTime("Variable Sum")
-SetActiveWindow(2)
-pinfo = GetPlotInformation()
-C = np.array(pinfo['Curve'])
-TPt = C[1:-1:2] #Number of TPs
-DeleteWindow()
-
-SetActiveWindow(1)
-DeleteAllPlots()
-
 pyv.lfmPCol(kDB,"IScl",vBds=IBds,Log=True,cMap=cMap)
-AddOperator("DataBinning")
-dbOps = GetOperatorOptions(0)
-dbOps.numDimensions = 1 #2D
-dbOps.dim1Var = "L"
-dbOps.dim1NumBins = Nl
-dbOps.dim1SpecifyRange = 1
-dbOps.dim1MinRange = 2.0
-dbOps.dim1MaxRange = 18.0
 
-dbOps.dim2Var = "LogK"
-dbOps.dim2SpecifyRange = 1
-dbOps.dim2MinRange = 1.0
-dbOps.dim2MaxRange = 3.6
-
-dbOps.dim2NumBins = Nk
-dbOps.reductionOperator = 0 #Sum
-dbOps.varForReduction = "IScl"
-SetOperatorOptions(dbOps)
-
+if (doAvg):
+	#Cut out meridional slab
+	AddOperator("Threshold")
+	tOp = GetOperatorOptions(0)
+	tOp.listedVarNames = ("default","Y")
+	tOp.lowerBounds = (-1e+37,-0.5)
+	tOp.upperBounds = (1e+37 , 0.5)
+	SetOperatorOptions(tOp)
+	
+	#Bin into X
+	AddOperator("DataBinning")
+	dbOps = GetOperatorOptions(1)
+	dbOps.numDimensions = 1 #2D
+	dbOps.dim1Var = "X"
+	dbOps.dim1NumBins = Nx
+	dbOps.dim1SpecifyRange = 1
+	dbOps.dim1MinRange = -15.0
+	dbOps.dim1MaxRange = 15.0
+	
+	dbOps.dim2Var = "LogK"
+	dbOps.dim2SpecifyRange = 1
+	dbOps.dim2MinRange = 1.0
+	dbOps.dim2MaxRange = 3.6
+	
+	dbOps.dim2NumBins = Nk
+	dbOps.reductionOperator = 0 #Sum
+	dbOps.varForReduction = "IScl"
+	SetOperatorOptions(dbOps)
+else:
+	AddOperator("Slice")
+	sOp = GetOperatorOptions(0)
+	sOp.axisType = 1	
+	SetOperatorOptions(sOp)
+	pyv.SetWin2D((-15,15,1.0,3.6))
 ToggleFullFrameMode()
 
+#OpenGUI()
+
 #Gussy things up
-#tit = pyv.genTit( titS=titS)
 plXs = [0.03]
 plYs = [0.4]
 
 plTits = ["Intensity"]
 
 pyv.cleanLegends(plXs,plYs,plTits)
-pyv.setAtts(xLab=xLab,yLab=yLab)
+pyv.setAtts(pHeight=pHeight,pWidth=pWidth,xLab=xLab,yLab=yLab)
 
 anAt = AnnotationAttributes()
 anAt.axes2D.xAxis.grid = 1
