@@ -2,9 +2,10 @@
 <Params>
 
   <particles species="" equatorial="T">
-    <population1 files="~/Work/StormPSD/Data/Trap/StormTrap.*.h5part" weighting="rbtrap"/>
-    <population2 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"   weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
-    <population3 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"  weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
+    <population1 files="~/Work/StormPSD/Data/Trap/StormTrap.*.h5part"  weighting="rbtrap"/>
+    <population1 files="~/Work/StormPSD/Data/TrapC/StormTrap.*.h5part" weighting="rbtrap"/>
+    <population3 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"    weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
+    <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"   weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
   </particles>
 
   <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
@@ -12,7 +13,7 @@
   <options background="F" relativistic="T"/>
 
   <phasespace>
-    <r N="50" min="1.5" max="20"/>
+    <r N="75" min="1.5" max="20"/>
     <theta N="3"/>
     <phi N="36"/>
     <k N="50" min="10" max="4000" log="T"/>
@@ -21,12 +22,6 @@
   </phasespace>
 
   <output base="Storm" fullevery="0">
-    <slice3D3 dim1="r" dim2="theta" dim3="phi">
-      <k min="100" max="4000"/>
-    </slice3D3>
-    <slice3D2 dim1="r" dim2="theta" dim3="phi">
-      <k min="500" max="4000"/>
-    </slice3D2>
     <slice3D1 dim1="r" dim2="phi" dim3="k"/>
   </output>
 
