@@ -10,7 +10,7 @@ import pyVisit as pyv
 Quiet = True
 
 titS = "St. Patrick's Storm 2013"
-outVid ="StPattys.mp4"
+outVid ="vapViz"
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
