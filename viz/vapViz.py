@@ -8,7 +8,7 @@ from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
 Quiet = True
-Nsk = 10
+Nsk = 1
 
 titS = "St. Patrick's Storm 2013"
 outVid ="vapViz.mp4"
