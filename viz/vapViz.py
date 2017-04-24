@@ -8,6 +8,7 @@ from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
 Quiet = True
+Nsk = 10
 
 titS = "St. Patrick's Storm 2013"
 outVid ="vapViz"
@@ -133,7 +134,7 @@ pyv.setAtts()
 
 DrawPlots()
 
-pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.45,0.25),Trim=True)
+pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.25),Trim=True)
 pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 DeleteAllPlots()
 
