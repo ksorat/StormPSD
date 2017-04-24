@@ -11,7 +11,7 @@ Quiet = True
 Nsk = 10
 
 titS = "St. Patrick's Storm 2013"
-outVid ="vapViz"
+outVid ="vapViz.mp4"
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
