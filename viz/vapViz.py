@@ -53,7 +53,7 @@ pyv.pvInit()
 DeleteExpression("Bmag")
 
 DefineScalarExpression("slcMag","sqrt(Bx*Bx+By*By+Bz*Bz)")
-
+DefineScalarExpression("pZero","kev*0.0")
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
 
@@ -90,12 +90,12 @@ pyv.to3D(opNum=1)
 #Plot particles
 #Injected
 ActivateDatabase(dbs[2])
-pyv.lfmPScat(dbs[2],v3="isOut",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=False)
+pyv.lfmPScat(dbs[2],v3="pZero",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=False)
 pyv.onlyIn()
 
 #Trapped
 ActivateDatabase(dbs[3])
-pyv.lfmPScat(dbs[3],v3="isOut",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=False)
+pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=False)
 pyv.onlyIn()
 
 #Cleanup
