@@ -133,7 +133,7 @@ pyv.setAtts()
 
 DrawPlots()
 
-# pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.45,0.25),Trim=True)
-# pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
-# DeleteAllPlots()
+pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.45,0.25),Trim=True)
+pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
+DeleteAllPlots()
 
