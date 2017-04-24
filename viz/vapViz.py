@@ -24,10 +24,9 @@ Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
 dbSlc = Base+"/eqSlc/eqSlc.*.vti database"
 dbLn  = Base+"/blines/blines.*.vtp database"
+
 dbPI = Base + "/H5p/StormInj.Min3D.h5part"
 dbPT = Base + "/H5p/StormTrap.Min3D.h5part"
-#dbPT = Base + "/Trap/StormTrap.0001.h5part"
-#dbPI = Base + "/Inj/StormInj.0001.h5part"
 
 dbs = [dbSlc,dbLn,dbPI,dbPT]
 
@@ -78,6 +77,13 @@ ActivateDatabase(dbs[1])
 AddPlot("Pseudocolor","Bmag")
 pcOp = GetPlotOptions()
 pcOp.legendFlag = 0
+pcOp.colorTableName = "Winter"
+pcOp.minFlag = 1
+pcOp.maxFlag = 1
+pcOp.min = 1.0e+6
+pcOp.max = 1.0e+8
+pcOp.lineType = 1
+pcOp.tubeRadiusBBox = 0.0025
 SetPlotOptions(pcOp)
 
 
@@ -122,12 +128,12 @@ SetView3D(v3d)
 #Cleanup
 
 pyv.killAnnotations()
-
 pyv.setAtts()
 
 
 DrawPlots()
-pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.45,0.25),Trim=True)
-pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
-DeleteAllPlots()
+
+# pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.45,0.25),Trim=True)
+# pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
+# DeleteAllPlots()
 
