@@ -43,16 +43,37 @@ def AddLine(x0=(0,0,0),x1=(1,1,1),lw=2):
 def SetWin(W,H):
 	#Set view
 	ResizeWindow(1,W,H)
+
+	# v3d = GetView3D()
+	# v3d.viewNormal = (0.525379, -0.801214, 0.286414)
+	# v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
+	# v3d.viewUp = (-0.183865, 0.221756, 0.957611)
+	# v3d.viewAngle = 30
+	# v3d.parallelScale = 24.5542
+	# v3d.nearPlane = -49.1085
+	# v3d.farPlane = 49.1085
+	# v3d.imagePan = (0, 0)
+	# v3d.imageZoom = 2.14359
+	# v3d.perspective = 1
+	# v3d.eyeAngle = 2
+	# v3d.centerOfRotationSet = 0
+	# v3d.centerOfRotation = (-1.04995, -2.09808e-05, 0.0199747)
+	# v3d.axis3DScaleFlag = 0
+	# v3d.axis3DScales = (1, 1, 1)
+	# v3d.shear = (0, 0, 1)
+	# v3d.windowValid = 1
+	# SetView3D(v3d)
+
 	v3d = GetView3D()
-	v3d.viewNormal = (0.525379, -0.801214, 0.286414)
+	v3d.viewNormal = (0.431009, -0.865563, 0.255014)
 	v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
-	v3d.viewUp = (-0.183865, 0.221756, 0.957611)
+	v3d.viewUp = (-0.117092, 0.226573, 0.96693)
 	v3d.viewAngle = 30
 	v3d.parallelScale = 24.5542
 	v3d.nearPlane = -49.1085
 	v3d.farPlane = 49.1085
-	v3d.imagePan = (0, 0)
-	v3d.imageZoom = 2.14359
+	v3d.imagePan = (0.0144521, 0.0167345)
+	v3d.imageZoom = 3.13843
 	v3d.perspective = 1
 	v3d.eyeAngle = 2
 	v3d.centerOfRotationSet = 0
@@ -68,6 +89,9 @@ W = 1800
 
 Quiet = True
 Prod  = True
+rIn = 2.0
+rOpac = 150 #[0,255]
+
 Nsk = 1
 
 doScat = False #Scatter/molecule
@@ -122,7 +146,8 @@ rScl = 7.5e-5
 pBdsI = [0,kMax]
 pBdsT = [0,kMax]
 pMapT = "Reds"
-pMapI = "Cool"
+#pMapI = "Cool"
+pMapT = "Winter"
 pSzI = 4
 pSzT = 4
 
@@ -264,9 +289,9 @@ AddPlot("Contour","RadAll")
 cOp = GetPlotOptions()
 cOp.legendFlag = 0
 cOp.contourMethod = 1
-cOp.contourValue = (1.0)
+cOp.contourValue = (rIn)
 cOp.colorType = 0
-cOp.singleColor = (0, 204, 255, 255) #Last number opacity (out of 255) 
+cOp.singleColor = (0, 204, 255, rOpac) #Last number opacity (out of 255) 
 SetPlotOptions(cOp)
 AddOperator("Revolve",0)
 
