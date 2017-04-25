@@ -9,7 +9,7 @@ import pyVisit as pyv
 
 def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4):
 	ActivateDatabase(db)
-	AddPlot("Molecule","keveq")
+	AddPlot("Molecule","kev")
 	mOp = GetPlotOptions()
 	mOp.drawBondsAs = 0
 	mOp.atomSphereQuality = 3
@@ -96,6 +96,8 @@ pVar = "kev"
 pLab = "Particle Energy [keV]"
 kMax = 1000
 kMaxR = 1500
+kMinR = 100
+
 rScl = 5.0e-5
 
 pBdsI = [0,kMax]
@@ -124,7 +126,7 @@ DefineScalarExpression("pZero","kev*0.0")
 
 DefineScalarExpression("fL","Bmag/Bmag - 0.5")
 DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
-DefineScalarExpression("kevRad","max(min(%f,keveq),1.0)"%kMaxR)
+DefineScalarExpression("kevRad","max(min(%f,keveq),%f)"%kMaxR,kMinR)
 
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
