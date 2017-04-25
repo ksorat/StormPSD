@@ -7,6 +7,34 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
+def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4):
+	ActivateDatabase(db)
+	AddPlot("Molecule","keveq")
+	mOp = GetPlotOptions()
+	mOp.drawBondsAs = 0
+	mOp.atomSphereQuality = 3
+	mOp.continuousColorTable = cMap
+	mOp.minFlag = 1
+	mOp.maxFlag = 1
+	mOp.scalarMin = vBds[0]
+	mOp.scalarMax = vBds[1]
+	mOp.scaleRadiusBy = 3
+	mOp.radiusVariable = "kevRad"
+	mOp.radiusScaleFactor = rScl
+	SetPlotOptions(mOp)
+
+	#Move from x,y,z->xeq,yeq,0
+	AddOperator("Displace",0)
+	dOp = GetOperatorOptions(0)
+	dOp.variable = "dR"
+	SetOperatorOptions(dOp)
+
+def AddLine(x0=(0,0,0),x1=(1,1,1),lw=2):
+	axL = CreateAnnotationObject("Line3D")
+	axL.point1 = tuple(x0)
+	axL.point2 = tuple(x1)
+	axL.width = lw
+
 def SetWin(W,H):
 	#Set view
 	ResizeWindow(1,W,H)
@@ -35,8 +63,11 @@ W = 1800
 
 Quiet = True
 Prod  = True
+Nsk = 10
 
-Nsk = 1
+doScat = False #Scatter/molecule
+
+
 
 titS = "St. Patrick's Storm 2013"
 outVid ="fldP.mp4"
@@ -63,8 +94,12 @@ dbs = [dbSlc,dbLn,dbPI,dbPT]
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
-pBdsI = [1,1000]
-pBdsT = [1,1000]
+kMax = 1000
+kMaxR = 1500
+rScl = 5.0e-5
+
+pBdsI = [0,kMax]
+pBdsT = [0,kMax]
 pMapT = "Reds"
 pMapI = "Cool"
 pSzI = 4
@@ -88,6 +123,9 @@ DefineScalarExpression("slcMag","sqrt(Bx*Bx+By*By+Bz*Bz)")
 DefineScalarExpression("pZero","kev*0.0")
 
 DefineScalarExpression("fL","Bmag/Bmag - 0.5")
+DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
+DefineScalarExpression("kevRad","max(min(%f,keveq),1.0)"%kMaxR)
+
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
 
@@ -131,19 +169,28 @@ SetOperatorOptions(tOp)
 #Plot equatorial slice
 ActivateDatabase(dbs[0])
 pyv.lfmPCol(dbs[0],"slcMag",vBds=fBds,pcOpac=1.0,Inv=False,Log=True,cMap=fMap,Legend=True)
-pyv.chopInner2D()
-pyv.to3D(opNum=1)
+#pyv.chopInner2D()
+pyv.to3D(opNum=0)
 
 #Plot particles
-#Injected
-ActivateDatabase(dbs[2])
-pyv.lfmPScat(dbs[2],v3="pZero",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=True)
-pyv.onlyIn()
+if (doScat):
+	#Injected
+	ActivateDatabase(dbs[2])
+	pyv.lfmPScat(dbs[2],v3="pZero",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=True)
+	pyv.onlyIn()
+	
+	#Trapped
+	ActivateDatabase(dbs[3])
+	pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=True)
+	pyv.onlyIn()
+else:
+	AddMol(dbs[2],cMap=pMapI,vBds=pBdsI,rScl=rScl)
+	pyv.onlyIn(opNum=1)
 
-#Trapped
-ActivateDatabase(dbs[3])
-pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=True)
-pyv.onlyIn()
+	AddMol(dbs[3],cMap=pMapT,vBds=pBdsT,rScl=rScl)
+	pyv.onlyIn(opNum=1)
+
+	
 
 #Cleanup
 # plXs = [0.03,0.03,0.05,0.01]
@@ -181,17 +228,39 @@ GetAnnotationObject(AnLab).fontHeight = tH
 pyv.setAtts(pHeight=H,pWidth=W)
 pyv.SetBaseColors()
 
-
-
 SetWin(W,H)
+
+#----------------------------------
+#Add Earth
+ActivateDatabase(dbs[0])
+AddPlot("Contour","RadAll")
+cOp = GetPlotOptions()
+cOp.legendFlag = 0
+cOp.contourMethod = 1
+cOp.contourValue = (1.0)
+cOp.colorType = 0
+cOp.singleColor = (0, 204, 255, 255) #Last number opacity (out of 255) 
+SetPlotOptions(cOp)
+AddOperator("Revolve",0)
+
+#----------------------------------
+#Add axis lines
+LW = 2
+AddLine(x1=(12.5,0,0),lw=LW)
+AddLine(x1=(0,20,0),lw=LW)
+AddLine(x1=(0,0,7.5),lw=LW)
+pyv.genTit(titS="Sunward",Pos=(0.75,0.4),height=lH)
+pyv.genTit(titS="Dusk",Pos=(0.7,0.675),height=lH)
+#----------------------------------
+
 
 DrawPlots()
 if (Prod):
-	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
+	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
 	pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 	DeleteAllPlots()
 else:
 	print("Here")
 	#OpenGUI()
-	#SetWin(W,H)
+	SetWin(W,H)
 
