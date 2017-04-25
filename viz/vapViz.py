@@ -90,11 +90,11 @@ W = 1800
 Quiet = True
 Prod  = True
 rIn = 2.0
-rOpac = 150 #[0,255]
+rOpac = 200 #[0,255]
 
 Nsk = 1
 
-doScat = False #Scatter/molecule
+doScat = True #Scatter/molecule
 doTwoP = False
 
 
@@ -146,10 +146,10 @@ rScl = 5.0e-5
 pBdsI = [0,kMax]
 pBdsT = [0,kMax]
 pMapT = "Reds"
-#pMapI = "Cool"
-pMapI = "Winter"
-pSzI = 4
-pSzT = 4
+pMapI = "Cool"
+#pMapI = "Winter"
+pSzI = 5
+pSzT = 5
 
 if (doTwoP):
 	doLegP = True
@@ -291,7 +291,8 @@ cOp.legendFlag = 0
 cOp.contourMethod = 1
 cOp.contourValue = (rIn)
 cOp.colorType = 0
-cOp.singleColor = (0, 204, 255, rOpac) #Last number opacity (out of 255) 
+cOp.singleColor = (0, 204, 255, rOpac) #Last number opacity (out of 255)
+cOp.singleColor = (47,79,79,rOpac)
 SetPlotOptions(cOp)
 AddOperator("Revolve",0)
 
