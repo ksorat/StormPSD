@@ -147,7 +147,7 @@ pBdsI = [0,kMax]
 pBdsT = [0,kMax]
 pMapT = "Reds"
 #pMapI = "Cool"
-pMapT = "Winter"
+pMapI = "Winter"
 pSzI = 4
 pSzT = 4
 
