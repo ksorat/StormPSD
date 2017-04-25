@@ -126,7 +126,7 @@ DefineScalarExpression("pZero","kev*0.0")
 
 DefineScalarExpression("fL","Bmag/Bmag - 0.5")
 DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
-DefineScalarExpression("kevRad","max(min(%f,kev),%f)"%kMaxR,kMinR)
+DefineScalarExpression("kevRad","max(min(%f,kev),%f)"%(kMaxR,kMinR))
 
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
