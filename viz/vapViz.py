@@ -7,6 +7,29 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
+def SetWin(W,H):
+	#Set view
+	ResizeWindow(1,W,H)
+	v3d = GetView3D()
+	v3d.viewNormal = (0.525379, -0.801214, 0.286414)
+	v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
+	v3d.viewUp = (-0.183865, 0.221756, 0.957611)
+	v3d.viewAngle = 30
+	v3d.parallelScale = 24.5542
+	v3d.nearPlane = -49.1085
+	v3d.farPlane = 49.1085
+	v3d.imagePan = (0, 0)
+	v3d.imageZoom = 2.14359
+	v3d.perspective = 1
+	v3d.eyeAngle = 2
+	v3d.centerOfRotationSet = 0
+	v3d.centerOfRotation = (-1.04995, -2.09808e-05, 0.0199747)
+	v3d.axis3DScaleFlag = 0
+	v3d.axis3DScales = (1, 1, 1)
+	v3d.shear = (0, 0, 1)
+	v3d.windowValid = 1
+	SetView3D(v3d)
+
 H = 900
 W = 1800
 
@@ -36,16 +59,19 @@ dbPT = Base + "/H5p/StormTrap.Min3D.h5part"
 
 dbs = [dbSlc,dbLn,dbPI,dbPT]
 
-pMapT = "Cool"
-pMapI = "Cool"
-pSzI = 4
-pSzT = 4
 
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
-pBdsI = [-50000,-10000]
-pBdsT = [10000,50000]
+pBdsI = [1,1000]
+pBdsT = [1,1000]
+pMapT = "Reds"
+pMapI = "Cool"
+pSzI = 4
+pSzT = 4
+
+# pBdsI = [-50000,-10000]
+# pBdsT = [10000,50000]
 
 if (Quiet):
 	LaunchNowin()
@@ -60,6 +86,8 @@ DeleteExpression("Bmag")
 
 DefineScalarExpression("slcMag","sqrt(Bx*Bx+By*By+Bz*Bz)")
 DefineScalarExpression("pZero","kev*0.0")
+
+DefineScalarExpression("fL","Bmag/Bmag - 0.5")
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
 
@@ -81,71 +109,89 @@ CreateDatabaseCorrelation("SLP",dbs,0)
 
 #Plot field lines
 ActivateDatabase(dbs[1])
-AddPlot("Pseudocolor","Bmag")
+AddPlot("Pseudocolor","fL")
 pcOp = GetPlotOptions()
 pcOp.legendFlag = 0
-pcOp.colorTableName = "Winter"
+pcOp.colorTableName = "xray"
 pcOp.minFlag = 1
 pcOp.maxFlag = 1
-pcOp.min = 1.0e+6
-pcOp.max = 1.0e+8
-pcOp.lineType = 1
-pcOp.tubeRadiusBBox = 0.0025
-pcOp.opacityType = 2
-pcOp.opacity = 0.5
+pcOp.min = 0
+pcOp.max = 1
+# pcOp.lineType = 1
+# pcOp.tubeRadiusBBox = 0.005
+# pcOp.opacityType = 2
+# pcOp.opacity = 0.5
 SetPlotOptions(pcOp)
+AddOperator("Tube")
+tOp = GetOperatorOptions(0)
+tOp.radiusFractionBBox = 0.005
+SetOperatorOptions(tOp)
 
 
 #Plot equatorial slice
 ActivateDatabase(dbs[0])
-pyv.lfmPCol(dbs[0],"slcMag",vBds=fBds,pcOpac=1.0,Inv=False,Log=True,cMap=fMap,Legend=False)
+pyv.lfmPCol(dbs[0],"slcMag",vBds=fBds,pcOpac=1.0,Inv=False,Log=True,cMap=fMap,Legend=True)
 pyv.chopInner2D()
 pyv.to3D(opNum=1)
 
 #Plot particles
 #Injected
 ActivateDatabase(dbs[2])
-pyv.lfmPScat(dbs[2],v3="pZero",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=False)
+pyv.lfmPScat(dbs[2],v3="pZero",v4=pVar,vBds=pBdsI,cMap=pMapI,Log=False,Inv=False,pSize=pSzI,Legend=True)
 pyv.onlyIn()
 
 #Trapped
 ActivateDatabase(dbs[3])
-pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=False)
+pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=True)
 pyv.onlyIn()
 
 #Cleanup
-pyv.killAnnotations()
+# plXs = [0.03,0.03,0.05,0.01]
+# plYs = [0.9,0.9,0.25,0.25]
+
+tH = 0.025
+lH = 0.015
+stH = 0.03
+
+plXs = [0.03,0.03,0.05,0.02]
+plYs = [0.1,0.2,0.9,0.9]
+
+plTits = ["","Field Strength [nT]", "", "Particle Energy [keV]"]
+pyv.cleanLegends(plXs,plYs,plTits,plHt=lH)
+
+#Clean field strength
+
+
+AnLab = 'Plot0001'
+GetAnnotationObject(AnLab).orientation = 3
+GetAnnotationObject(AnLab).yScale = 0.75
+GetAnnotationObject(AnLab).xScale = 0.75
+GetAnnotationObject(AnLab).fontHeight = tH
+
+#Clean first particle energy
+AnLab = 'Plot0003'
+GetAnnotationObject(AnLab).drawTitle = 0
+GetAnnotationObject(AnLab).drawLabels = 0
+GetAnnotationObject(AnLab).xScale = 0.75
+GetAnnotationObject(AnLab).fontHeight = tH
+AnLab = 'Plot0002'
+GetAnnotationObject(AnLab).xScale = 0.75
+GetAnnotationObject(AnLab).fontHeight = tH
+
 pyv.setAtts(pHeight=H,pWidth=W)
-
-#Set view
-ResizeWindow(1,W,H)
-v3d = GetView3D()
-v3d.viewNormal = (0.952499, 0.00619061, 0.30448)
-v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
-v3d.viewUp = (-0.304503, 0.00320965, 0.952506)
-v3d.viewAngle = 30
-v3d.parallelScale = 24.5542
-v3d.nearPlane = -49.1085
-v3d.farPlane = 49.1085
-v3d.imagePan = (0, 0)
-v3d.imageZoom = 2.14359
-v3d.perspective = 1
-v3d.eyeAngle = 2
-v3d.centerOfRotationSet = 0
-v3d.centerOfRotation = (-1.04995, -2.09808e-05, 0.0199747)
-v3d.axis3DScaleFlag = 0
-v3d.axis3DScales = (1, 1, 1)
-v3d.shear = (0, 0, 1)
-v3d.windowValid = 1
-SetView3D(v3d)
+pyv.SetBaseColors()
 
 
+
+SetWin(W,H)
 
 DrawPlots()
 if (Prod):
-	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.2),Trim=False)
+	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
 	pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 	DeleteAllPlots()
 else:
 	print("Here")
 	#OpenGUI()
+	#SetWin(W,H)
+
