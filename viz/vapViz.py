@@ -7,7 +7,7 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
-def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4):
+def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4,doLeg=True):
 	ActivateDatabase(db)
 	AddPlot("Molecule","kev")
 	mOp = GetPlotOptions()
@@ -21,6 +21,11 @@ def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4):
 	mOp.scaleRadiusBy = 3
 	mOp.radiusVariable = "kevRad"
 	mOp.radiusScaleFactor = rScl
+	if (doLeg):
+		mOp.legendFlag = 1
+	else:
+		mOp.legendFlag = 0
+
 	SetPlotOptions(mOp)
 
 	#Move from x,y,z->xeq,yeq,0
@@ -66,6 +71,7 @@ Prod  = True
 Nsk = 1
 
 doScat = False #Scatter/molecule
+doTwoP = False
 
 
 
@@ -77,8 +83,21 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 vidScl = 2 #>1 to slow down
 #Field
-fBds = [0.1,250]
-fMap = "viridis"
+#Total
+# fBds = [0.1,250]
+# fMap = "viridis"
+# fVar = "sclMag"
+# fInv = False
+# fLog = True
+# fLab = "Field Strength [nT]"
+
+#Residual
+fBds = [-25,25]
+fMap = "RdGy"
+fVar = "dBz"
+fInv = True
+fLog = False
+fLab = "dBz [nT]"
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
@@ -95,11 +114,11 @@ dbs = [dbSlc,dbLn,dbPI,dbPT]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
 kMax = 1000
-kMaxR = 1000
+kMaxR = 1500
 kMinR = 250
 
-rScl = 5.0e-5
-
+#rScl = 5.0e-5
+rScl = 7.5e-5
 pBdsI = [0,kMax]
 pBdsT = [0,kMax]
 pMapT = "Reds"
@@ -107,8 +126,11 @@ pMapI = "Cool"
 pSzI = 4
 pSzT = 4
 
-# pBdsI = [-50000,-10000]
-# pBdsT = [10000,50000]
+if (doTwoP):
+	doLegP = True
+else:
+	doLegP = False
+	pMapT = pMapI
 
 if (Quiet):
 	LaunchNowin()
@@ -170,7 +192,7 @@ SetOperatorOptions(tOp)
 
 #Plot equatorial slice
 ActivateDatabase(dbs[0])
-pyv.lfmPCol(dbs[0],"slcMag",vBds=fBds,pcOpac=1.0,Inv=False,Log=True,cMap=fMap,Legend=True)
+pyv.lfmPCol(dbs[0],fVar,vBds=fBds,pcOpac=1.0,Inv=fInv,Log=fLog,cMap=fMap,Legend=True)
 #pyv.chopInner2D()
 pyv.to3D(opNum=0)
 
@@ -183,13 +205,13 @@ if (doScat):
 	
 	#Trapped
 	ActivateDatabase(dbs[3])
-	pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=True)
+	pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False,pSize=pSzT,Legend=doLegP)
 	pyv.onlyIn()
 else:
-	AddMol(dbs[2],cMap=pMapI,vBds=pBdsI,rScl=rScl)
+	AddMol(dbs[2],cMap=pMapI,vBds=pBdsI,rScl=rScl,doLeg=True)
 	pyv.onlyIn(opNum=1)
 
-	AddMol(dbs[3],cMap=pMapT,vBds=pBdsT,rScl=rScl)
+	AddMol(dbs[3],cMap=pMapT,vBds=pBdsT,rScl=rScl,doLeg=doLegP)
 	pyv.onlyIn(opNum=1)
 
 	
@@ -201,11 +223,14 @@ else:
 tH = 0.025
 lH = 0.015
 stH = 0.03
+if (doTwoP):
+	plXs = [0.75,0.75,0.05,0.02]
+	plYs = [0.1,0.2,0.9,0.9]
+else:
+	plXs = [0.75,0.75,0.035,0.02]
+	plYs = [0.1,0.2,0.9,0.9]
 
-plXs = [0.03,0.03,0.05,0.02]
-plYs = [0.1,0.2,0.9,0.9]
-
-plTits = ["","Field Strength [nT]", "", "Particle Energy [keV]"]
+plTits = ["",fLab, "", "Particle Energy [keV]"]
 pyv.cleanLegends(plXs,plYs,plTits,plHt=lH)
 
 #Clean field strength
@@ -248,11 +273,15 @@ AddOperator("Revolve",0)
 #----------------------------------
 #Add axis lines
 LW = 2
-AddLine(x1=(12.5,0,0),lw=LW)
-AddLine(x1=(0,20,0),lw=LW)
-AddLine(x1=(0,0,7.5),lw=LW)
-pyv.genTit(titS="Sunward",Pos=(0.75,0.4),height=lH)
-pyv.genTit(titS="Dusk",Pos=(0.7,0.675),height=lH)
+# AddLine(x1=(12.5,0,0),lw=LW)
+# AddLine(x1=(0,20,0),lw=LW)
+# AddLine(x1=(0,0,7.5),lw=LW)
+# pyv.genTit(titS="Sunward",Pos=(0.75,0.4),height=lH)
+# pyv.genTit(titS="Dusk",Pos=(0.7,0.675),height=lH)
+AnOp = GetAnnotationAttributes()
+AnOp.axes3D.triadFlag = 1
+SetAnnotationAttributes(AnOp)
+
 #----------------------------------
 #Set toggles
 ToggleLockViewMode()
@@ -260,9 +289,9 @@ ToggleMaintainViewMode()
 
 DrawPlots()
 
-# SetTimeSliderState(100)
-# SaveWindow()
-# sys.exit()
+SetTimeSliderState(100)
+SaveWindow()
+sys.exit()
 
 if (Prod):
 	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
