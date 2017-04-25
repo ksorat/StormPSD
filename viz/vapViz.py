@@ -12,7 +12,7 @@ def AddMol(db,cMap="Cool",vBds=[0,1],rScl=1.0e-4):
 	AddPlot("Molecule","kev")
 	mOp = GetPlotOptions()
 	mOp.drawBondsAs = 0
-	mOp.atomSphereQuality = 3
+	mOp.atomSphereQuality = 2
 	mOp.continuousColorTable = cMap
 	mOp.minFlag = 1
 	mOp.maxFlag = 1
@@ -95,8 +95,8 @@ dbs = [dbSlc,dbLn,dbPI,dbPT]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
 kMax = 1000
-kMaxR = 1500
-kMinR = 100
+kMaxR = 1000
+kMinR = 250
 
 rScl = 5.0e-5
 
