@@ -139,10 +139,10 @@ pVar = "kev"
 pLab = "Particle Energy [keV]"
 kMax = 1000
 kMaxR = 1500
-kMinR = 250
+kMinR = 500
 
-#rScl = 5.0e-5
-rScl = 7.5e-5
+rScl = 5.0e-5
+#rScl = 7.5e-5
 pBdsI = [0,kMax]
 pBdsT = [0,kMax]
 pMapT = "Reds"
