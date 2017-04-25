@@ -7,11 +7,16 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
+H = 900
+W = 1800
+
 Quiet = True
+Prod  = True
+
 Nsk = 1
 
 titS = "St. Patrick's Storm 2013"
-outVid ="vapViz.mp4"
+outVid ="fldP.mp4"
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -39,7 +44,7 @@ pSzT = 4
 #pBds = [4,6]
 pVar = "kev"
 pLab = "Particle Energy [keV]"
-pBdsI = [-5,0]
+pBdsI = [-50000,-10000]
 pBdsT = [10000,50000]
 
 if (Quiet):
@@ -50,6 +55,7 @@ else:
 #Do some defaults
 pyv.lfmExprs()
 pyv.pvInit()
+
 DeleteExpression("Bmag")
 
 DefineScalarExpression("slcMag","sqrt(Bx*Bx+By*By+Bz*Bz)")
@@ -85,6 +91,8 @@ pcOp.min = 1.0e+6
 pcOp.max = 1.0e+8
 pcOp.lineType = 1
 pcOp.tubeRadiusBBox = 0.0025
+pcOp.opacityType = 2
+pcOp.opacity = 0.5
 SetPlotOptions(pcOp)
 
 
@@ -106,16 +114,21 @@ pyv.lfmPScat(dbs[3],v3="pZero",v4=pVar,vBds=pBdsT,cMap=pMapT,Log=False,Inv=False
 pyv.onlyIn()
 
 #Cleanup
+pyv.killAnnotations()
+pyv.setAtts(pHeight=H,pWidth=W)
+
+#Set view
+ResizeWindow(1,W,H)
 v3d = GetView3D()
-v3d.viewNormal = (0.883195, -0.0484622, 0.466495)
+v3d.viewNormal = (0.952499, 0.00619061, 0.30448)
 v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
-v3d.viewUp = (-0.467268, -0.00537966, 0.884099)
+v3d.viewUp = (-0.304503, 0.00320965, 0.952506)
 v3d.viewAngle = 30
 v3d.parallelScale = 24.5542
 v3d.nearPlane = -49.1085
 v3d.farPlane = 49.1085
 v3d.imagePan = (0, 0)
-v3d.imageZoom = 1.21
+v3d.imageZoom = 2.14359
 v3d.perspective = 1
 v3d.eyeAngle = 2
 v3d.centerOfRotationSet = 0
@@ -126,15 +139,13 @@ v3d.shear = (0, 0, 1)
 v3d.windowValid = 1
 SetView3D(v3d)
 
-#Cleanup
-
-pyv.killAnnotations()
-pyv.setAtts()
 
 
 DrawPlots()
-
-pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.25),Trim=True,bLen=200)
-pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
-DeleteAllPlots()
-
+if (Prod):
+	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.25),Trim=True,bLen=200)
+	pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
+	DeleteAllPlots()
+else:
+	print("Here")
+	#OpenGUI()
