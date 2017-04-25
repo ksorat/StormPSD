@@ -63,7 +63,7 @@ W = 1800
 
 Quiet = True
 Prod  = True
-Nsk = 10
+Nsk = 1
 
 doScat = False #Scatter/molecule
 
