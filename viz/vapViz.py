@@ -258,12 +258,13 @@ pyv.genTit(titS="Dusk",Pos=(0.7,0.675),height=lH)
 ToggleLockViewMode()
 ToggleMaintainViewMode()
 
+DrawPlots()
 SetTimeSliderState(100)
 SaveWindow()
 sys.exit()
 
 #
-DrawPlots()
+
 if (Prod):
 	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
 	pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
