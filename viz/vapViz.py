@@ -259,11 +259,10 @@ ToggleLockViewMode()
 ToggleMaintainViewMode()
 
 DrawPlots()
-SetTimeSliderState(100)
-SaveWindow()
-sys.exit()
 
-#
+# SetTimeSliderState(100)
+# SaveWindow()
+# sys.exit()
 
 if (Prod):
 	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
