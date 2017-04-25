@@ -254,8 +254,15 @@ AddLine(x1=(0,0,7.5),lw=LW)
 pyv.genTit(titS="Sunward",Pos=(0.75,0.4),height=lH)
 pyv.genTit(titS="Dusk",Pos=(0.7,0.675),height=lH)
 #----------------------------------
+#Set toggles
+ToggleLockViewMode()
+ToggleMaintainViewMode()
 
+SetTimeSliderState(100)
+SaveWindow()
+sys.exit()
 
+#
 DrawPlots()
 if (Prod):
 	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
