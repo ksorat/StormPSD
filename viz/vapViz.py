@@ -143,7 +143,7 @@ SetView3D(v3d)
 
 DrawPlots()
 if (Prod):
-	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.25),Trim=False)
+	pyv.doTimeLoop(T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.45,0.2),Trim=False)
 	pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 	DeleteAllPlots()
 else:
