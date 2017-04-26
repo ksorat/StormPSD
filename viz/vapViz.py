@@ -111,7 +111,7 @@ if (doFullB):
 	#Total
 	fBds = [0.1,250]
 	fMap = "viridis"
-	fVar = "sclMag"
+	fVar = "slcMag"
 	fInv = False
 	fLog = True
 	fLab = "Field Strength [nT]"
