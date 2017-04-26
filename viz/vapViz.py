@@ -90,9 +90,9 @@ W = 1800
 Quiet = True
 Prod  = True
 doTest = False #Just render one slice
-doScat = True #Scatter/molecule
+doScat = False #Scatter/molecule
 doTwoP = False
-doFullB = True
+doFullB = False
 
 
 Nsk = 1
