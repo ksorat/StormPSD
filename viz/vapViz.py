@@ -89,17 +89,16 @@ W = 1800
 
 Quiet = True
 Prod  = True
+doTest = False #Just render one slice
+doScat = True #Scatter/molecule
+doTwoP = False
+doFullB = False
+
+
+Nsk = 1
 rIn = 2.0
 rOpac = 200 #[0,255]
 
-Nsk = 1
-
-doScat = True #Scatter/molecule
-doTwoP = False
-
-
-
-titS = "St. Patrick's Storm 2013"
 outVid ="fldP.mp4"
 
 T0Str = "2013-03-16T17:10:00Z"
@@ -107,21 +106,23 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 vidScl = 2 #>1 to slow down
 #Field
-#Total
-# fBds = [0.1,250]
-# fMap = "viridis"
-# fVar = "sclMag"
-# fInv = False
-# fLog = True
-# fLab = "Field Strength [nT]"
 
-#Residual
-fBds = [-25,25]
-fMap = "RdGy"
-fVar = "dBz"
-fInv = True
-fLog = False
-fLab = "dBz [nT]"
+if (doFullB):
+	#Total
+	fBds = [0.1,250]
+	fMap = "viridis"
+	fVar = "sclMag"
+	fInv = False
+	fLog = True
+	fLab = "Field Strength [nT]"
+else:
+	#Residual
+	fBds = [-25,25]
+	fMap = "RdGy"
+	fVar = "dBz"
+	fInv = True
+	fLog = False
+	fLab = "dBz [nT]"
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
@@ -148,8 +149,8 @@ pBdsT = [0,kMax]
 pMapT = "Reds"
 pMapI = "Cool"
 #pMapI = "Winter"
-pSzI = 5
-pSzT = 5
+pSzI = 6
+pSzT = 6
 
 if (doTwoP):
 	doLegP = True
@@ -292,7 +293,7 @@ cOp.contourMethod = 1
 cOp.contourValue = (rIn)
 cOp.colorType = 0
 cOp.singleColor = (0, 204, 255, rOpac) #Last number opacity (out of 255)
-cOp.singleColor = (47,79,79,rOpac)
+cOp.singleColor = (30,144,255,rOpac)
 SetPlotOptions(cOp)
 AddOperator("Revolve",0)
 
@@ -314,10 +315,10 @@ ToggleLockViewMode()
 ToggleMaintainViewMode()
 
 DrawPlots()
-
-SetTimeSliderState(100)
-SaveWindow()
-sys.exit()
+if (doTest):
+	SetTimeSliderState(100)
+	SaveWindow()
+	sys.exit()
 
 if (Prod):
 	pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Ns=Nsk,Save=True,tLabPos=(0.2,0.8),tH=stH,Trim=False)
