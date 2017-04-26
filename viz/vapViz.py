@@ -92,7 +92,7 @@ Prod  = True
 doTest = False #Just render one slice
 doScat = True #Scatter/molecule
 doTwoP = False
-doFullB = False
+doFullB = True
 
 
 Nsk = 1
