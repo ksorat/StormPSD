@@ -8,7 +8,7 @@
     <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"    weighting="maxNTSeries" seriesfile="tsWedge.csv"/>
   </particles>
 
-  <timing weighting="30000.0" calculation="30000.0:3600.0:188400.0"/>
+  <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
 
   <options relativistic="T" doFlux="T"/>
 
