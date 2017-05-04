@@ -67,9 +67,12 @@ def SetWin(W,H):
 H = 900
 W = 1800
 
+#Run options
 Quiet = True
 Prod  = True
 doTest = True #Just render one slice
+
+#Viz options
 doScat = False #Scatter/molecule
 doTwoP = False
 doFullB = False
