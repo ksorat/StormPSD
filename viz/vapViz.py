@@ -89,13 +89,14 @@ W = 1800
 
 Quiet = True
 Prod  = True
-doTest = False #Just render one slice
+doTest = True #Just render one slice
 doScat = True #Scatter/molecule
 doTwoP = False
-doFullB = True
+doFullB = False
 
 
 Nsk = 1
+tSk = 2
 rIn = 2.0
 rOpac = 200 #[0,255]
 
@@ -104,7 +105,7 @@ outVid ="fldP.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
-vidScl = 2 #>1 to slow down
+vidScl = 4 #>1 to slow down
 #Field
 
 if (doFullB):
@@ -128,8 +129,8 @@ else:
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 
 dbSlc = Base+"/eqSlc/eqSlc.*.vti database"
-dbLn  = Base+"/blines/blines.*.vtp database"
-
+#dbLn  = Base+"/blines/blines.*.vtp database"
+dbLn  = Base+"/blines/blines.xmf"
 dbPI = Base + "/H5p/StormInj.Min3D.h5part"
 dbPT = Base + "/H5p/StormTrap.Min3D.h5part"
 
@@ -150,7 +151,7 @@ pBdsT = [0,kMax]
 pMapT = "Reds"
 pMapI = "Cool"
 #pMapI = "Winter"
-pMapI = "Reds"
+#pMapI = "Reds"
 pSzI = 5
 pSzT = 5
 
@@ -177,6 +178,8 @@ DefineScalarExpression("pZero","kev*0.0")
 DefineScalarExpression("fL","Bmag/Bmag - 0.5")
 DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
 DefineScalarExpression("kevRad","max(min(%f,kev),%f)"%(kMaxR,kMinR))
+DefineScalarExpression("zidT","zoneid(AllGroups)")
+DefineScalarExpression("tSk","mod(zidT,%d)"%tSk)
 
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
@@ -209,11 +212,12 @@ pcOp.min = 0
 pcOp.max = 1
 # pcOp.lineType = 1
 # pcOp.tubeRadiusBBox = 0.005
-# pcOp.opacityType = 2
-# pcOp.opacity = 0.5
+pcOp.opacityType = 2
+pcOp.opacity = 0.5
 SetPlotOptions(pcOp)
+AddOperator("ExternalSurface")
 AddOperator("Tube")
-tOp = GetOperatorOptions(0)
+tOp = GetOperatorOptions(1)
 tOp.radiusFractionBBox = 0.005
 SetOperatorOptions(tOp)
 
