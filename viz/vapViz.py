@@ -76,6 +76,7 @@ doTest = True #Just render one slice
 doScat = False #Scatter/molecule
 doTwoP = False
 doFullB = False
+doUpperFL = True #Only show z>0 field lines
 
 
 Nsk = 1
@@ -161,9 +162,7 @@ DefineScalarExpression("pZero","kev*0.0")
 DefineScalarExpression("fL","Bmag/Bmag - 0.5")
 DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
 DefineScalarExpression("kevRad","max(min(%f,kev),%f)"%(kMaxR,kMinR))
-DefineScalarExpression("zidT","zoneid(AllGroups)")
-DefineScalarExpression("tSk","mod(zidT,%d)"%tSk)
-
+DefineScalarExpression("zFL","coord(AllGroups)[2]")
 md0 = GetMetaData(dbs[0])
 mdH5p = GetMetaData(dbs[1])
 
@@ -198,9 +197,10 @@ pcOp.max = 1
 pcOp.opacityType = 2
 pcOp.opacity = 0.5
 SetPlotOptions(pcOp)
+pyv.addThreshold("zFL",0.0,1.0e+8,opNum=0)
 AddOperator("ExternalSurface")
 AddOperator("Tube")
-tOp = GetOperatorOptions(1)
+tOp = GetOperatorOptions(2)
 tOp.radiusFractionBBox = 0.005
 SetOperatorOptions(tOp)
 
