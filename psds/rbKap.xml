@@ -4,8 +4,8 @@
   <particles species="" equatorial="T">
     <population1 files="~/Work/StormPSD/Data/Trap/StormTrap.*.h5part"   weighting="rbtrap"/>
     <population2 files="~/Work/StormPSD/Data/TrapC/StormTrapC.*.h5part" weighting="rbtrap"/>
-    <population3 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"     weighting="kapNTSeries" kappa="2.8" kTScl="0.14285" seriesfile="tsWedge.csv"/>
-    <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"    weighting="kapNTSeries" kappa="2.8" kTScl="0.14285" seriesfile="tsWedge.csv"/>
+    <population3 files="~/Work/StormPSD/Data/Inj/StormInj.*.h5part"     weighting="kapNTSeries" kappa="2.8" kTScl="0.5" seriesfile="tsWedge.csv"/>
+    <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"    weighting="kapNTSeries" kappa="2.8" kTScl="0.5" seriesfile="tsWedge.csv"/>
   </particles>
 
   <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
