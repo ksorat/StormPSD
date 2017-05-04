@@ -44,26 +44,6 @@ def SetWin(W,H):
 	#Set view
 	ResizeWindow(1,W,H)
 
-	# v3d = GetView3D()
-	# v3d.viewNormal = (0.525379, -0.801214, 0.286414)
-	# v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
-	# v3d.viewUp = (-0.183865, 0.221756, 0.957611)
-	# v3d.viewAngle = 30
-	# v3d.parallelScale = 24.5542
-	# v3d.nearPlane = -49.1085
-	# v3d.farPlane = 49.1085
-	# v3d.imagePan = (0, 0)
-	# v3d.imageZoom = 2.14359
-	# v3d.perspective = 1
-	# v3d.eyeAngle = 2
-	# v3d.centerOfRotationSet = 0
-	# v3d.centerOfRotation = (-1.04995, -2.09808e-05, 0.0199747)
-	# v3d.axis3DScaleFlag = 0
-	# v3d.axis3DScales = (1, 1, 1)
-	# v3d.shear = (0, 0, 1)
-	# v3d.windowValid = 1
-	# SetView3D(v3d)
-
 	v3d = GetView3D()
 	v3d.viewNormal = (0.431009, -0.865563, 0.255014)
 	v3d.focus = (-1.04995, -2.09808e-05, 0.0199747)
@@ -87,10 +67,13 @@ def SetWin(W,H):
 H = 900
 W = 1800
 
+#Run options
 Quiet = True
 Prod  = True
 doTest = True #Just render one slice
-doScat = True #Scatter/molecule
+
+#Viz options
+doScat = False #Scatter/molecule
 doTwoP = False
 doFullB = False
 
