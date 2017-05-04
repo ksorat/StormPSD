@@ -70,7 +70,7 @@ W = 1800
 #Run options
 Quiet = True
 Prod  = True
-doTest = False #Just render one slice
+doTest = True #Just render one slice
 
 #Viz options
 doScat = False #Scatter/molecule
@@ -80,7 +80,7 @@ doFullB = False
 
 Nsk = 1
 tSk = 2
-rIn = 2.0
+rIn = 1.05
 rOpac = 200 #[0,255]
 
 outVid ="fldP.mp4"
