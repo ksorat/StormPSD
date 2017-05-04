@@ -10,13 +10,15 @@ import pyVisit as pyv
 
 #Config
 #----------
-Quiet = True
+Quiet = False
 outVid = "ilk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
 vidScl = 4 #>1 to slow down
+IBds = [1.0e-2,1.0e+5]
+Nk = 40
+
 IBds = [1.0e-4,1.0e+2]
-Nk = 50
 Nl = 40
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
@@ -51,7 +53,8 @@ OpenDatabase(kDB)
 DefineScalarExpression("L","cylindrical_radius(mesh)")
 DefineScalarExpression("K","10^coord(mesh)[2]")
 DefineScalarExpression("LogK","log10(K)")
-DefineScalarExpression("IScl","2.9979E10*recenter(I)")
+DefineScalarExpression("IScl","f")
+
 
 #Get time evolution of # of test particles
 pyv.lfmPCol(kDB,"Ntp")

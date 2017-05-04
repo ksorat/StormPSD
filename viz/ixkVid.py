@@ -13,16 +13,16 @@ import pyVisit as pyv
 pHeight = 1200
 pWidth = 1600
 
-Quiet = True
-doAvg = False
+Quiet = False
+doAvg = True
 
 outVid = "ixk.mp4"
 T0Str = "2013-03-16T17:10:00Z"
 
 vidScl = 4 #>1 to slow down
-IBds = [1.0e-4,1.0e+2]
-Nk = 75
-Nx = 100
+IBds = [1.0e-2,1.0e+5]
+Nk = 60
+Nx = 150
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 kDB = Base + "/Merge/KCyl.xmf"
@@ -57,8 +57,11 @@ DefineScalarExpression("L","cylindrical_radius(mesh)")
 DefineScalarExpression("X","coord(mesh)[0]")
 DefineScalarExpression("Y","coord(mesh)[1]")
 DefineScalarExpression("K","10^coord(mesh)[2]")
+DefineScalarExpression("Phi","cylindrical_theta(mesh)")
 DefineScalarExpression("LogK","log10(K)")
-DefineScalarExpression("IScl","2.9979E10*recenter(I)")
+DefineScalarExpression("IScl","f")
+
+#DefineScalarExpression("IScl","2.9979E10*recenter(I)")
 
 pyv.lfmPCol(kDB,"IScl",vBds=IBds,Log=True,cMap=cMap)
 
@@ -67,8 +70,8 @@ if (doAvg):
 	AddOperator("Threshold")
 	tOp = GetOperatorOptions(0)
 	tOp.listedVarNames = ("default","Y")
-	tOp.lowerBounds = (-1e+37,-0.5)
-	tOp.upperBounds = (1e+37 , 0.5)
+	tOp.lowerBounds = (-1e+37,-1)
+	tOp.upperBounds = (1e+37 , 1)
 	SetOperatorOptions(tOp)
 	
 	#Bin into X
@@ -84,7 +87,7 @@ if (doAvg):
 	dbOps.dim2Var = "LogK"
 	dbOps.dim2SpecifyRange = 1
 	dbOps.dim2MinRange = 1.0
-	dbOps.dim2MaxRange = 3.6
+	dbOps.dim2MaxRange = 3.75
 	
 	dbOps.dim2NumBins = Nk
 	dbOps.reductionOperator = 0 #Sum
@@ -126,7 +129,7 @@ SetAnnotationAttributes(anAt)
 DrawPlots()
 
 #Do time loop
-pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
+pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
 pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 
 DeleteAllPlots()

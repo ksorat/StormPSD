@@ -135,6 +135,7 @@ pBdsT = [0,kMax]
 pMapT = "Reds"
 pMapI = "Cool"
 #pMapI = "Winter"
+
 #pMapI = "Reds"
 pSzI = 5
 pSzT = 5
@@ -159,7 +160,7 @@ DeleteExpression("Bmag")
 DefineScalarExpression("slcMag","sqrt(Bx*Bx+By*By+Bz*Bz)")
 DefineScalarExpression("pZero","kev*0.0")
 
-DefineScalarExpression("fL","Bmag/Bmag - 0.5")
+DefineScalarExpression("fL","Bmag/Bmag - 0.6")
 DefineVectorExpression("dR","{-x+xeq,-y+yeq,-z}")
 DefineScalarExpression("kevRad","max(min(%f,kev),%f)"%(kMaxR,kMinR))
 DefineScalarExpression("zFL","coord(AllGroups)[2]")
@@ -195,13 +196,13 @@ pcOp.max = 1
 # pcOp.lineType = 1
 # pcOp.tubeRadiusBBox = 0.005
 pcOp.opacityType = 2
-pcOp.opacity = 0.5
+pcOp.opacity = 0.6
 SetPlotOptions(pcOp)
 pyv.addThreshold("zFL",0.0,1.0e+8,opNum=0)
 AddOperator("ExternalSurface")
 AddOperator("Tube")
 tOp = GetOperatorOptions(2)
-tOp.radiusFractionBBox = 0.005
+tOp.radiusFractionBBox = 0.00375
 SetOperatorOptions(tOp)
 
 
