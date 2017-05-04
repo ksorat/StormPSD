@@ -208,8 +208,8 @@ SetOperatorOptions(tOp)
 #Plot equatorial slice
 ActivateDatabase(dbs[0])
 pyv.lfmPCol(dbs[0],fVar,vBds=fBds,pcOpac=1.0,Inv=fInv,Log=fLog,cMap=fMap,Legend=True)
-#pyv.chopInner2D()
-pyv.to3D(opNum=0)
+pyv.chopInner2D()
+pyv.to3D(opNum=1)
 
 #Plot particles
 if (doScat):
