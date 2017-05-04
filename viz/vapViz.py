@@ -70,7 +70,7 @@ W = 1800
 #Run options
 Quiet = True
 Prod  = True
-doTest = True #Just render one slice
+doTest = False #Just render one slice
 
 #Viz options
 doScat = False #Scatter/molecule
