@@ -81,7 +81,7 @@ doUpperFL = True #Only show z>0 field lines
 
 Nsk = 1
 tSk = 2
-rIn = 1.05
+rIn = 1.1
 rOpac = 200 #[0,255]
 
 outVid ="fldP.mp4"
