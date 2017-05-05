@@ -18,6 +18,8 @@ kDB = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/KCyl.xmf"
 OrbF = "vaporbit.txt"
 oFile = "vaporb.pkl"
 
+Quiet = False
+
 Nk = 40 #Number of K samples
 Nsk = 10
 
@@ -25,7 +27,7 @@ IBds = [1.0e-2,1.0e+5]
 cMap = "magma"
 
 #Get KCyl data
-Quiet = True
+
 if (Quiet):
 	LaunchNowin()
 else:
@@ -59,6 +61,7 @@ Isc = np.zeros((Nsc,Nk))
 
 OpenDatabase(kDB)
 DefineScalarExpression("L","cylindrical_radius(mesh)")
+DefineScalarExpression("Phi","cylindrical_theta(mesh)")
 DefineScalarExpression("K","10^coord(mesh)[2]")
 DefineScalarExpression("LogK","log10(K)")
 DefineScalarExpression("IScl","f")
@@ -71,7 +74,6 @@ DrawPlots()
 Query("MinMax","LogK")
 kBds = GetQueryOutputValue()
 lK = np.linspace(kBds[0],kBds[1],Nk)
-
 
 #Loop over spacecraft trajecory points
 for n in range(Nsc):

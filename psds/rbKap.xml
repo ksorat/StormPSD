@@ -8,15 +8,15 @@
     <population4 files="~/Work/StormPSD/Data/Inj1/StormInj.*.h5part"    weighting="kapNTSeries" kappa="2.8" kTScl="0.5" seriesfile="tsWedge.csv"/>
   </particles>
 
-  <timing weighting="30000.0" calculation="30000.0:600.0:188400.0"/>
+  <timing weighting="30600.0" calculation="30600.0:600.0:197000.0"/>
 
   <options relativistic="T" doFlux="T"/>
 
   <phasespace>
-    <r N="75" min="1.5" max="20"/>
+    <r N="72" min="2.0" max="20"/>
     <theta N="1"/>
-    <phi N="36"/>
-    <k N="75" min="10" max="10000" log="T"/>
+    <phi N="24"/>
+    <k N="50" min="10" max="10000" log="T"/>
     <alpha N="20"/>
     <psi N="1"/>
   </phasespace>

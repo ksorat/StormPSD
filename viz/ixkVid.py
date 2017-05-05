@@ -13,7 +13,7 @@ import pyVisit as pyv
 pHeight = 1200
 pWidth = 1600
 
-Quiet = False
+Quiet = True
 doAvg = True
 
 outVid = "ixk.mp4"
@@ -129,7 +129,7 @@ SetAnnotationAttributes(anAt)
 DrawPlots()
 
 #Do time loop
-pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
+pyv.doTimeLoop(Ninit=0,T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
 pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 
 DeleteAllPlots()
