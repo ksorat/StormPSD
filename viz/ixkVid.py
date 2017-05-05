@@ -26,7 +26,7 @@ Nx = 150
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 kDB = Base + "/Merge/KCyl.xmf"
-cMap = "magma"
+cMap = "inferno"
 xLab = "X [Re]"
 yLab = "Log(K) [keV]"
 
@@ -70,8 +70,8 @@ if (doAvg):
 	AddOperator("Threshold")
 	tOp = GetOperatorOptions(0)
 	tOp.listedVarNames = ("default","Y")
-	tOp.lowerBounds = (-1e+37,-1)
-	tOp.upperBounds = (1e+37 , 1)
+	tOp.lowerBounds = (-1e+37,-0.5)
+	tOp.upperBounds = (1e+37 , 0.5)
 	SetOperatorOptions(tOp)
 	
 	#Bin into X
@@ -107,7 +107,7 @@ ToggleFullFrameMode()
 plXs = [0.03]
 plYs = [0.4]
 
-plTits = ["Intensity"]
+plTits = ["Intensity\ns-1 cm-2 keV-1"]
 
 pyv.cleanLegends(plXs,plYs,plTits)
 pyv.setAtts(pHeight=pHeight,pWidth=pWidth,xLab=xLab,yLab=yLab)
