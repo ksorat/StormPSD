@@ -70,11 +70,11 @@ W = 1800
 #Run options
 Quiet = True
 Prod  = True
-doTest = False #Just render one slice
+doTest = True #Just render one slice
 
 #Viz options
 doScat = False #Scatter/molecule
-doTwoP = False
+doTwoP = True
 doFullB = False
 doUpperFL = True #Only show z>0 field lines
 
@@ -132,7 +132,7 @@ rScl = 5.0e-5
 #rScl = 7.5e-5
 pBdsI = [0,kMax]
 pBdsT = [0,kMax]
-pMapT = "Reds"
+pMapT = "Summer"
 pMapI = "Cool"
 #pMapI = "Winter"
 

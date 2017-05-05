@@ -35,11 +35,11 @@ for i in range(Nsc):
 	scT.append(scdt)
 scT = np.array(scT)
 
-vNorm = LogNorm(vmin=1.0e-5,vmax=1.0e+3)
+vNorm = LogNorm(vmin=1.0e-1,vmax=1.0e+6)
 cMap = "jet"
 
-plt.pcolormesh(scT,K,Isc.T,norm=vNorm,cmap=cMap)
-plt.ylim([10,4000])
+plt.pcolormesh(scT,K,Isc.T/(np.pi*4),norm=vNorm,cmap=cMap)
+plt.ylim([50,1000])
 plt.ylabel("Energy [keV]")
 plt.yscale('log')
 fig = plt.gcf()
