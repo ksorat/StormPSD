@@ -21,11 +21,11 @@ Tf = 197000.0
 dt = 600.0
 Rin = 2
 Rout = 20
-Nr = 72
+Nr = 48
 Np = 24
-Nk = 80
+Nk = 50
 kMin = 10.0
-kMax = 10000.0
+kMax = 5000.0
 Na = 20
 
 Nth = 8
