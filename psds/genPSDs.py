@@ -50,8 +50,10 @@ for i in range(NumPSD):
 	pInfo.set("species","")
 	pInfo.set("equatorial","T")
 	for p in range(NumPop):
+		pn = 0
 		if (doPop[p]):
-			pID = "population"+str(p+1)
+			pID = "population"+str(pn+1)
+			pn = pn + 1
 			popInfo = et.SubElement(pInfo,pID)
 			popInfo.set("files",BaseP+MaskP[p])
 			if (doKap[p]):
