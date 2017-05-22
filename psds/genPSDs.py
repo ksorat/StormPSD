@@ -52,7 +52,7 @@ for i in range(NumPSD):
 	for p in range(NumPop):
 		if (doPop[p]):
 			pID = "population"+str(p+1)
-			popInfo = et.SubElement(iDeck,pID)
+			popInfo = et.SubElement(pInfo,pID)
 			popInfo.set("files",BaseP+MaskP[p])
 			if (doKap[p]):
 				popInfo.set("weighting","kapNTSeries")
