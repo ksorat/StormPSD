@@ -13,7 +13,7 @@ import pyVisit as pyv
 pHeight = 1200
 pWidth = 1600
 
-Quiet = True
+Quiet = True 
 doAvg = True
 
 outVid = "ixk.mp4"
@@ -21,8 +21,8 @@ T0Str = "2013-03-16T17:10:00Z"
 
 vidScl = 4 #>1 to slow down
 IBds = [1.0e-2,1.0e+5]
-Nk = 60
-Nx = 150
+Nk = 50
+Nx = 100
 
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 kDB = Base + "/Merge/KCyl.xmf"
@@ -129,7 +129,7 @@ SetAnnotationAttributes(anAt)
 DrawPlots()
 
 #Do time loop
-pyv.doTimeLoop(Ninit=0,T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
+pyv.doTimeLoop(Ninit=1,T0=T0,dt=dt,Save=True,tLabPos=(0.3,0.025),Trim=True)
 pyv.makeVid(Clean=True,outVid=outVid,tScl=vidScl)
 
 DeleteAllPlots()

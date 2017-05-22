@@ -18,10 +18,10 @@ kDB = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/KCyl.xmf"
 OrbF = "vaporbit.txt"
 oFile = "vaporb.pkl"
 
-Quiet = False
+Quiet = True
 
 Nk = 40 #Number of K samples
-Nsk = 10
+Nsk = 5
 
 IBds = [1.0e-2,1.0e+5]
 cMap = "magma"
@@ -64,7 +64,7 @@ DefineScalarExpression("L","cylindrical_radius(mesh)")
 DefineScalarExpression("Phi","cylindrical_theta(mesh)")
 DefineScalarExpression("K","10^coord(mesh)[2]")
 DefineScalarExpression("LogK","log10(K)")
-DefineScalarExpression("IScl","f")
+DefineScalarExpression("IScl","f/(4*3.14159)")
 
 #Create Intensity plot to pull from
 pyv.lfmPCol(kDB,"IScl",vBds=IBds,Log=True,cMap=cMap)
