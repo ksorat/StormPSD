@@ -56,11 +56,12 @@ def getCyl(fIn,fVar="f"):
 		R  = np.array(hf.get("Cr").value)
 		P  = np.array(hf.get("Cphi").value)
 		K  = np.array(hf.get("Ck").value)
-		P = P*np.pi/180.0
 		
-		# Ri = np.array(hf.get("Ir").value)
-		# Pi = np.array(hf.get("Iphi").value)
-		# Ki = np.array(hf.get("Ik").value)
+		Ri = np.array(hf.get("Ir").value)
+		Pi = np.array(hf.get("Iphi").value)
+		Ki = np.array(hf.get("Ik").value)
+
+		P = P*np.pi/180.0
 
 		Nr = R.size
 		Np = P.size
@@ -75,6 +76,14 @@ def getCyl(fIn,fVar="f"):
 			t[n] = grp.attrs.get("time")
 		return R,P,K,t,I
 
+#Smooth intensity data
+def SmoothI(I,sig=1.0):
+	import scipy
+	import scipy.ndimage
+	from scipy.ndimage.filters import gaussian_filter
+
+	I = gaussian_filter(I,sig)
+	return I
 #Create interpolator for K-Cylinder
 def GetInterp(R,P,K,t,I):
 	import scipy
@@ -136,3 +145,14 @@ def CutTime(T,T0S,tMin=None,tMax=None):
 	Ts = Ts[I]
 
 	return I,Ts
+
+#Convert from s after T0 to datetimes
+def Ts2date(Ts,T0S):
+	T0 = datetime.datetime.strptime(T0S,T0Fmt)
+	Td = []
+	Nt = len(Ts)
+	for i in range(Nt):
+		tdi = T0+datetime.timedelta(seconds=Ts[i])
+		Td.append(tdi)
+	Td = np.array(Td)
+	return Td
