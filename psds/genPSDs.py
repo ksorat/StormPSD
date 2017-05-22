@@ -116,7 +116,7 @@ RunF = "RunPSD.sh"
 with open(RunF,"w") as fID:
 	fID.write("#!/bin/bash")
 	fID.write("\n\n")
-	fID.write("setomp %d\n"%Nth)
+	fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
 	for i in range(NumPSD):
 		IDi = IDs[i]
 		ComS = "psd.x %s.xml\n"%IDi
