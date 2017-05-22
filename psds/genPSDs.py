@@ -10,7 +10,7 @@ import os
 IDs = ["StormA","StormT","StormI"]
 
 BaseP = "~/Work/StormPSD/Data/"
-MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","/Inj/StormInj.*.h5part","/Inj1/StormInj.*.h5part"]
+MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
 doKap = [False,False,True,True]
 tsF = "tsWedge.csv"
 kappa = 2.8
@@ -49,8 +49,8 @@ for i in range(NumPSD):
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
 	pInfo.set("equatorial","T")
+	pn = 0
 	for p in range(NumPop):
-		pn = 0
 		if (doPop[p]):
 			pID = "population"+str(pn+1)
 			pn = pn + 1
