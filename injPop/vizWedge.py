@@ -8,10 +8,21 @@ import matplotlib.gridspec as gridspec
 from matplotlib.colors import LogNorm
 import scipy.interpolate as interpolate
 import lfmPreproc as lfmpre
+import datetime
+import lfmViz as lfmv
+import matplotlib.dates as mdates
+
+lfmv.ppInit()
+
+T0Str = "2013-03-16T17:10:00Z"
+T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
+
 
 fPkl = "tsWedge.pkl"
 doPanel = False
-doPDF = True
+doPDF = False
+doPFig = True
+
 #Load data
 with open(fPkl,"rb") as f:
 	t = pickle.load(f)
@@ -84,3 +95,26 @@ if (doPDF):
 	plt.savefig("tInj.png")
 
 	plt.close('all')
+if (doPFig):
+	figSize = (20,4)
+	T0 = datetime.datetime.strptime(T0Str,T0Fmt)
+	tm = 30000
+	tM = 120000
+	i0 = (t>tm).argmax()
+	i1 = (t<tM).argmin()
+	
+	tC = t[i0:i1]
+	fC = f[i0:i1]
+
+	#Presentation figure
+	tD = []
+	Nt = len(tC)
+	for i in range(Nt):
+		dt = T0 + datetime.timedelta(seconds=tC[i])
+		tD.append(dt)
+	fig = plt.figure(1,figsize=figSize)
+	plt.plot(tD,fC*100,'b',linewidth=0.75)
+	plt.ylabel('Injection Probability',fontsize='large')
+	fig.autofmt_xdate()
+	plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	plt.savefig("injP.png",dpi=300)

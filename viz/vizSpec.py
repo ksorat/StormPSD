@@ -8,9 +8,23 @@ import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Wedge
+import matplotlib
 import lfmViz as lfmv
 
 lfmv.ppInit()
+clr='k'
+bck='w'
+fontsize=16
+labelsize=18
+titlesize=18
+ann_size=20
+linewidth=2.0
+matplotlib.rc('text',color=clr)
+matplotlib.rc('font',size=fontsize)
+matplotlib.rc('axes',facecolor=bck,edgecolor=clr,labelcolor=clr,linewidth=linewidth,titlesize=titlesize)
+matplotlib.rc('xtick',color=clr)
+matplotlib.rc('ytick',color=clr)
+matplotlib.rc('savefig',facecolor=bck,edgecolor=bck)
 
 #Load data
 inFile = "vaporb.pkl"
@@ -35,19 +49,33 @@ for i in range(Nsc):
 	scT.append(scdt)
 scT = np.array(scT)
 
-vNorm = LogNorm(vmin=1.0e-1,vmax=1.0e+6)
+vNorm = LogNorm(vmin=1.0,vmax=1.0e+4)
 cMap = "jet"
 
-plt.pcolormesh(scT,K,Isc.T/(np.pi*4),norm=vNorm,cmap=cMap)
-plt.ylim([50,1000])
-plt.ylabel("Energy [keV]")
+Is = np.zeros(Isc.shape)
+Is[:,:] = Isc[:,:]
+Nx = Isc.shape[0]
+N = 4
+for i in range(N,Nx-N):
+	Is[i,:] = np.mean(Isc[i-N/2:i+N/2,:],axis=0)
+
+figSize = (18,6)
+figQ = 300 #DPI
+fig = plt.figure(figsize=figSize)
+
+plt.pcolormesh(scT,K,4*Is.T,norm=vNorm,cmap=cMap)
+plt.ylim([50,5.0e+3])
+plt.ylabel("Energy [keV]",fontsize="large")
+plt.xlabel("Date",fontsize="large")
 plt.yscale('log')
 fig = plt.gcf()
 fig.autofmt_xdate()
 
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+plt.savefig("simSC.png",dpi=figQ)
+
 #plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
 
 #ax = plt.gca()
 #ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
-plt.colorbar(orientation="horizontal",aspect=50,label="Intensity (ish)")
+#plt.colorbar(orientation="horizontal",aspect=50,label="Intensity (ish)")
