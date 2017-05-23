@@ -14,21 +14,24 @@ doPanel = True
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
-tMin = 30002.0
-tMax = 110000.0
+tMin = 33600.0
+tMax = 189000.0
+#tMax = 150000.0
 
-Nk = 40 #Number of K samples
-IScl = 1.0/(np.pi)
+Nk = 100 #Number of K samples
+IScl = 1
 
 OrbF = "vaporbit.txt"
 rbF = "rbspa.cdf"
 
 Nsk = 1 #Skip number for trajectory
-fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/KCyl.h5"
+Stub = "KCyl_StormA.h5"
+Stub = "KCyl_StormT.h5"
+fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + Stub
 
 #Interpolate from simulation
 R,P,K,t,I = kc.getCyl(fIn)
-#I = kc.SmoothI(I,sig=0.25)
+I = kc.SmoothI(I,sig=0.1)
 Ii = kc.GetInterp(R,P,K,t,I)
 kMin = K.min()
 kMax = K.max()
@@ -70,8 +73,8 @@ if (doPanel):
 	figSize = (8,8)
 	figQ = 300 #DPI
 	figName = "rbsimI.png"
-	vMin = 1.0
-	vMax = 1.0e+5
+	vMin = 1.0e-2
+	vMax = 1.0e+6
 	
 	cMap = "jet"
 
@@ -84,11 +87,11 @@ if (doPanel):
 	vNorm = LogNorm(vmin=vMin,vmax=vMax)
 
 	#DST
-	Ax = fig.add_subplot(gs[idst,0])
-	xdst = kc.Ts2date(Tdst,T0Str)
+	# Ax = fig.add_subplot(gs[idst,0])
+	# xdst = kc.Ts2date(Tdst,T0Str)
 
-	Ax.plot(xdst,dst)
-	plt.setp(Ax.get_yticklabels(),visible=False)
+	# Ax.plot(xdst,dst)
+	# plt.setp(Ax.get_yticklabels(),visible=False)
 
 	#Both panels
 	Tp = [kc.Ts2date(Trb,T0Str),kc.Ts2date(Tsc,T0Str)]

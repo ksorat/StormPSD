@@ -14,7 +14,7 @@ import cPickle as pickle
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
-kDB = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/KCyl.xmf"
+kDB = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/KCyl_StormA.xmf"
 OrbF = "vaporbit.txt"
 oFile = "vaporb.pkl"
 
