@@ -15,7 +15,7 @@ lfmv.ppInit()
 
 doPanel = True
 doScl = True
-
+doA = True
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -35,9 +35,12 @@ if (doScl):
 else:
 	fOut = "RBSim_NoScl.png"
 	IScl = [1.0,1]
-
-OrbF = "vaporbit.txt"
-rbF = "rbspa.cdf"
+if (doA):
+	OrbF = "vaporbRBA.txt"
+	rbF = "rbspa.cdf"
+else:
+	OrbF = "vaporbRBB.txt"
+	rbF = "rbspb.cdf"
 
 
 Npop = len(IScl)
@@ -116,7 +119,7 @@ if (doPanel):
 	Np = len(Is)
 
 	#Plots: DST,RBSP,SIM,BLANK,COLOR
-	gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,10,10,1,1])
+	gs = gridspec.GridSpec(1+Np+1+1,1,height_ratios=[10,10,10,10,1,5,1])
 	vNorm = LogNorm(vmin=vMin,vmax=vMax)
 
 
@@ -128,27 +131,55 @@ if (doPanel):
 	for i in range(Np):
 		Ax = fig.add_subplot(gs[i,0])
 		Tp = kc.Ts2date(Ts[i],T0Str)
-
+		#Tp = Ts[i]
 		iPlt = Ax.pcolormesh(Tp,Ks[i],Is[i].T,norm=vNorm,cmap=cMap)
 		plt.ylim([50,5.0e+3])
 		yStr = "%s\nEnergy [keV]"%Labs[i]
 		plt.ylabel(yStr,fontsize="large")
 		#
 		plt.yscale('log')
-		if (i<Np-1):
+		if (i==0):
+			Ax.xaxis.tick_top()
+			Ax.xaxis.set_label_position('top')
+			Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+		elif (i<Np-1):
 			plt.setp(Ax.get_xticklabels(),visible=False)
 		else:
-			#fig.autofmt_xdate()
 			Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
-			#plt.xlabel("Date",fontsize="large")
 
 	#Do colorbar
 	AxC = fig.add_subplot(gs[-1,0])
 	cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 	cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
-	plt.savefig(fOut,dpi=figQ)
 	
+	
+	#Do L/MLT
+	AxP = fig.add_subplot(gs[-2,0])
+	Tp = kc.Ts2date(Tsc,T0Str)
+	AxP.plot(Tp,Lsc,'b')
+	plt.setp(AxP.get_xticklabels(),visible=False)
+	AxP.set_ylabel("L",color='b')
+	AxP.tick_params('y',colors='b')
 
+	AxP2 = AxP.twinx()
+	AxP2.plot(Tp,MLTsc,'r.')
+	AxP2.set_yticks([0,6,12,18,24])
+	AxP2.set_ylabel("MLT",color='r')
+	AxP2.tick_params('y',colors='r')
+	AxP2.set_ylim([0,24])
+	#Save
+	plt.savefig(fOut,dpi=figQ)
+	# xT = Ax.get_xticklabels()
+	# Nxt = len(xT)
+	# for n in range(Nxt):
+	# 	xTS = str(xT[n].get_text())
+	# 	print(xTS)
+	# 	xTS = xTS + "\nB"
+	# 	print(xTS)
+	# 	xT[n].set_text(unicode(xTS))
+	# Ax.set_xticklabels(xT)
+	# plt.savefig(fOut,dpi=figQ)
+	
 # plt.pcolormesh(Tsc,Ksc,Isc.T,norm=vNorm,cmap=cMap)
 # plt.ylim([50,5.0e+3])
 # plt.ylabel("Energy [keV]",fontsize="large")
