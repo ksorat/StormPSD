@@ -30,6 +30,7 @@ for n in range(Ns):
 	fDir = RootDir+Stubs[n]
 	h5ps = glob.glob(fDir+"/*.h5part")
 	for h5p in h5ps:
+		print("\tReading %s"%(h5p))
 		pid,kev0 = lfmpp.getH5pInit(h5p,"kev")
 		pid,kevF = lfmpp.getH5pFin (h5p,"kev")
 		pid,inP  = lfmpp.getH5pFin (h5p,"in")
