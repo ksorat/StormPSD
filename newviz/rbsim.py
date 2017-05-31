@@ -21,33 +21,45 @@ T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 tMin = 33600.0
 tMax = 189000.0
+#tMax = 197000.0
 Sig = -0.05
 
-Nk = 35 #Number of K samples
-Nsk = 5 #Skip number for trajectory
-
+Nsk = 1 #Skip number for trajectory
+Nk = 70 #Number of K samples
+#Nk = 25 #Number of K samples
+#Nsk = 10
 Stubs = ["KCyl_StormT","KCyl_StormI"]
 
+fOut = "RBSim"
 
-if (doScl):
-	fOut = "RBSim_Scl.png"
-	IScl = [50,1]
-else:
-	fOut = "RBSim_NoScl.png"
-	IScl = [1.0,1]
+
 if (doA):
 	OrbF = "vaporbRBA.txt"
 	rbF = "rbspa.cdf"
+	fOut = fOut+"A"
+	rbStr = "rbspa"
+	Labs = ["RBSP-A","Trapped","Injected","Trapped+Injected"]
 else:
 	OrbF = "vaporbRBB.txt"
 	rbF = "rbspb.cdf"
+	fOut = fOut+"B"
+	rbStr = "rbspb"
+	Labs = ["RBSP-B","Trapped","Injected","Trapped+Injected"]
+
+if (doScl):
+	IScl = [50,1]
+	#sIScl = [100,0.25]
+else:
+	fOut = fOut+"_NoScl"
+	IScl = [1.0,1]
+fOut = fOut+".png"
 
 
 Npop = len(IScl)
 
-Labs = ["RBSP-A","Trapped","Injected","Trapped+Injected"]
+
 #Now get RBSP data
-Trb,Krb,dkrb,Irb = kc.GetRBSP(rbF,T0Str,tMin=tMin,tMax=tMax)
+Trb,Krb,dkrb,Irb = kc.GetRBSP(rbF,T0Str,tMin=tMin,tMax=tMax,rbID=rbStr)
 
 Is = [Irb]
 Ts = [Trb]
@@ -108,13 +120,16 @@ MLTsc = np.mod(Psc/15 + 12.0,24)
 #Do RB/SIM panel figure
 if (doPanel):
 	figSize = (12,16)
+	#figSize = (24,32)
 	figQ = 300 #DPI
 	figName = "rbsimI.png"
 	vMin = 1.0
+	#vMin = 5
+	#vMin = 1.0e-1
 	vMax = 1.0e+6
 	
 	cMap = "jet"
-
+	#cMap = "viridis"
 	fig = plt.figure(figsize=figSize)
 	Np = len(Is)
 

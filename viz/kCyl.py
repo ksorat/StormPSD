@@ -96,7 +96,7 @@ def GetInterp(R,P,K,t,I):
 def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
-	#print(cdf)
+	print(cdf)
 	#Get main data
 	T    = cdf[rbID+'_ect-mageis_l2_ele_time_epoch'][...]
 	kRB  = cdf[rbID+'_ect-mageis_l2_ele_FESA_channel_energy'][...]
