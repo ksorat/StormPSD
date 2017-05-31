@@ -57,9 +57,9 @@ def getCyl(fIn,fVar="f"):
 		P  = np.array(hf.get("Cphi").value)
 		K  = np.array(hf.get("Ck").value)
 		
-		Ri = np.array(hf.get("Ir").value)
-		Pi = np.array(hf.get("Iphi").value)
-		Ki = np.array(hf.get("Ik").value)
+		# Ri = np.array(hf.get("Ir").value)
+		# Pi = np.array(hf.get("Iphi").value)
+		# Ki = np.array(hf.get("Ik").value)
 
 		P = P*np.pi/180.0
 
@@ -67,12 +67,12 @@ def getCyl(fIn,fVar="f"):
 		Np = P.size
 		Nk = K.size
 		t = np.zeros(Nt)
-
+		print("Reading KCyl from %s of size (R,p,K,t) = (%d,%d,%d,%d)"%(fIn,Nr,Np,Nk,Nt))
 		I = np.zeros((Nr,Np,Nk,Nt))
 		for n in range(0,Nt):
 			gId = "Step#%d"%(n)
 			grp = hf.get(gId)
-			I[:,:,:,n] = grp.get(fVar).value
+			I[:,:,:,n] = grp.get(fVar).value.T
 			t[n] = grp.attrs.get("time")
 		return R,P,K,t,I
 
@@ -96,7 +96,7 @@ def GetInterp(R,P,K,t,I):
 def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
-
+	print(cdf)
 	#Get main data
 	T    = cdf[rbID+'_ect-mageis_l2_ele_time_epoch'][...]
 	kRB  = cdf[rbID+'_ect-mageis_l2_ele_FESA_channel_energy'][...]
