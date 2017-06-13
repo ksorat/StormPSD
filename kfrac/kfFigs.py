@@ -2,8 +2,11 @@ import numpy as np
 import lfmPostproc as lfmpp
 import cPickle as pickle
 import os
-
-doInj = False
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib.colors import LogNorm
+import matplotlib.gridspec as gridspec
+doInj = True
 
 if (doInj):
 	fPkl = "kfInj.pkl"
@@ -21,3 +24,23 @@ if (os.path.isfile(fPkl)):
 		A0 = pickle.load(f)
 		Af = pickle.load(f)
 
+
+Nb0 = 50
+NbF = 100
+I = (In>0.5)
+xH = K0[I]
+yH = Kf[I]
+
+vNorm=LogNorm(vmin=1.0,vmax=1.0e+3)
+
+#xb = np.logspace(np.log10(10),np.log10(10000),Nb0)
+#yb = np.logspace(np.log10(10),np.log10(10000),NbF)
+#xb = np.linspace(10,1000,Nb0)
+#yb = np.linspace(10,10000,NbF)
+
+#plt.hist2d(xH,yH,[xb,yb],norm=vNorm)
+plt.hist2d(xH,yH,40,norm=vNorm)
+plt.xscale('log')
+plt.yscale('log')
+plt.colorbar()
+plt.show()

@@ -9,7 +9,7 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 #Get trajectory from orbit file, return time in seconds after T0 (datetime)
 #Chop out times outside of tMin,tMax range
-def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1):
+def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1,doEq=False):
 	VA = np.loadtxt(oFile,skiprows=1).T
 	Nt = VA.shape[1]
 
@@ -25,6 +25,24 @@ def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1):
 		Ti = datetime.datetime.strptime(tSC,T0Fmt)
 		dt = Ti-T0
 		T[i] = dt.total_seconds()
+
+	if (doEq):
+		#Project to equatorial plane along dipole line
+		for i in range(Nt):
+			x = X[i]
+			y = Y[i]
+			z = Z[i]
+			r = np.sqrt(x**2.0+y**2.0+z**2.0)
+			lamb = np.arcsin(z/r)
+			phi = np.arctan2(y,x)
+			req = r/(np.cos(lamb)**2.0)
+			xeq = req*np.cos(phi)
+			yeq = req*np.sin(phi)
+			#print("xy / xyeq = %f,%f / %f,%f\n"%(x,y,xeq,yeq))
+			#print("d(xy) = %f"%(np.sqrt( (x-xeq)**2.0 + (y-yeq)**2.0)))
+			X[i] = xeq
+			Y[i] = yeq
+			Z[i] = 0.0
 
 	if (tMin is not None):
 		I = (T>=tMin) & (T<=tMax) 
@@ -85,10 +103,10 @@ def SmoothI(I,sig=1.0):
 	I = gaussian_filter(I,sig)
 	return I
 #Create interpolator for K-Cylinder
-def GetInterp(R,P,K,t,I):
+def GetInterp(R,P,K,t,I,imeth="linear"):
 	import scipy
 	import scipy.interpolate
-	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method='linear',bounds_error=False,fill_value=0)
+	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=0)
 
 	return Irpkt
 
@@ -156,3 +174,15 @@ def Ts2date(Ts,T0S):
 		Td.append(tdi)
 	Td = np.array(Td)
 	return Td
+
+#Given I(t,K) and K0 return total intensity above K0
+# def ICum(K,K0,I):
+# 	kC = (K>K0).argmax()
+# 	sK = np.sqrt(K)
+# 	Nk = K.shape[0]
+# 	Nt = I.shape[0]
+# 	Ic = np.zeros(Nt)
+# 	for n in range(Nt):
+# 		It = I[n,:]
+# 		Iscl = sK*It
+# 		Ic = 
