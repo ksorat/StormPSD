@@ -57,8 +57,9 @@ else:
 	Labs = ["RBSP-B","Trapped","Injected","Trapped+Injected"]
 
 if (doScl):
-	IScl = [50,1]
-	#IScl = [25,1]
+	#IScl = [50,1]
+	IScl = [12,1]
+
 else:
 	fOut = fOut+"_NoScl"
 	IScl = [1.0,1]
