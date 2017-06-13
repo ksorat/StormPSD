@@ -13,22 +13,39 @@ BaseP = "~/Work/StormPSD/Data/"
 MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
 doKap = [False,False,True,True]
 tsF = "tsWedge.csv"
-kappa = 2.8
-kTScl = 0.5
 
+#Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
 dt = 600.0
 Rin = 2
 Rout = 20
-Nr = 48
-Np = 24
-Nk = 50
-kMin = 10.0
-kMax = 5000.0
-Na = 20
-
 Nth = 8
+
+#Parameters
+
+#Config 1
+# kappa = 2.8
+# kTScl = 0.5
+# Nr = 48
+# Np = 24
+# Nk = 50
+# kMin = 10.0
+# kMax = 5000.0
+# Na = 20
+
+#Config 2
+kappa = 2.4
+kTScl = 0.5
+Rin = 2
+Rout = 16
+Nr = 28
+Np = 24
+Nk = 25
+kMin = 10.0
+kMax = 2000.0
+Na = 10
+
 
 NumPSD = len(IDs)
 NumPop = len(MaskP)

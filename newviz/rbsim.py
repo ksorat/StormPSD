@@ -11,21 +11,47 @@ from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
+import numpy
+
+def smooth(x,window_len=11,window='hanning'):
+	if x.ndim != 1:
+		raise ValueError, "smooth only accepts 1 dimension arrays."
+	if x.size < window_len:
+		raise ValueError, "Input vector needs to be bigger than window size."
+	if window_len<3:
+		return x
+	if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
+		raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+	s=numpy.r_[2*x[0]-x[window_len-1::-1],x,2*x[-1]-x[-1:-window_len:-1]]
+	if window == 'flat': #moving average
+		w=numpy.ones(window_len,'d')
+	else:  
+		w=eval('numpy.'+window+'(window_len)')
+	y=numpy.convolve(w/w.sum(),s,mode='same')
+	return y[window_len:-window_len+1]
+
 lfmv.ppInit()
 
 doPanel = True
+doLine = True
+
 doScl = True
-doA = True
+doA = False
+doEq = True
 
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 tMin = 33600.0
 tMax = 189000.0
 #tMax = 197000.0
-Sig = -0.05
+#Sig = -0.05
+Sig = 0.5
 
-Nsk = 1 #Skip number for trajectory
-Nk = 70 #Number of K samples
+Nsk = 10 #Skip number for trajectory
+Nk = 35 #Number of K samples
+imeth = "linear"
+#imeth = "nearest"
+
 #Nk = 25 #Number of K samples
 #Nsk = 10
 Stubs = ["KCyl_StormT","KCyl_StormI"]
@@ -48,11 +74,11 @@ else:
 
 if (doScl):
 	IScl = [50,1]
-	#sIScl = [100,0.25]
+	#IScl = [25,1]
 else:
 	fOut = fOut+"_NoScl"
 	IScl = [1.0,1]
-fOut = fOut+".png"
+
 
 
 Npop = len(IScl)
@@ -70,10 +96,10 @@ for n in range(Npop):
 	fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + Stubs[n] + ".h5"
 
 	#Interpolate from simulation
-	R,P,K,t,I = kc.getCyl(fIn)
+	R,P,K,Tkc,I = kc.getCyl(fIn)
 	if (Sig>0):
 		I = kc.SmoothI(I,sig=Sig)
-	Ii = kc.GetInterp(R,P,K,t,I)
+	Ii = kc.GetInterp(R,P,K,Tkc,I,imeth=imeth)
 	kMin = K.min()
 	kMax = K.max()
 	Ksc = np.logspace(np.log10(kMin),np.log10(kMax),Nk)
@@ -82,7 +108,7 @@ for n in range(Npop):
 	#Get trajectory data
 	#Tsc = seconds after T0
 	
-	Tsc,Xsc,Ysc,Z = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=Nsk)
+	Tsc,Xsc,Ysc,Z = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=Nsk,doEq=doEq)
 	Rsc = np.sqrt(Xsc**2.0 + Ysc**2.0)
 	Psc = np.arctan2(Ysc,Xsc)
 	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
@@ -115,6 +141,9 @@ Lsc = np.sqrt(Xsc**2.0 + Ysc**2.0)
 Psc = np.arctan2(Ysc,Xsc)*180.0/np.pi
 I = Psc<0; Psc[I] = Psc[I] + 360
 MLTsc = np.mod(Psc/15 + 12.0,24)
+Np = len(Is)
+vMin = 1.0
+vMax = 1.0e+6
 
 #Psc = (Psc/15.0)+12
 #Do RB/SIM panel figure
@@ -123,15 +152,12 @@ if (doPanel):
 	#figSize = (24,32)
 	figQ = 300 #DPI
 	figName = "rbsimI.png"
-	vMin = 1.0
+	#vMin = 1.0
 	#vMin = 5
-	#vMin = 1.0e-1
-	vMax = 1.0e+6
 	
 	cMap = "jet"
 	#cMap = "viridis"
 	fig = plt.figure(figsize=figSize)
-	Np = len(Is)
 
 	#Plots: DST,RBSP,SIM,BLANK,COLOR
 	gs = gridspec.GridSpec(1+Np+1+1,1,height_ratios=[10,10,10,10,1,5,1])
@@ -183,7 +209,8 @@ if (doPanel):
 	AxP2.tick_params('y',colors='r')
 	AxP2.set_ylim([0,24])
 	#Save
-	plt.savefig(fOut,dpi=figQ)
+	fOutP = fOut+"_Itk.png"
+	plt.savefig(fOutP,dpi=figQ)
 	# xT = Ax.get_xticklabels()
 	# Nxt = len(xT)
 	# for n in range(Nxt):
@@ -194,7 +221,49 @@ if (doPanel):
 	# 	xT[n].set_text(unicode(xTS))
 	# Ax.set_xticklabels(xT)
 	# plt.savefig(fOut,dpi=figQ)
-	
+	plt.close('all')
+#Show >MeV I
+if (doLine):
+	K0 = 1000.0
+	kR = 200.0
+	figSize = (24,8)
+	figQ = 300 #DPI
+	figName = "rbsimMeV.png"
+	plt.close('all')
+	vMin = 1.0e-1
+	vMax = 1.0e+4
+	fig = plt.figure(1,figsize=figSize)
+	LW = 1.5
+	Ws = 10
+	ColI = ['b-','g-','m-','r-']
+
+	for i in range(Np):
+		Tp = kc.Ts2date(Ts[i],T0Str)
+		#Find critical value of K>1MeV
+		kC = (Ks[i]>K0).argmax()
+		kC1 = (Ks[i]>=(K0-kR)).argmax()
+		kC2 = (Ks[i]<=(K0+kR)).argmin()
+		Ic = (Is[i][:,kC1:kC2+1]).mean(axis=1)
+		print(i,kC,kC1,kC2)
+		if (i==0):
+			Ics = Ic
+		else:
+			#Ics = smooth(Ic,window_len=Ws)
+			Ics = Ic
+		#Ic = Is[i][:,kC] #Point value
+		# if (i == 0):
+		# 	
+		# else:
+		# 	Ic = (Is[i][:,kC1:kC2]).mean(axis=1)
+		plt.semilogy(Tp,Ics,ColI[i],linewidth=LW,label=Labs[i])
+
+	plt.ylim([vMin,vMax])
+	plt.ylabel("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+	plt.legend(loc='lower right')
+	plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	fOutL = fOut+"_I1.png"
+	plt.savefig(fOutL,dpi=figQ)
+
 # plt.pcolormesh(Tsc,Ksc,Isc.T,norm=vNorm,cmap=cMap)
 # plt.ylim([50,5.0e+3])
 # plt.ylabel("Energy [keV]",fontsize="large")
