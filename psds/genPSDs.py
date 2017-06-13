@@ -36,15 +36,15 @@ Nth = 8
 # Na = 20
 
 #Config 2
-kappa = 2.4
+kappa = 2.6
 kTScl = 0.5
 Rin = 2
 Rout = 16
 Nr = 28
 Np = 24
-Nk = 25
+Nk = 30
 kMin = 10.0
-kMax = 2000.0
+kMax = 5000.0
 Na = 10
 
 

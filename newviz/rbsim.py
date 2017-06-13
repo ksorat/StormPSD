@@ -13,22 +13,6 @@ import matplotlib.dates as mdates
 import lfmViz as lfmv
 import numpy
 
-def smooth(x,window_len=11,window='hanning'):
-	if x.ndim != 1:
-		raise ValueError, "smooth only accepts 1 dimension arrays."
-	if x.size < window_len:
-		raise ValueError, "Input vector needs to be bigger than window size."
-	if window_len<3:
-		return x
-	if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-		raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
-	s=numpy.r_[2*x[0]-x[window_len-1::-1],x,2*x[-1]-x[-1:-window_len:-1]]
-	if window == 'flat': #moving average
-		w=numpy.ones(window_len,'d')
-	else:  
-		w=eval('numpy.'+window+'(window_len)')
-	y=numpy.convolve(w/w.sum(),s,mode='same')
-	return y[window_len:-window_len+1]
 
 lfmv.ppInit()
 
@@ -44,8 +28,8 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 tMin = 33600.0
 tMax = 189000.0
 #tMax = 197000.0
-#Sig = -0.05
-Sig = 0.5
+Sig = -0.05
+#Sig = 0.5
 
 Nsk = 10 #Skip number for trajectory
 Nk = 35 #Number of K samples
@@ -248,7 +232,6 @@ if (doLine):
 		if (i==0):
 			Ics = Ic
 		else:
-			#Ics = smooth(Ic,window_len=Ws)
 			Ics = Ic
 		#Ic = Is[i][:,kC] #Point value
 		# if (i == 0):
