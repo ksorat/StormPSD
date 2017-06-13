@@ -17,7 +17,8 @@ tsF = "tsWedge.csv"
 #Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
-dt = 600.0
+#dt = 600.0
+dt = 6000.0
 Rin = 2
 Rout = 20
 Nth = 8
