@@ -9,7 +9,9 @@ import lfmPreproc as lfmpre
 lfmDir = os.path.expanduser('~') + "/Work/StormPSD/lfmData"
 
 #Generic Wedge info
-R = [12,12.5]
+#R = [12,12.5]
+R = [9,12]
+
 Z = [-0.25,0.25]
 #P = [160,180]
 K0 = 10
@@ -21,7 +23,7 @@ pC = [135,225,180]
 fStub = ["21","3","0"]
 
 NumW = 3
-for nw in range(1,NumW-1):
+for nw in range(NumW):
 	#Don't redo midnight
 	print("Pulling from wedge centered at %d"%(pC[nw]))
 	#Choose phi range for this wedge

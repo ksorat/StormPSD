@@ -8,9 +8,11 @@ import cPickle as pickle
 import lfmPreproc as lfmpre
 from sys import exit
 
+
 ipID = 0 #Which injected population: (0,3,21)
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 Nswp = 3
+
 
 #Universal constants
 #-------------------
@@ -31,6 +33,8 @@ Ns = 60
 Nf = 600
 #Alpha = [40,140]
 Alpha = [15,165]
+Z = [-0.25,0.25]
+K0 = [10,1000]
 
 #Output pickle
 fPkl = "tsWedge_%d.pkl"%(ipID)
@@ -38,17 +42,22 @@ fPkl = "tsWedge_%d.pkl"%(ipID)
 if (ipID == 0):
 	#Standard wedge
 	#Wedge info
-	R = [11.5,12.5]
-	Z = [-0.25,0.25]
-	P = [165,195]
-	K0 = [10,1000]
+	#R = [11.5,12.5]
+	R = [10.0,11.0]
+	
+	
 elif (ipID == 1):
 	#Fat wedge w/ same injection data as ip0
 	fPkl = "tsWedge_0.pkl"
 	#Wedge info
 	R = [10.0,11.0]
 	P = [135,225]
-	K0 = [10,1000]
+elif (ipID == 21):
+	P = [125,145]
+elif (ipID == 3):
+	P = [215,235]
+
+
 
 Np = Npp*Nb #Number of particles
 
@@ -64,7 +73,7 @@ print("\tBlocks %d to %d"%(pb0,pb0+Nb-1))
 print("\tUsing random # seed %d"%rSeed)
 
 #HDF directory/H5 IC data/Input decks/Output
-oTag = "StormInj"
+oTag = "StormInj_%d"%ipID
 lfmDir = rDir + "lfmData"
 ipDir = rDir + "Data/ip%d/"%ipID
 inpDir = rDir + "Inps/"
