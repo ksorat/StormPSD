@@ -26,26 +26,26 @@ Nth = 8
 #Parameters
 
 #Config 1
-# kappa = 2.8
+kappa = 2.8
+kTScl = 0.5
+Nr = 72
+Np = 48
+Nk = 50
+kMin = 10.0
+kMax = 5000.0
+Na = 20
+
+#Config 2
+# kappa = 2.6
 # kTScl = 0.5
-# Nr = 48
+# Rin = 2
+# Rout = 16
+# Nr = 28
 # Np = 24
 # Nk = 50
 # kMin = 10.0
 # kMax = 5000.0
-# Na = 20
-
-#Config 2
-kappa = 2.6
-kTScl = 0.5
-Rin = 2
-Rout = 16
-Nr = 28
-Np = 24
-Nk = 50
-kMin = 10.0
-kMax = 5000.0
-Na = 10
+# Na = 10
 
 
 NumPSD = len(IDs)
@@ -60,9 +60,12 @@ for i in range(NumPSD):
 	if (IDs[i] == IDs[0]):
 		doPop = [True,True,True,True]
 	elif (IDs[i] == IDs[1]):
+		#Trapped
 		doPop = [True,True,False,False]
 	else:
-		doPop = [False,False,True,True]
+		#Injected
+		#doPop = [False,False,True,True]
+		doPop = [False,False,True,False]
 
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
