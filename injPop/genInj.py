@@ -11,7 +11,7 @@ from sys import exit
 
 ipID = 0 #Which injected population: (0,3,21)
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
-Nswp = 3
+Nswp = 1
 
 
 #Universal constants
@@ -24,7 +24,7 @@ Kc = 10 #Cutoff for high-energy
 #PBlock info / Sweep has blocks, blocks have particles
 
 Npp = 20000 #Number of particles per block
-Nb = 200 #Number of particle blocks
+Nb = 100 #Number of particle blocks
 
 #Run info
 T0 = 30000
@@ -33,8 +33,9 @@ Ns = 60
 Nf = 600
 #Alpha = [40,140]
 Alpha = [15,165]
+R = [9.0,12.0]
 Z = [-0.25,0.25]
-K0 = [10,1000]
+K0 = [10,2000]
 
 #Output pickle
 fPkl = "tsWedge_%d.pkl"%(ipID)
@@ -43,7 +44,7 @@ if (ipID == 0):
 	#Standard wedge
 	#Wedge info
 	#R = [11.5,12.5]
-	R = [10.0,11.0]
+	
 	
 	
 elif (ipID == 1):
