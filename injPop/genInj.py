@@ -85,7 +85,7 @@ if not os.path.exists(outDir):
 
 #Generate wedge time series if necessary, otherwise load
 if (os.path.isfile(fPkl)):
-	print("Loading Wedge TS")
+	print("Loading Wedge TS %s"%(fPkl))
 	with open(fPkl,"rb") as f:
 		t = pickle.load(f)
 		Vst = pickle.load(f)
