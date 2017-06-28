@@ -24,7 +24,7 @@ for np in range(NumW-1):
 	#Don't redo midnight
 	print("Pulling from wedge centered at %d"%(pC[np]))
 	#Choose phi range for this wedge
-	P = [pC[np]-dp,pC[np]+dp]
+	P = [pC[np]-dP,pC[np]+dP]
 	#Output pickle
 	fOut = "tsWedge_%s.pkl"%(fStub[np])
 
