@@ -20,13 +20,13 @@ pC = [135,225,180]
 fStub = ["21","3","0"]
 
 NumW = 3
-for np in range(NumW-1):
+for nw in range(NumW-1):
 	#Don't redo midnight
-	print("Pulling from wedge centered at %d"%(pC[np]))
+	print("Pulling from wedge centered at %d"%(pC[nw]))
 	#Choose phi range for this wedge
-	P = [pC[np]-dP,pC[np]+dP]
+	P = [pC[nw]-dP,pC[nw]+dP]
 	#Output pickle
-	fOut = "tsWedge_%s.pkl"%(fStub[np])
+	fOut = "tsWedge_%s.pkl"%(fStub[nw])
 
 	fIns =glob.glob(lfmDir + "/*.hdf")
 	
