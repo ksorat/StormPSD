@@ -9,7 +9,7 @@ export JOBID=${LSB_JOBINDEX}
 
 printf -v PID %"04d" $JOBID
 
-export INPDECK="Inps/StormInj.$PID.xml"
+export INPDECK="Inps/${STUB}.$PID.xml"
 
 unset MP_PE_AFFINITY
 export MP_TASK_AFFINITY=core:$OMP_NUM_THREADS

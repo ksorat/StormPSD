@@ -17,4 +17,4 @@ export NUMT="16" #Run with NUMT threads on 1 node
 export QUEUE="regular"
 export LOG="$STUB.%I.log" #Set names for log files
 
-bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "$STUB[$B0-$BEND]" -e ${LOG} -o ${LOG} "StormBlock.sh"
+bsub -a poe -P "UJHB0003" -W $WALL -n 1 -q $QUEUE -J "$STUB[$B0-$BEND]" -e ${LOG} -o ${LOG} "StormBlock.sh $STUB"
