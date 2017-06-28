@@ -24,7 +24,7 @@ Kc = 10 #Cutoff for high-energy
 #PBlock info / Sweep has blocks, blocks have particles
 
 Npp = 20000 #Number of particles per block
-Nb = 100 #Number of particle blocks
+Nb = 200 #Number of particle blocks
 
 #Run info
 T0 = 30000
