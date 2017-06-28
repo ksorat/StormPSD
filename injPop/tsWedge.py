@@ -15,12 +15,13 @@ Z = [-0.25,0.25]
 K0 = 10
 
 dP = 10
-pC = [135,225,180]
+#pC = [135,225,180]
+pC = [135,-135,180]
 
 fStub = ["21","3","0"]
 
 NumW = 3
-for nw in range(NumW-1):
+for nw in range(1,NumW-1):
 	#Don't redo midnight
 	print("Pulling from wedge centered at %d"%(pC[nw]))
 	#Choose phi range for this wedge
