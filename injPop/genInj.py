@@ -8,7 +8,9 @@ import cPickle as pickle
 import lfmPreproc as lfmpre
 from sys import exit
 
-ipID = 0 #Which injected population
+ipID = 0 #Which injected population: (0,3,21)
+#Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
+Nswp = 3
 
 #Universal constants
 #-------------------
@@ -18,8 +20,7 @@ doWedgeOnly = False #Only create wedge TS
 Kc = 10 #Cutoff for high-energy
 
 #PBlock info / Sweep has blocks, blocks have particles
-#Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
-Nswp = 3
+
 Npp = 20000 #Number of particles per block
 Nb = 100 #Number of particle blocks
 
