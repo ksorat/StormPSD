@@ -19,7 +19,7 @@ lfmv.ppInit()
 doPanel = True
 doLine = True
 
-doScl = True
+doScl = False
 doA = False
 doEq = True
 
@@ -31,8 +31,8 @@ tMax = 189000.0
 Sig = -0.05
 #Sig = 0.5
 
-Nsk = 10 #Skip number for trajectory
-Nk = 35 #Number of K samples
+Nsk = 1 #Skip number for trajectory
+Nk = 50 #Number of K samples
 imeth = "linear"
 #imeth = "nearest"
 
