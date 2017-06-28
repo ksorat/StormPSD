@@ -5,48 +5,59 @@ import os
 import cPickle as pickle
 import lfmPreproc as lfmpre
 
-#Wedge info
-R = [12,12.5]
-Z = [-0.25,0.25]
-P = [160,180]
-K0 = 10
-
 #HDF directory
 lfmDir = os.path.expanduser('~') + "/Work/StormPSD/lfmData"
 
-#Output pickle
-fOut = "tsWedge.pkl"
+#Generic Wedge info
+R = [12,12.5]
+Z = [-0.25,0.25]
+#P = [160,180]
+K0 = 10
 
-fIns =glob.glob(lfmDir + "/*.hdf")
+dP = 10
+pC = [135,225,180]
 
-Nf = len(fIns)
+fStub = ["21","3","0"]
 
-t = np.zeros(Nf)
-Vst = np.zeros(Nf)
-kTt = np.zeros(Nf)
-Nt = np.zeros(Nf)
-Nkt = np.zeros(Nf)
+NumW = 3
+for np in range(NumW-1):
+	#Don't redo midnight
+	print("Pulling from wedge centered at %d"%(pC[np]))
+	#Choose phi range for this wedge
+	P = [pC[np]-dp,pC[np]+dp]
+	#Output pickle
+	fOut = "tsWedge_%s.pkl"%(fStub[np])
 
-I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
-
-for i in range(Nf):
-	fIn = fIns[i]
-
-	t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=K0)
-
-#Got all data, now sort
-Is = np.argsort(t)
-
-t = t[Is]
-Vst = Vst[Is]
-kTt = kTt[Is]
-Nt = Nt[Is]
-Nkt = Nkt[Is]
-
-print("Saving data to %s"%fOut)
-with open(fOut,"wb") as f:
-	pickle.dump(t,f)
-	pickle.dump(Vst,f)
-	pickle.dump(kTt,f)
-	pickle.dump(Nt,f)
-	pickle.dump(Nkt,f)
+	fIns =glob.glob(lfmDir + "/*.hdf")
+	
+	Nf = len(fIns)
+	
+	t = np.zeros(Nf)
+	Vst = np.zeros(Nf)
+	kTt = np.zeros(Nf)
+	Nt = np.zeros(Nf)
+	Nkt = np.zeros(Nf)
+	
+	I,dvI = lfmpre.lfmWedge(fIns[0],R=R,P=P,Z=Z)
+	
+	for i in range(Nf):
+		fIn = fIns[i]
+	
+		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=K0)
+	
+	#Got all data, now sort
+	Is = np.argsort(t)
+	
+	t = t[Is]
+	Vst = Vst[Is]
+	kTt = kTt[Is]
+	Nt = Nt[Is]
+	Nkt = Nkt[Is]
+	
+	print("Saving data to %s"%fOut)
+	with open(fOut,"wb") as f:
+		pickle.dump(t,f)
+		pickle.dump(Vst,f)
+		pickle.dump(kTt,f)
+		pickle.dump(Nt,f)
+		pickle.dump(Nkt,f)

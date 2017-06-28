@@ -9,16 +9,22 @@ from visit_utils import *
 from visit_utils.common import lsearch #lsearch(dir(),"blah")
 import pyVisit as pyv
 
-Quiet = False
-doVid = False
+
+Quiet = True
+doVid = True
 doField = True
+T0Str = "2013-03-16T17:10:00Z"
+T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 outVid = "irb2d.mp4"
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data/"
 fPSD = Base + "Merge/KCyl_StormA.xmf"
 fEq  = Base + "psdEq/eqSlc.*.vti database"
+fRB  = "rbpos.h5part"
 
 kSlc = 1000
+ILab = "1MeV Intensity\ns-1 cm-2 keV-1"
+
 cMapI = "viridis"
 Ibds = [1.0e-1,5.0e+3]
 
@@ -36,13 +42,18 @@ pyv.lfmExprs()
 #Open databases
 OpenDatabase(fPSD)
 OpenDatabase(fEq)
+OpenDatabase(fRB)
 
-md0 = GetMetaData(fPSD)
+md0 = GetMetaData(fEq)
 dt = md0.times[1] - md0.times[0]
-T0 = md0.times[0]# - md0.times[0] #Reset to zero
+dT0s = md0.times[0]
+
+dT0 = datetime.timedelta(seconds=dT0s)
+T0 = dT0 + datetime.datetime.strptime(T0Str,T0Fmt)
+
 
 #Create correlation
-CreateDatabaseCorrelation("ifCor",[fPSD,fEq],0)
+CreateDatabaseCorrelation("ifCor",[fPSD,fEq,fRB],0)
 
 #Create intensity pcolor
 pyv.lfmPCol(fPSD,"f",cMap=cMapI,vBds=Ibds,Log=True)
@@ -57,6 +68,8 @@ pyv.addThreshold("f",Ibds[0],1.0e+12,opNum=1)
 if (doField):
 	pyv.plotContour(fEq,"dBz",cmap=cMapF,vBds=fbds,Nlevels=Nc,lineWidth=1)
 	cOp = GetPlotOptions()
+
+pyv.lfmPScat(fRB,v1="x",v2="y",v4="id",pSize=15,Legend=False,cMap="Cool")
 
 #Set background and such
 pyv.setAtts()
@@ -76,13 +89,20 @@ anAt.axes2D.yAxis.title.title = "Y [Re]"
 SetAnnotationAttributes(anAt)
 
 #tit = pyv.genTit( titS=titS,Pos=(0.35,0.955),height=0.02)
-#pyv.cleanLegends(plXs,plYs,plTits)
+
+#Legends
+plXs = [0.03]
+plYs = [0.9,0.4]
+plTits = [ILab,"Residual Bz [nT]"]
+pyv.cleanLegends(plXs,plYs,plTits)
+
 
 pyv.SetWin2D([-15,12.5,-20,20])
 
 DrawPlots()
 
 if (doVid):
-	print("Blah")
+	pyv.doTimeLoop(T0=T0,dt=dt,Save=True,tLabPos=(0.2,0.015),Trim=True,bCol="#000000")#,Trim=True)
+	pyv.makeVid(Clean=True,outVid=outVid,tScl=2)
 else:
 	SetTimeSliderState(50)
