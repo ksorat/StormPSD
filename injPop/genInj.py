@@ -9,7 +9,7 @@ import lfmPreproc as lfmpre
 from sys import exit
 
 
-ipID = 0 #Which injected population: (0,3,21)
+ipID = 21 #Which injected population: (0,3,21)
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 Nswp = 1
 
@@ -43,10 +43,7 @@ fPkl = "tsWedge_%d.pkl"%(ipID)
 if (ipID == 0):
 	#Standard wedge
 	#Wedge info
-	#R = [11.5,12.5]
-	
-	
-	
+	P = [170,190]
 elif (ipID == 1):
 	#Fat wedge w/ same injection data as ip0
 	fPkl = "tsWedge_0.pkl"
