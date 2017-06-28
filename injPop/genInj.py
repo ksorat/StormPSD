@@ -9,7 +9,7 @@ import lfmPreproc as lfmpre
 from sys import exit
 
 
-ipID = 0 #Which injected population: (0,3,21)
+ipID = 21 #Which injected population: (0,3,21)
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 Nswp = 1
 
