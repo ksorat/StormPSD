@@ -7,30 +7,38 @@ import xml.dom.minidom
 import numpy as np
 import os
 
+doTest = True
+
 IDs = ["StormA","StormT","StormI"]
 
 BaseP = "~/Work/StormPSD/Data/"
-MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
-doKap = [False,False,True,True]
-tsF = "tsWedge.csv"
+#MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
+MaskP = ["Inj0","Inj21","Inj3","Trap","TrapC"]
+doTS = [True,True,True,False,False]
+tsID = [0,21,3,None,None]
+
+tsS = "tsWedge_"
 
 #Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
-#dt = 600.0
-dt = 6000.0
+dt = 600.0
 Rin = 2
 Rout = 20
-Nth = 8
+Nth = 8 #Number of threads
+doLogR = True
+if (doTest):
+	dt = 6000.0
+	#Tf = T0+10*dt
 
 #Parameters
 
 #Config 1
 kappa = 2.8
 kTScl = 0.5
-Nr = 72
-Np = 48
-Nk = 50
+Nr = 36
+Np = 24
+Nk = 30
 kMin = 10.0
 kMax = 5000.0
 Na = 20
@@ -58,14 +66,14 @@ for i in range(NumPSD):
 
 	#Particle/population details
 	if (IDs[i] == IDs[0]):
-		doPop = [True,True,True,True]
+		#All
+		doPop = [True,True,True,True,True]
 	elif (IDs[i] == IDs[1]):
 		#Trapped
-		doPop = [True,True,False,False]
+		doPop = [False,False,False,True,True]
 	else:
 		#Injected
-		#doPop = [False,False,True,True]
-		doPop = [False,False,True,False]
+		doPop = [True,True,True,False,False]
 
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
@@ -76,11 +84,12 @@ for i in range(NumPSD):
 			pID = "population"+str(pn+1)
 			pn = pn + 1
 			popInfo = et.SubElement(pInfo,pID)
-			popInfo.set("files",BaseP+MaskP[p])
-			if (doKap[p]):
+			popInfo.set("files",BaseP+MaskP[p]+"/*.h5part")
+			if (doTS[p]):
 				popInfo.set("weighting","kapNTSeries")
 				popInfo.set("kappa",str(kappa))
 				popInfo.set("kTScl",str(kTScl))
+				tsF = tsS + str(tsID[p]) + ".csv"
 				popInfo.set("seriesfile",tsF)
 			else:
 				popInfo.set("weighting","rbtrap")
@@ -101,6 +110,8 @@ for i in range(NumPSD):
 	psR.set("N",str(Nr))
 	psR.set("min",str(Rin))
 	psR.set("max",str(Rout))
+	if (doLogR):
+		psR.set("log","T")
 	psT = et.SubElement(psInfo,"theta")
 	psT.set("N","1")
 	psP = et.SubElement(psInfo,"phi")
