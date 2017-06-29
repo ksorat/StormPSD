@@ -34,11 +34,11 @@ if (doTest):
 #Parameters
 
 #Config 1
-kappa = 2.8
+kappa = 3.4
 kTScl = 0.5
 Nr = 36
 Np = 24
-Nk = 30
+Nk = 50
 kMin = 10.0
 kMax = 5000.0
 Na = 20

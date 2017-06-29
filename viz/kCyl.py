@@ -115,6 +115,7 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
 	print(cdf)
+
 	#Get main data
 	T    = cdf[rbID+'_ect-mageis_l2_ele_time_epoch'][...]
 	kRB  = cdf[rbID+'_ect-mageis_l2_ele_FESA_channel_energy'][...]
@@ -122,6 +123,8 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	Itk  = cdf[rbID+'_ect-mageis_l2_ele_FESA'][...]
 
 	cdf.close()
+	print("RB Energies = %s"%str(kRB[0,:]))
+	print("RB Widths = %s"%str(dkRB[0,:]))
 	#Pull data
 	kRB = kRB[0,:]
 	dkRB = dkRB[0,:]

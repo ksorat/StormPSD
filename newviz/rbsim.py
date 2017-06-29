@@ -19,7 +19,7 @@ lfmv.ppInit()
 doPanel = True
 doLine = True
 
-doScl = True
+doScl = False
 doA = False
 doEq = True
 
@@ -32,7 +32,7 @@ Sig = -0.05
 #Sig = 0.5
 
 Nsk = 1 #Skip number for trajectory
-Nk = 25 #Number of K samples
+Nk = 50 #Number of K samples
 imeth = "linear"
 #imeth = "nearest"
 
@@ -209,14 +209,15 @@ if (doPanel):
 	plt.close('all')
 #Show >MeV I
 if (doLine):
-	K0 = 1000.0
-	kR = 100.0
+	K0 = 100.0
+	kR = 10.0
 	figSize = (24,8)
 	figQ = 300 #DPI
 	figName = "rbsimMeV.png"
 	plt.close('all')
 	vMin = 1.0e-1
 	vMax = 1.0e+4
+	vMax = 1.0e+7
 	fig = plt.figure(1,figsize=figSize)
 	LW = 1.5
 	Ws = 10
