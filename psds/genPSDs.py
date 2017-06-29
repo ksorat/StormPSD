@@ -24,7 +24,7 @@ T0 = 33600.0
 Tf = 197000.0
 dt = 600.0
 Rin = 2
-Rout = 20
+Rout = 14
 Nth = 8 #Number of threads
 doLogR = True
 if (doTest):
@@ -36,12 +36,12 @@ if (doTest):
 #Config 1
 kappa = 3.4
 kTScl = 0.5
-Nr = 36
+Nr = 12
 Np = 24
-Nk = 50
+Nk = 25
 kMin = 10.0
 kMax = 5000.0
-Na = 20
+Na = 18
 
 #Config 2
 # kappa = 2.6

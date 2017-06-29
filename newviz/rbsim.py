@@ -20,7 +20,7 @@ doPanel = True
 doLine = True
 
 doScl = False
-doA = False
+doA = True
 doEq = True
 
 T0Str = "2013-03-16T17:10:00Z"
@@ -28,11 +28,11 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 tMin = 33600.0
 tMax = 189000.0
 #tMax = 197000.0
-Sig = -0.05
-#Sig = 0.5
+#Sig = -0.05
+Sig = -0.1
 
 Nsk = 1 #Skip number for trajectory
-Nk = 50 #Number of K samples
+Nk = 100 #Number of K samples
 imeth = "linear"
 #imeth = "nearest"
 
@@ -209,15 +209,15 @@ if (doPanel):
 	plt.close('all')
 #Show >MeV I
 if (doLine):
-	K0 = 100.0
-	kR = 10.0
+	K0 = 2250.0
+	kR = 50.0
 	figSize = (24,8)
 	figQ = 300 #DPI
 	figName = "rbsimMeV.png"
 	plt.close('all')
 	vMin = 1.0e-1
 	vMax = 1.0e+4
-	vMax = 1.0e+7
+	#vMax = 1.0e+7
 	fig = plt.figure(1,figsize=figSize)
 	LW = 1.5
 	Ws = 10
