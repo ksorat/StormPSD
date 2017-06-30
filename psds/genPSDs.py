@@ -28,7 +28,7 @@ Rout = 14
 Nth = 16 #Number of threads
 doLogR = True
 if (doTest):
-	dt = 6000.0
+	dt = 3000.0
 	#Tf = T0+10*dt
 
 #Parameters
