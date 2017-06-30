@@ -20,7 +20,7 @@ doPanel = True
 doLine = True
 
 doScl = False
-doA = True
+doA = False
 doEq = True
 
 T0Str = "2013-03-16T17:10:00Z"
@@ -32,7 +32,7 @@ tMax = 189000.0
 Sig = -0.1
 
 Nsk = 1 #Skip number for trajectory
-Nk = 100 #Number of K samples
+Nk = 30 #Number of K samples
 imeth = "linear"
 #imeth = "nearest"
 
@@ -209,7 +209,7 @@ if (doPanel):
 	plt.close('all')
 #Show >MeV I
 if (doLine):
-	K0 = 2250.0
+	K0 = 1050.0
 	kR = 50.0
 	figSize = (24,8)
 	figQ = 300 #DPI
@@ -248,7 +248,7 @@ if (doLine):
 	plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 	fOutL = fOut+"_I1.png"
 	plt.savefig(fOutL,dpi=figQ)
-
+	plt.close('all')
 # plt.pcolormesh(Tsc,Ksc,Isc.T,norm=vNorm,cmap=cMap)
 # plt.ylim([50,5.0e+3])
 # plt.ylabel("Energy [keV]",fontsize="large")
