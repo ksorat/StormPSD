@@ -211,7 +211,7 @@ if (doPanel):
 if (doLine):
 	K0 = 1050.0
 	kR = 50.0
-	figSize = (24,8)
+	figSize = (12,8)
 	figQ = 300 #DPI
 	figName = "rbsimMeV.png"
 	plt.close('all')

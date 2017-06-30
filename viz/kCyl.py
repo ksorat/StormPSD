@@ -102,16 +102,38 @@ def SmoothI(I,sig=1.0):
 
 	I = gaussian_filter(I,sig)
 	return I
+
 #Create interpolator for K-Cylinder
 def GetInterp(R,P,K,t,I,imeth="linear"):
 	import scipy
 	import scipy.interpolate
-	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=0)
-
+	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
+	# rr,pp,kk,tt = np.meshgrid(R,P,K,Tkc,indexing='ij')
+	# Irpkt = scipy.interpolage.griddata((rr,pp,kk,tt),)
 	return Irpkt
 
+#Interpolate intensities at trajectories
+def InterpI(Ii,Xsc,Ysc,Tsc,K):
+	Rsc = np.sqrt(Xsc**2.0+Ysc**2.0)
+	Psc = np.arctan2(Ysc,Xsc)
+	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
+
+	Nsc = len(Tsc)
+	Nk = len(K)
+	#Create arrays
+	iPts = np.zeros((Nk,4))
+	Isc = np.zeros((Nsc,Nk))
+	for i in range(Nsc):
+		#Evaluate for all energies at this point
+		iPts[:,0] = Rsc[i]
+		iPts[:,1] = Psc[i]
+		iPts[:,2] = K
+		iPts[:,3] = Tsc[i]
+		Isc[i,:] = Ii(iPts)
+
+	return Isc
 #Get Intensity from RBSP CDF
-def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
+def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
 	print(cdf)
@@ -123,8 +145,16 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	Itk  = cdf[rbID+'_ect-mageis_l2_ele_FESA'][...]
 
 	cdf.close()
-	print("RB Energies = %s"%str(kRB[0,:]))
-	print("RB Widths = %s"%str(dkRB[0,:]))
+
+	#Pull out empty channels, assuming at bottom
+	kMax = kRB.max(axis=0)
+	k0 = (kMax>0).argmax()
+	kRB  = kRB [:,k0:]
+	dkRB = dkRB[:,k0:]
+	Itk  = Itk [:,k0:]
+
+	#print("RB Energies = %s"%str(kRB[0,:]))
+	#print("RB Widths = %s"%str(dkRB[0,:]))
 	#Pull data
 	kRB = kRB[0,:]
 	dkRB = dkRB[0,:]
@@ -132,6 +162,10 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	#Constrain time domain
 	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
 	Itk = Itk[I,:]
+
+	#Enforce skipping if necessary
+	Ts = Ts[0::rbSK]
+	Itk = Itk[0::rbSK,:]
 
 	return Ts,kRB,dkRB,Itk
 
