@@ -25,7 +25,7 @@ Tf = 197000.0
 dt = 600.0
 Rin = 2
 Rout = 14
-Nth = 8 #Number of threads
+Nth = 16 #Number of threads
 doLogR = True
 if (doTest):
 	dt = 6000.0
@@ -36,11 +36,11 @@ if (doTest):
 #Config 1
 kappa = 3.4
 kTScl = 0.5
-Nr = 12
+Nr = 18
 Np = 24
 Nk = 25
-kMin = 10.0
-kMax = 5000.0
+kMin = 30.0
+kMax = 4000.0
 Na = 18
 
 #Config 2
