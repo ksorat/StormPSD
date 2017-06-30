@@ -25,16 +25,16 @@ tMax = 189000.0
 
 #RB Opts
 rbStrs = ["A","B"]
-rbSK = 5 #Skip cadence for RB intensity
-rbSKt = 5 #Skip cadence for RB trajectory
-doDip = False #Do dipole projection of trajectory
+rbSK = 2 #Skip cadence for RB intensity
+rbSKt = 1 #Skip cadence for RB trajectory
+doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 doSmooth = True
-SigR = 0.0
-SigP = 0.0
-SigT = 0.0
+SigR = 0.25
+SigP = 0.25
+SigT = 0.5
 
 #Figure opts
 doSmoothFig = False
@@ -46,7 +46,7 @@ cMap = "jet"
 
 NumPop = len(kcStrs)
 NumRB = len(rbStrs)
-NumRB = 1
+#NumRB = 1
 
 for nrb in range(NumRB):
 	aI = []
@@ -93,6 +93,7 @@ for nrb in range(NumRB):
 		Ii = kc.GetInterp(R,P,K,Tkc,Is)
 
 		Kkc = Krb
+		#Nk = 100
 		#Kkc = np.logspace(np.log10(Krb.min()),np.log10(Krb.max()),Nk)
 
 		Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Kkc)
@@ -151,6 +152,8 @@ for nrb in range(NumRB):
 		#vMaxs = (1.0e+5)*np.ones(Np)
 		vMins = [1.0e-1,1.0,1.0e+1,1.0e+1,1.0e+2]
 		vMaxs = [1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+6]
+		lw1 = 1.5
+		lw2 = 0.5
 
 		figSize = (12,12)
 		vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
@@ -180,7 +183,11 @@ for nrb in range(NumRB):
 			Ik1 = kcIi1(iPts)
 			Ik2 = kcIi2(iPts)
 			Ik3 = kcIi(iPts)
-			plt.semilogy(Tp,Ik0,'k',Tp,Ik1,'g',Tp,Ik2,'r',Tp,Ik3,'m')
+			Ax.semilogy(Tp,Ik0,'k',linewidth=lw1)
+			Ax.semilogy(Tp,Ik1,'g',linewidth=lw2)
+			Ax.semilogy(Tp,Ik2,'r',linewidth=lw2)
+			Ax.semilogy(Tp,Ik3,'m',linewidth=lw1)
+			
 			plt.ylim([vMins[n],vMaxs[n]])
 			#Set axes
 			if (n==0):
@@ -194,22 +201,18 @@ for nrb in range(NumRB):
 			#Add labels
 			KLab = "%s keV"%(str(KLs[n]))
 			Ax.text(0.05,0.75,KLab,transform=Ax.transAxes,fontsize='large')
-		plt.show()
+
+		plt.suptitle(Labs[0])
+		#Save and close
+		plt.savefig(figName,dpi=figQ)
+		plt.close('all')
 
 
-		# for n in range(Np):
-		# 	iPts[:,0] = Tsc
-		# 	iPts[:,1] = KLs[n]
-		# 	Irbt = rbIi(iPts)
-		# 	Ikct = kcIi(iPts)
-		# 	C1 = Cols[n]+"-"
-		# 	C2 = Cols[n]+"--"
-		# 	plt.semilogy(Tsc,Irbt,C1,Tsc,Ikct,C2)
-		# plt.show()
 
 if (doSmoothFig):
 	#Figure comparing original versus smoothed intensity
 	Kc0 = 1000
+	#Kc0 = 750.0
 	Tc0 = 120000.0
 	ILab = "1MeV Intensity"
 	vNorm = LogNorm(vmin=1.0e-1,vmax=1.0e+4)
@@ -233,6 +236,6 @@ if (doSmoothFig):
 	cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 	cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
 	plt.suptitle(ILab)
-	#plt.show()
+	plt.show()
 
 
