@@ -7,7 +7,7 @@ import xml.dom.minidom
 import numpy as np
 import os
 
-doTest = True
+doTest = False
 
 IDs = ["StormA","StormT","StormI"]
 
