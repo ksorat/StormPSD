@@ -240,5 +240,6 @@ if (doSmoothFig):
 	plt.suptitle(ILab)
 	plt.savefig("smoothPic.png",dpi=figQ)
 	#plt.show()
+	plt.close('all')
 
 
