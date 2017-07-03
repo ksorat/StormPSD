@@ -32,10 +32,10 @@ doDip = True #Do dipole projection of trajectory
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 doSmooth = True
-SigR = 1#0.5
-SigP = 1#0.5
+SigR = #0.5
+SigP = #0.5
 SigT = 1
-SigK = 0.2
+SigK = 0.0
 
 #Figure opts
 doSmoothFig = True
@@ -87,7 +87,7 @@ for nrb in range(NumRB):
 		if (doSmooth):
 			Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
 			Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
-			Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
+			#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
 			Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
 
 
@@ -240,5 +240,6 @@ if (doSmoothFig):
 	plt.suptitle(ILab)
 	plt.savefig("smoothPic.png",dpi=figQ)
 	#plt.show()
+	plt.close('all')
 
 
