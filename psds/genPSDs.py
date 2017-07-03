@@ -35,10 +35,10 @@ if (doTest):
 
 #Config 1
 kappa = 3.4
-kTScl = 0.4
-Nr = 36
-Np = 48
-Nk = 40
+kTScl = 0.5
+Nr = 25
+Np = 24
+Nk = 20
 kMin = 30.0
 kMax = 4100.0
 Na = 18

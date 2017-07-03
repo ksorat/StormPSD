@@ -31,11 +31,16 @@ doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-doSmooth = True
-SigR = 0.5
-SigP = 0.5
-SigT = 1
-SigK = 0.0
+doSmooth = False
+SigR = 1.5
+SigP = 1.5
+SigT = 1.0
+SigK = 0.5
+
+SigR = 0.25
+SigP = 0.25
+#SigT = 1.0
+#SigK = 0.5
 
 #Figure opts
 doSmoothFig = True
@@ -88,7 +93,7 @@ for nrb in range(NumRB):
 			Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
 			Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
 			#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
-			Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
+			#Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
 
 
 		#Get interpolant and apply to trajectory
