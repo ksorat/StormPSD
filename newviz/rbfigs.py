@@ -32,8 +32,8 @@ doDip = True #Do dipole projection of trajectory
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 doSmooth = True
-SigR = #0.5
-SigP = #0.5
+SigR = 0.5
+SigP = 0.5
 SigT = 1
 SigK = 0.0
 
