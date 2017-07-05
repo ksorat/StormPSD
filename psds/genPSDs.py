@@ -15,7 +15,7 @@ BaseP = "~/Work/StormPSD/Data/"
 #MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
 MaskP = ["Inj00","Inj0","Inj21","Inj3","Trap","TrapC"]
 doTS = [True,True,True,True,False,False]
-tsID = [00,0,21,3,None,None]
+tsID = ["00","0","21","3",None,None]
 
 tsS = "tsWedge_"
 
@@ -89,7 +89,7 @@ for i in range(NumPSD):
 				popInfo.set("weighting","kapNTSeries")
 				popInfo.set("kappa",str(kappa))
 				popInfo.set("kTScl",str(kTScl))
-				tsF = tsS + str(tsID[p]) + ".csv"
+				tsF = tsS + tsID[p] + ".csv"
 				popInfo.set("seriesfile",tsF)
 			else:
 				popInfo.set("weighting","rbtrap")
