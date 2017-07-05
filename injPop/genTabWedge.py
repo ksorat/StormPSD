@@ -8,8 +8,8 @@ from sys import exit
 #Root dir
 rDir = os.path.expanduser('~') + "/Work/StormPSD/"
 
-fStub = ["21","3","0"]
-NumW = 3
+fStub = ["21","3","0","00"]
+NumW = 4
 for nw in range(NumW):
 	fPkl = "tsWedge_%s.pkl"%(fStub[nw])
 	fTab = "tsWedge_%s.csv"%(fStub[nw])

@@ -25,21 +25,21 @@ tMax = 189000.0
 
 #RB Opts
 rbStrs = ["A","B"]
-rbSK = 2 #Skip cadence for RB intensity
-rbSKt = 1 #Skip cadence for RB trajectory
+rbSK = 5 #Skip cadence for RB intensity
+rbSKt = 5 #Skip cadence for RB trajectory
 doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-doSmooth = False
-SigR = 1.5
-SigP = 1.5
-SigT = 1.0
+doSmooth = True
+SigR = 0.5
+SigP = 0.5
+SigT = 0.5
 SigK = 0.5
 
-SigR = 0.25
-SigP = 0.25
-#SigT = 1.0
+# SigR = 0.25
+# SigP = 0.25
+# SigT = 0.1
 #SigK = 0.5
 
 #Figure opts
@@ -93,7 +93,7 @@ for nrb in range(NumRB):
 			Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
 			Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
 			#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
-			#Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
+			Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
 
 
 		#Get interpolant and apply to trajectory
