@@ -13,9 +13,9 @@ IDs = ["StormA","StormT","StormI"]
 
 BaseP = "~/Work/StormPSD/Data/"
 #MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
-MaskP = ["Inj0","Inj21","Inj3","Trap","TrapC"]
-doTS = [True,True,True,False,False]
-tsID = [0,21,3,None,None]
+MaskP = ["Inj00","Inj0","Inj21","Inj3","Trap","TrapC"]
+doTS = [True,True,True,True,False,False]
+tsID = [00,0,21,3,None,None]
 
 tsS = "tsWedge_"
 
@@ -24,7 +24,7 @@ T0 = 33600.0
 Tf = 197000.0
 dt = 600.0
 Rin = 2
-Rout = 14
+Rout = 18
 Nth = 16 #Number of threads
 doLogR = True
 if (doTest):
@@ -67,13 +67,13 @@ for i in range(NumPSD):
 	#Particle/population details
 	if (IDs[i] == IDs[0]):
 		#All
-		doPop = [True,True,True,True,True]
+		doPop = [True,True,True,True,True,True]
 	elif (IDs[i] == IDs[1]):
 		#Trapped
-		doPop = [False,False,False,True,True]
+		doPop = [False,False,False,False,True,True]
 	else:
 		#Injected
-		doPop = [True,True,True,False,False]
+		doPop = [True,True,True,True,False,False]
 
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
