@@ -79,7 +79,8 @@ for n in range(NumPop):
 		dOut[0,:] = t
 		dOut[1,:] = nScl*Nt
 		dOut[2,:] = kTt
-		print(nScl)
+		print("\tMin/Mean/Max nScl = %f,%f,%f"%(nScl.min(),nScl.mean(),nScl.max()))
+		#print(nScl)
 		np.savetxt(fTab,dOut.T,delimiter=',')
 
 for i in range(NumPSD):
