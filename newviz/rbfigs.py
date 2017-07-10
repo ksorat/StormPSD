@@ -25,8 +25,8 @@ tMax = 189000.0
 
 #RB Opts
 rbStrs = ["A","B"]
-rbSK = 5 #Skip cadence for RB intensity
-rbSKt = 5 #Skip cadence for RB trajectory
+rbSK = 2 #Skip cadence for RB intensity
+rbSKt = 1 #Skip cadence for RB trajectory
 doDip = True #Do dipole projection of trajectory
 
 #KC opts
@@ -34,8 +34,8 @@ kcStrs = ["KCyl_StormT","KCyl_StormI"]
 doSmooth = True
 SigR = 0.5
 SigP = 0.5
-SigT = 0.5
-SigK = 0.5
+SigT = 2.0
+#SigK = 0.5
 
 # SigR = 0.25
 # SigP = 0.25
@@ -218,10 +218,11 @@ for nrb in range(NumRB):
 
 if (doSmoothFig):
 	#Figure comparing original versus smoothed intensity
-	Kc0 = 1000
-	#Kc0 = 750.0
+	Kc0 = 2000
+	#Kc0 = 250.0
 	Tc0 = 120000.0
-	ILab = "1MeV Intensity"
+	#ILab = "1MeV Intensity"
+	ILab = "%s keV Intensity"%(str(Kc0))
 	vNorm = LogNorm(vmin=1.0e-1,vmax=1.0e+4)
 
 	figName = "smPic.png"
