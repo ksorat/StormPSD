@@ -3,7 +3,7 @@
 
 import xml.etree.ElementTree as et
 import xml.dom.minidom
-
+import cPickle as pickle
 import numpy as np
 import os
 
@@ -12,12 +12,13 @@ doTest = False
 IDs = ["StormA","StormT","StormI"]
 
 BaseP = "~/Work/StormPSD/Data/"
-#MaskP = ["Trap/StormTrap.*.h5part","TrapC/StormTrapC.*.h5part","Inj/StormInj.*.h5part","Inj1/StormInj.*.h5part"]
-MaskP = ["Inj00","Inj0","Inj21","Inj3","Trap","TrapC"]
-doTS = [True,True,True,True,False,False]
-tsID = ["00","0","21","3",None,None]
+MaskP = ["Inj0","Inj21","Inj3","Trap","TrapC"]
+doTS = [True,True,True,False,False]
+tsID = ["0","21","3",None,None]
 
 tsS = "tsWedge_"
+dR_W = 3 #Wedge radial length [Re]
+ReKM = 6.38e+3
 
 #Uniform parameters
 T0 = 33600.0
@@ -35,7 +36,7 @@ if (doTest):
 
 #Config 1
 kappa = 3.4
-kTScl = 0.5
+kTScl = 0.4
 Nr = 25
 Np = 24
 Nk = 20
@@ -59,6 +60,28 @@ Na = 18
 NumPSD = len(IDs)
 NumPop = len(MaskP)
 
+#Start by creating CSV time series files from PKLs
+#Cheating by scaling number density by (dt*Ux/dR) to introduce dN particles per step
+for n in range(NumPop):
+	if (doTS[n]):
+		fPkl = "tsWedge_%s.pkl"%(tsID[n])
+		fTab = "tsWedge_%s.csv"%(tsID[n])
+		print("Creating CSV for injection %s w/ dt=%f"%(tsID[n],dt))
+		with open(fPkl,"rb") as f:
+			t = pickle.load(f) #Time [s]
+			Vst = pickle.load(f) #Earthward tail velocity [km/s]
+			kTt = pickle.load(f) #Thermal energy, kT [keV]
+			Nt  = pickle.load(f) #Number density, [#/cm3]
+
+		N = t.shape[0]
+		dOut = np.zeros((3,N))
+		nScl = (dt*Vst)/(dR_W*ReKM)
+		dOut[0,:] = t
+		dOut[1,:] = nScl*Nt
+		dOut[2,:] = kTt
+		print(nScl)
+		np.savetxt(fTab,dOut.T,delimiter=',')
+
 for i in range(NumPSD):
 
 	#Create XML
@@ -67,13 +90,13 @@ for i in range(NumPSD):
 	#Particle/population details
 	if (IDs[i] == IDs[0]):
 		#All
-		doPop = [True,True,True,True,True,True]
+		doPop = [True,True,True,True,True]
 	elif (IDs[i] == IDs[1]):
 		#Trapped
-		doPop = [False,False,False,False,True,True]
+		doPop = [False,False,False,True,True]
 	else:
 		#Injected
-		doPop = [True,True,True,True,False,False]
+		doPop = [True,True,True,False,False]
 
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
