@@ -31,7 +31,7 @@ doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-doSmooth = True
+doSmooth = False
 SigR = 0.5
 SigP = 0.5
 SigT = 2.0
@@ -218,7 +218,7 @@ for nrb in range(NumRB):
 
 if (doSmoothFig):
 	#Figure comparing original versus smoothed intensity
-	Kc0 = 2000
+	Kc0 = 1000
 	#Kc0 = 250.0
 	Tc0 = 120000.0
 	#ILab = "1MeV Intensity"

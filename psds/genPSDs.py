@@ -7,7 +7,7 @@ import cPickle as pickle
 import numpy as np
 import os
 
-doTest = True
+doTest = False
 
 IDs = ["StormA","StormT","StormI"]
 
