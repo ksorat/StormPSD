@@ -31,12 +31,12 @@ doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = [1.0,50.0]
+kcScls = [1.0,40.0]
 
 doSmooth = True
-SigR = 0.5
-SigP = 0.5
-SigT = 1.0
+SigR = 1.0
+SigP = 1.0
+SigT = 0.25
 #SigK = 0.5
 
 # SigR = 0.25
@@ -49,6 +49,7 @@ doSmoothFig = True
 doPanelFig = True
 doLineFig = True
 KLs = [2000,1000,750,500,250]
+#KLs = [2500,1000,800,600,200]
 figQ = 300 #DPI
 cMap = "jet"
 
