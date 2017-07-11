@@ -19,7 +19,7 @@ def tWindow(t,Q,dt,SigQ=0.25):
 		Qw[i] = Q[I].mean()
 	return Qw
 
-doTest = False
+doTest = True
 doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
@@ -58,16 +58,14 @@ kMax = 4100.0
 Na = 18
 
 #Config 2
-# kappa = 2.6
-# kTScl = 0.5
-# Rin = 2
-# Rout = 16
-# Nr = 28
-# Np = 24
-# Nk = 50
-# kMin = 10.0
-# kMax = 5000.0
-# Na = 10
+kappa = 3.5
+kTScl = 0.25
+Nr = 30
+Np = 24
+Nk = 20
+kMin = 30.0
+kMax = 4100.0
+Na = 18
 
 
 NumPSD = len(IDs)
