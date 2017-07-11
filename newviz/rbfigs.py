@@ -31,10 +31,12 @@ doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-doSmooth = False
+kcScls = [1.0,50.0]
+
+doSmooth = True
 SigR = 0.5
 SigP = 0.5
-SigT = 2.0
+SigT = 1.0
 #SigK = 0.5
 
 # SigR = 0.25
@@ -87,7 +89,7 @@ for nrb in range(NumRB):
 		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
-		Is = I0
+		Is = kcScls[n]*I0
 		#Do some smoothing
 		if (doSmooth):
 			Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')

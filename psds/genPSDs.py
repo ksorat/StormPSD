@@ -1,13 +1,26 @@
 #Generate XMLs for PSD calculation
-
-
 import xml.etree.ElementTree as et
 import xml.dom.minidom
 import cPickle as pickle
 import numpy as np
 import os
 
+def tWindow(t,Q,dt,SigQ=0.25):
+	import scipy.ndimage
+	from scipy.ndimage.filters import gaussian_filter1d
+	#First gaussian window to denoise
+	#Q = gaussian_filter1d(Q,sigma=SigQ)
+	#Window time series t,Q based on window size dt
+	Nt = len(t)
+	Qw =  np.zeros(Nt)
+	for i in range(Nt):
+		t0 = t[i]
+		I = (np.abs(t-t0) <= dt)
+		Qw[i] = Q[I].mean()
+	return Qw
+
 doTest = False
+doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
 
@@ -75,10 +88,19 @@ for n in range(NumPop):
 
 		N = t.shape[0]
 		dOut = np.zeros((3,N))
-		nScl = (dt*Vst)/(dR_W*ReKM)
 		dOut[0,:] = t
-		dOut[1,:] = nScl*Nt
-		dOut[2,:] = kTt
+
+		wVst = tWindow(t,Vst,dt)
+		wkTt = tWindow(t,kTt,dt)
+		wNt  = tWindow(t,Nt ,dt)
+		if (doSmoothTS):
+			nScl = (dt*wVst)/(dR_W*ReKM)
+			dOut[1,:] = nScl*wNt
+			dOut[2,:] = wkTt
+		else:
+			nScl = (dt*Vst)/(dR_W*ReKM)
+			dOut[1,:] = nScl*Nt
+			dOut[2,:] = kTt
 		print("\tMin/Mean/Max nScl = %f,%f,%f"%(nScl.min(),nScl.mean(),nScl.max()))
 		#print(nScl)
 		np.savetxt(fTab,dOut.T,delimiter=',')
@@ -169,15 +191,47 @@ for i in range(NumPSD):
 		f.write(xmlStr)
 
 
-#Generate runner
-RunF = "RunPSD.sh"
-with open(RunF,"w") as fID:
-	fID.write("#!/bin/bash")
-	fID.write("\n\n")
-	fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-	for i in range(NumPSD):
-		IDi = IDs[i]
+#Generate runners
+#Individual PSD
+for i in range(NumPSD):
+	IDi = IDs[i]
+	RunP = "RunPSD_%s.sh"%(IDi)
+	with open(RunP,"w") as fID:
+		fID.write("#!/bin/bash")
+		fID.write("\n\n")
+		fID.write("module restore lfmtp\n")
+		fID.write("module list\n")
+		fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
 		ComS = "psd.x %s.xml\n"%IDi
 		fID.write(ComS)
 		ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
 		fID.write(ComS)
+	os.chmod(RunP, 0744)
+#Sub all PSDs
+RunF = "SubPSDs.sh"
+wcS = "6:00"
+qS = "regular"
+pS = "UJHB0003"
+with open(RunF,"w") as fID:
+	fID.write("#!/bin/bash")
+	fID.write("\n\n")
+
+	for i in range(NumPSD):
+		IDi = IDs[i]
+		logF = "PSD_%s.log"%(IDi)
+		jobS = "PSD%s"%(IDi)
+		ComS = "bsub -a poe -P " + pS + " -W " + wcS + " -n 1 -q " + qS + " -J " + jobS + " -e %s -o %s"%(logF,logF)
+		ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
+		fID.write(ComS)
+os.chmod(RunF, 0744)
+# 
+# with open(RunF,"w") as fID:
+# 	fID.write("#!/bin/bash")
+# 	fID.write("\n\n")
+# 	fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
+# 	for i in range(NumPSD):
+# 		IDi = IDs[i]
+# 		ComS = "psd.x %s.xml\n"%IDi
+# 		fID.write(ComS)
+# 		ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
+# 		fID.write(ComS)
