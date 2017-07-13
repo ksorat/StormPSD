@@ -19,7 +19,7 @@ def tWindow(t,Q,dt,SigQ=0.25):
 		Qw[i] = Q[I].mean()
 	return Qw
 
-doTest = True
+doTest = False
 doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
@@ -222,14 +222,4 @@ with open(RunF,"w") as fID:
 		ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
 		fID.write(ComS)
 os.chmod(RunF, 0744)
-# 
-# with open(RunF,"w") as fID:
-# 	fID.write("#!/bin/bash")
-# 	fID.write("\n\n")
-# 	fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-# 	for i in range(NumPSD):
-# 		IDi = IDs[i]
-# 		ComS = "psd.x %s.xml\n"%IDi
-# 		fID.write(ComS)
-# 		ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
-# 		fID.write(ComS)
+
