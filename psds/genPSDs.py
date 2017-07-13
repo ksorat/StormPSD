@@ -19,7 +19,7 @@ def tWindow(t,Q,dt,SigQ=0.25):
 		Qw[i] = Q[I].mean()
 	return Qw
 
-doTest = False
+doTest = True
 doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
@@ -207,7 +207,7 @@ for i in range(NumPSD):
 	os.chmod(RunP, 0744)
 #Sub all PSDs
 RunF = "SubPSDs.sh"
-wcS = "6:00"
+wcS = "12:00"
 qS = "regular"
 pS = "UJHB0003"
 with open(RunF,"w") as fID:
