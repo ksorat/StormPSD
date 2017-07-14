@@ -31,7 +31,7 @@ doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = [1.0,40.0]
+kcScls = np.pi*4*np.array([1.0,3.0])
 
 doSmooth = False
 SigR = 0.5
@@ -45,10 +45,14 @@ SigT = 0.5
 #SigK = 0.5
 
 #Figure opts
-doSmoothFig = True
+doSmoothFig = False
 doPanelFig = True
 doLineFig = True
-KLs = [2000,1000,750,500,250]
+#KLs = [2000,1000,750,500,250]
+KLs = [3000,2000,1000,500,250,50]
+vMins = [1.0e-1,1.0e-1,1.0e+1,1.0e+1,1.0e+2,1.0e+4]
+vMaxs = [1.0e+3,1.0e+3,1.0e+5,1.0e+5,1.0e+6,1.0e+8]
+
 #KLs = [2500,1000,800,600,200]
 figQ = 300 #DPI
 cMap = "jet"
@@ -91,26 +95,29 @@ for nrb in range(NumRB):
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
 		Is = kcScls[n]*I0
-		#Do some smoothing
-		if (doSmooth):
-			Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
-			Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
-			#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
-			Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
+
+		# #Do some smoothing
+		# if (doSmooth):
+		# 	Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
+		# 	Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
+		# 	#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
+		# 	Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
 
 
 		#Get interpolant and apply to trajectory
-		Ii = kc.GetInterp(R,P,K,Tkc,Is)
+		#Ii = kc.GetInterp(R,P,K,Tkc,Is,imeth="linear")
+		#Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Krb)
 
-		Kkc = Krb
-		#Nk = 100
-		#Kkc = np.logspace(np.log10(Krb.min()),np.log10(Krb.max()),Nk)
+		#Use different interpolation method
+		SimKC = [R,P,K,Tkc,Is]
+		rbDat = [Xsc,Ysc,Tsc,Krb]
 
-		Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Kkc)
+		Isc = kc.InterpSmooth(SimKC,rbDat)
+
 		#Save individual contributions
 		aI.append(Isc)
 		aT.append(Tsc)
-		aK.append(Kkc)
+		aK.append(Krb)
 
 
 	#Save combined intensity
@@ -160,8 +167,6 @@ for nrb in range(NumRB):
 		Cols = ['r','b','g','m','k']
 		#vMins = 1.0*np.ones(Np)
 		#vMaxs = (1.0e+5)*np.ones(Np)
-		vMins = [1.0e-1,1.0,1.0e+1,1.0e+1,1.0e+2]
-		vMaxs = [1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+6]
 		lw1 = 1.5
 		lw2 = 0.5
 

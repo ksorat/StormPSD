@@ -54,10 +54,11 @@ for nrb in range(NumRB):
 Tp = kc.Ts2date(Tsc,T0Str)
 
 #Make time plot
-plt.figure(figsize=(12,4))
+plt.figure(figsize=(12,8))
 plt.plot(Tp,Tsc,'r')
 plt.ylabel('Seconds')
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+plt.gca().grid(True)
 plt.savefig("TimeConv.png",dpi=figQ)
 plt.close('all')
 
@@ -74,6 +75,7 @@ for n in range(NumRB):
 	TitS = "RB-%s"%(rbStrs[n])
 	plt.title(TitS)
 	Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	Ax.grid(True)
 	plt.legend(["X","Y","Z","L"])
 plt.savefig("RBTraj.png",dpi=figQ)
 plt.close('all')
