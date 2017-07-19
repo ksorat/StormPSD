@@ -58,10 +58,13 @@ if (doTest):
 # Na = 9
 
 #Config 2
+
 kappa = 3.5
 kTScl = 0.25
-Nr = 30
-Np = 24
+#Nr = 30
+#Np = 24
+Nr = 60
+Np = 48
 Nk = 20
 kMin = 30.0
 kMax = 4100.0
