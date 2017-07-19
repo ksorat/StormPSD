@@ -108,9 +108,46 @@ def GetInterp(R,P,K,t,I,imeth="linear"):
 	import scipy
 	import scipy.interpolate
 	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
-	# rr,pp,kk,tt = np.meshgrid(R,P,K,Tkc,indexing='ij')
-	# Irpkt = scipy.interpolage.griddata((rr,pp,kk,tt),)
 	return Irpkt
+
+# def GetInterp(R,P,K,t,I,imeth="linear"):
+# 	import scipy
+# 	import scipy.interpolate
+	
+# 	Nr = len(R)
+# 	Np = len(P)
+# 	Nk = len(K)
+# 	Nt = len(t)
+# 	Npts = Nr*Np*Nk*Nt
+
+# 	print("Creating %d interpolant points ..."%(Npts))
+# 	X4 = np.zeros((Nr,Np,Nk,Nt))
+# 	Y4 = np.zeros((Nr,Np,Nk,Nt))
+# 	K4 = np.zeros((Nr,Np,Nk,Nt))
+# 	T4 = np.zeros((Nr,Np,Nk,Nt))
+
+# 	for i in range(Nr):
+# 		for j in range(Np):
+# 			x = R[i]*np.cos(P[j])
+# 			y = R[i]*np.sin(P[j])
+# 			for k in range(Nk):
+# 				for n in range(Nt):
+# 					X4[i,j,k,n] = x
+# 					Y4[i,j,k,n] = y
+# 					K4[i,j,k,n] = K[k]
+# 					T4[i,j,k,n] = t[n]
+
+	
+# 	inPts = np.zeros((Npts,4))
+# 	inPts[:,0] = X4.flatten()
+# 	inPts[:,1] = Y4.flatten()
+# 	inPts[:,2] = K4.flatten()
+# 	inPts[:,3] = T4.flatten()
+# 	inVals = I.flatten()
+# 	print("Creating interpolant function ...")
+# 	Irpkt = scipy.interpolate.LinearNDInterpolator(inPts,inVals)
+# 	#Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
+# 	return Irpkt
 
 #Interpolate intensities at trajectories
 def InterpI(Ii,Xsc,Ysc,Tsc,K):
@@ -129,9 +166,101 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 		iPts[:,1] = Psc[i]
 		iPts[:,2] = K
 		iPts[:,3] = Tsc[i]
-		Isc[i,:] = Ii(iPts)
+		if (Rsc[i]<=2.01):
+			Isc[i,:] = 0.0
+		else:
+			Isc[i,:] = Ii(iPts)
 
 	return Isc
+#Interpolate intensities from KCyl onto RB trajectory
+#SimKC = [R,P,K,Tkc,Is]
+#rbDat = [Xsc,Ysc,Tsc,Ksc]
+
+def InterpSmooth(SimKC,rbDat):
+	from scipy.ndimage.filters import gaussian_filter1d
+	Xsc,Ysc,Tsc,Ksc = rbDat
+	R,P,K,Tkc,Ikc = SimKC
+
+	
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+	#IkcS = Ikc
+	#Now apply smoothing window
+	Nr = len(R)
+	Np = len(P)
+	Nt = len(Tsc)
+	Nk = len(Ksc)
+
+	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
+	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
+	#Smoothing parameters for center, cross, diagonals
+	a0 = np.exp(0)
+	aC = np.exp(-0.5)
+	aD = np.exp(-1.0)
+	#aC = np.exp(-1.0)
+	#aD = np.exp(-2.0)
+	# a0 = 0.25
+	# aC = 0.25
+	# aD = 0.25
+	aScl2D = a0+4*aC+4*aD
+	aScl1D = a0+2*aC
+
+	for i in range(1,Nr-1):
+		for j in range(Np):
+			iM = i-1
+			iP = i+1
+			jM = j-1
+			jP = j+1
+			if (j==0):
+				jM = Np-1
+			if (j==Np-1):
+				jP = 0
+
+			IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
+							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
+							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
+							 )/aScl2D
+	Ii = GetInterp(R,P,K,Tkc,IkcS)
+	Isc = InterpI(Ii,Xsc,Ysc,Tsc,Ksc)
+
+	IscS = np.zeros(Isc.shape)
+	IscS[:] = Isc[:]
+	#IscS = gaussian_filter1d(IscS,sigma=2.5,axis=0)
+	Nwin = 3
+	for n in range(0,Nt-1):
+		n0 = max(n-Nwin,0)
+		n1 = min(n+Nwin,Nt-1)
+		IscS[n,:] = Isc[n0:n1,:].mean(axis=0)
+		#IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
+	return IscS
+
+	# Nr = len(R)
+	# Np = len(P)
+	# XX = np.zeros((Nr,Np))
+	# YY = np.zeros((Nr,Np))
+	# for i in range(Nr):
+	# 	for j in range(Np):
+	# 		XX[i,j] = R[i]*np.cos(P[j])
+	# 		YY[i,j] = R[i]*np.sin(P[j])
+
+	# xG = XX.flatten()
+	# yG = YY.flatten()
+
+	# 
+	# 
+
+	# 
+
+	# Isc = np.zeros((Nt,Nk))
+	# for i in range(Nt):
+	# 	for j in range(Nk):
+	# 		#Find bounds
+	# IscS = np.zeros(Isc.shape)
+	# IscS = Isc
+	# for n in range(1,Nt-1):
+	# 	IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
+	#return Isc
+
 #Get Intensity from RBSP CDF
 def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	from spacepy import pycdf

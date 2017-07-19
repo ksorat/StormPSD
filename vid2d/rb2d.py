@@ -17,20 +17,22 @@ T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 outVid = "irb2d.mp4"
+kSlc = 1000
+ILab = "1MeV Intensity\ns-1 cm-2 keV-1"
+
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data/"
 fPSD = Base + "Merge/KCyl_StormA.xmf"
 fEq  = Base + "psdEq/eqSlc.*.vti database"
 fRB  = "rbpos.h5part"
 
-kSlc = 1000
-ILab = "1MeV Intensity\ns-1 cm-2 keV-1"
 
 cMapI = "viridis"
-Ibds = [1.0e-1,5.0e+3]
+Ibds = [1.0e-1,1.0e+3]
+cLW = 0
 
 cMapF = "RdGy"
 fbds = [-35,35]
-Nc = 17
+Nc = 15
 
 if (Quiet):
 	LaunchNowin()
@@ -66,7 +68,7 @@ pyv.addThreshold("f",Ibds[0],1.0e+12,opNum=1)
 
 #Create field contours
 if (doField):
-	pyv.plotContour(fEq,"dBz",cmap=cMapF,vBds=fbds,Nlevels=Nc,lineWidth=1)
+	pyv.plotContour(fEq,"dBz",cmap=cMapF,vBds=fbds,Nlevels=Nc,lineWidth=cLW)
 	cOp = GetPlotOptions()
 
 pyv.lfmPScat(fRB,v1="x",v2="y",v4="id",pSize=15,Legend=False,cMap="Cool")
