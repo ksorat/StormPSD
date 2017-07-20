@@ -59,6 +59,9 @@ for nrb in range(NumRB):
 	aLCut.append(LCut)
 	#print("Lat/AeC = %f,%f\n"%(mlat*180.0/np.pi,AeC))
 
+Ia = aLCut[0]
+Ib = aLCut[1]
+
 L0 = L.max()
 Tp = kc.Ts2date(Tsc,T0Str)
 figSize = (12,6)
@@ -76,7 +79,7 @@ plt.close('all')
 
 #IScl fraction
 plt.figure(figsize=figSize)
-plt.plot(Tp,aLCut[0]*aIscl[0],'r',Tp,aLCut[1]*aIscl[1],'b')
+plt.plot(Tp[Ia],aIscl[0][Ia],'r',Tp[Ib],aIscl[1][Ib],'b')
 plt.plot(Tp,aL[0]/L0,'r--',Tp,aL[1]/L0,'b--')
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 plt.ylabel('Fraction of total Sin^2 Intensity')
