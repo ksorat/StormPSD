@@ -92,6 +92,7 @@ for nrb in range(NumRB):
 	#Get simulation K-Cyls
 	for n in range(NumPop):
 		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
+		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
 		Is = kcScls[n]*I0
