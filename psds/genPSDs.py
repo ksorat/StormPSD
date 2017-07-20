@@ -19,7 +19,7 @@ def tWindow(t,Q,dt,SigQ=0.25):
 		Qw[i] = Q[I].mean()
 	return Qw
 
-doTest = True
+doTest = False
 doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
