@@ -68,7 +68,7 @@ Np = 48
 Nk = 20
 kMin = 30.0
 kMax = 4100.0
-Na = 18
+Na = 12
 
 
 NumPSD = len(IDs)
