@@ -36,7 +36,7 @@ TitFS = "large"
 
 Ks = [100,250,500,750,1000]
 
-Ts = [35000,75000,125000,150000]
+Ts = np.linspace(35000.0,185000.0,6)
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
 figSize = (12,12)
 figQ = 300
