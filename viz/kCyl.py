@@ -207,8 +207,10 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 
 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	for n in range(Niter):
-		IkcS = SmoothIter(IkcS)
+	IkcS = SmoothKCyl(IkcS,Niter)
+
+	# for n in range(Niter):
+	# 	IkcS = SmoothIter(IkcS)
 
 	Ii = GetInterp(R,P,K,Tkc,IkcS)
 	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc)
@@ -221,6 +223,12 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 
 	return IkcS,IscS
 
+def SmoothKCyl(Ikc,Niter=1):
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+	for n in range(Niter):
+		IkcS = SmoothIter(IkcS)
+	return IkcS
 
 #Does one iteration of smoothing on Ikc
 def SmoothIter(Ikc):
@@ -339,6 +347,31 @@ def Ts2date(Ts,T0S):
 	Td = np.array(Td)
 	return Td
 
+#Get pcolor bounds from R,Phi
+def xy2rp(R,P):
+	Nr = len(R)
+	Np = len(P)
+
+	Pi = np.linspace(0,2*np.pi,Np+1)
+	Ri = np.zeros(Nr+1)
+	for n in range(Nr-1):
+		dr = 0.5*(R[n+1]-R[n])
+		Ri[n] = R[n] - dr
+
+	Ri[Nr-1] = R[Nr-1] + dr
+	R0 = np.round(Ri[0])
+	R1 = np.round(Ri.max())
+
+	Ri = np.logspace(np.log10(R0),np.log10(R1),Nr+1)
+
+	XX = np.zeros((Nr+1,Np+1))
+	YY = np.zeros((Nr+1,Np+1))
+
+	for n in range(Nr+1):
+		for m in range(Np+1):
+			XX[n,m] = Ri[n]*np.cos(Pi[m])
+			YY[n,m] = Ri[n]*np.sin(Pi[m])
+	return XX,YY	
 #Given I(t,K) and K0 return total intensity above K0
 # def ICum(K,K0,I):
 # 	kC = (K>K0).argmax()
