@@ -7,6 +7,17 @@ Re = 6.38e+3 #Earth radius [km]
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
+#Smoothing parameters for center, cross, diagonals
+a0 = np.exp(0)
+#aC = np.exp(-0.5)
+#aD = np.exp(-1.0)
+aC = np.exp(-1.0)
+aD = np.exp(-2.0)
+
+aScl2D = a0+4*aC+4*aD
+aScl1D = a0+2*aC
+
+
 #Get trajectory from orbit file, return time in seconds after T0 (datetime)
 #Chop out times outside of tMin,tMax range
 def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1,doEq=False):
@@ -110,44 +121,6 @@ def GetInterp(R,P,K,t,I,imeth="linear"):
 	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
 	return Irpkt
 
-# def GetInterp(R,P,K,t,I,imeth="linear"):
-# 	import scipy
-# 	import scipy.interpolate
-	
-# 	Nr = len(R)
-# 	Np = len(P)
-# 	Nk = len(K)
-# 	Nt = len(t)
-# 	Npts = Nr*Np*Nk*Nt
-
-# 	print("Creating %d interpolant points ..."%(Npts))
-# 	X4 = np.zeros((Nr,Np,Nk,Nt))
-# 	Y4 = np.zeros((Nr,Np,Nk,Nt))
-# 	K4 = np.zeros((Nr,Np,Nk,Nt))
-# 	T4 = np.zeros((Nr,Np,Nk,Nt))
-
-# 	for i in range(Nr):
-# 		for j in range(Np):
-# 			x = R[i]*np.cos(P[j])
-# 			y = R[i]*np.sin(P[j])
-# 			for k in range(Nk):
-# 				for n in range(Nt):
-# 					X4[i,j,k,n] = x
-# 					Y4[i,j,k,n] = y
-# 					K4[i,j,k,n] = K[k]
-# 					T4[i,j,k,n] = t[n]
-
-	
-# 	inPts = np.zeros((Npts,4))
-# 	inPts[:,0] = X4.flatten()
-# 	inPts[:,1] = Y4.flatten()
-# 	inPts[:,2] = K4.flatten()
-# 	inPts[:,3] = T4.flatten()
-# 	inVals = I.flatten()
-# 	print("Creating interpolant function ...")
-# 	Irpkt = scipy.interpolate.LinearNDInterpolator(inPts,inVals)
-# 	#Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
-# 	return Irpkt
 
 #Interpolate intensities at trajectories
 def InterpI(Ii,Xsc,Ysc,Tsc,K):
@@ -176,8 +149,7 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 #SimKC = [R,P,K,Tkc,Is]
 #rbDat = [Xsc,Ysc,Tsc,Ksc]
 
-def InterpSmooth(SimKC,rbDat):
-	from scipy.ndimage.filters import gaussian_filter1d
+def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 	Xsc,Ysc,Tsc,Ksc = rbDat
 	R,P,K,Tkc,Ikc = SimKC
 
@@ -193,17 +165,28 @@ def InterpSmooth(SimKC,rbDat):
 
 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	#Smoothing parameters for center, cross, diagonals
-	a0 = np.exp(0)
-	aC = np.exp(-0.5)
-	aD = np.exp(-1.0)
-	#aC = np.exp(-1.0)
-	#aD = np.exp(-2.0)
-	# a0 = 0.25
-	# aC = 0.25
-	# aD = 0.25
-	aScl2D = a0+4*aC+4*aD
-	aScl1D = a0+2*aC
+	for n in range(Niter):
+		IkcS = SmoothIter(IkcS)
+
+	Ii = GetInterp(R,P,K,Tkc,IkcS)
+	Isc = InterpI(Ii,Xsc,Ysc,Tsc,Ksc)
+
+
+	IscS = np.zeros(Isc.shape)
+	IscS[:] = Isc[:]
+	for n in range(NiterT):
+		IscS = SmoothIterT(IscS)
+
+	return IkcS,IscS
+
+
+#Does one iteration of smoothing on Ikc
+def SmoothIter(Ikc):
+	Nr = Ikc.shape[0]
+	Np = Ikc.shape[1]
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+
 
 	for i in range(1,Nr-1):
 		for j in range(Np):
@@ -220,49 +203,18 @@ def InterpSmooth(SimKC,rbDat):
 							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
 							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
 							 )/aScl2D
-	Ii = GetInterp(R,P,K,Tkc,IkcS)
-	Isc = InterpI(Ii,Xsc,Ysc,Tsc,Ksc)
+	return IkcS
 
+#Does one time iteration of smoothing on IscS
+def SmoothIterT(Isc):
+	Nt = Isc.shape[0]
 	IscS = np.zeros(Isc.shape)
 	IscS[:] = Isc[:]
-	#IscS = gaussian_filter1d(IscS,sigma=2.5,axis=0)
-	Nwin = 3
-	for n in range(0,Nt-1):
-		n0 = max(n-Nwin,0)
-		n1 = min(n+Nwin,Nt-1)
-		IscS[n,:] = Isc[n0:n1,:].mean(axis=0)
-		#IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
+	for n in range(1,Nt-1):
+		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
 	return IscS
-
-	# Nr = len(R)
-	# Np = len(P)
-	# XX = np.zeros((Nr,Np))
-	# YY = np.zeros((Nr,Np))
-	# for i in range(Nr):
-	# 	for j in range(Np):
-	# 		XX[i,j] = R[i]*np.cos(P[j])
-	# 		YY[i,j] = R[i]*np.sin(P[j])
-
-	# xG = XX.flatten()
-	# yG = YY.flatten()
-
-	# 
-	# 
-
-	# 
-
-	# Isc = np.zeros((Nt,Nk))
-	# for i in range(Nt):
-	# 	for j in range(Nk):
-	# 		#Find bounds
-	# IscS = np.zeros(Isc.shape)
-	# IscS = Isc
-	# for n in range(1,Nt-1):
-	# 	IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
-	#return Isc
-
 #Get Intensity from RBSP CDF
-def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
+def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,Rin=2.05):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
 	print(cdf)
@@ -272,7 +224,7 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	kRB  = cdf[rbID+'_ect-mageis_l2_ele_FESA_channel_energy'][...]
 	dkRB = cdf[rbID+'_ect-mageis_l2_ele_FESA_channel_width'][...]
 	Itk  = cdf[rbID+'_ect-mageis_l2_ele_FESA'][...]
-
+	L    = cdf[rbID+'_ect-mageis_l2_ele_L'][...]
 	cdf.close()
 
 	#Pull out empty channels, assuming at bottom
@@ -291,6 +243,10 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	#Constrain time domain
 	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
 	Itk = Itk[I,:]
+
+	L = L[I]
+	#Ts = Ts[L>=Rin]
+	Itk[L<=Rin,:] = 0.0
 
 	#Enforce skipping if necessary
 	Ts = Ts[0::rbSK]
