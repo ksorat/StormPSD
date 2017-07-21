@@ -45,6 +45,8 @@ if (doTest):
 	dt = 3000.0
 	#Tf = T0+10*dt
 
+dtW = 3000.0
+
 #Parameters
 
 #Config 1
@@ -91,9 +93,9 @@ for n in range(NumPop):
 		dOut = np.zeros((3,N))
 		dOut[0,:] = t
 
-		wVst = tWindow(t,Vst,dt)
-		wkTt = tWindow(t,kTt,dt)
-		wNt  = tWindow(t,Nt ,dt)
+		wVst = tWindow(t,Vst,dtW)
+		wkTt = tWindow(t,kTt,dtW)
+		wNt  = tWindow(t,Nt ,dtW)
 		if (doSmoothTS):
 			nScl = (dt*wVst)/(dR_W*ReKM)
 			dOut[1,:] = nScl*wNt

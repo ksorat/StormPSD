@@ -38,7 +38,8 @@ tsID = ["0","21","3"]
 
 dt = 3000.0
 dt = 600.0
-
+#dtW = 3000.0
+dtW = dt
 NumPop = len(tsID)
 
 aV = []
@@ -62,9 +63,9 @@ for n in range(NumPop):
 	dOut = np.zeros((3,N))
 	dOut[0,:] = t
 
-	wVst = tWindow(t,Vst,dt)
-	wkTt = tWindow(t,kTt,dt)
-	wNt  = tWindow(t,Nt ,dt)
+	wVst = tWindow(t,Vst,dtW)
+	wkTt = tWindow(t,kTt,dtW)
+	wNt  = tWindow(t,Nt ,dtW)
 	if (doSmoothTS):
 		nScl = (dt*wVst)/(dR_W*ReKM)
 		dOut[1,:] = nScl*wNt
