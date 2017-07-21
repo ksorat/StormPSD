@@ -2,7 +2,7 @@
 import numpy as np
 import datetime
 Re = 6.38e+3 #Earth radius [km]
-
+Rmin = 2.1 #Minimum worthwhile radius
 
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -139,18 +139,60 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 		iPts[:,1] = Psc[i]
 		iPts[:,2] = K
 		iPts[:,3] = Tsc[i]
-		if (Rsc[i]<=2.01):
+		if (Rsc[i]<=Rmin):
 			Isc[i,:] = 0.0
 		else:
 			Isc[i,:] = Ii(iPts)
 
 	return Isc
+
+#Interpolate intensities at dipole-projection and attenuate model intensity for latitude
+def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True):
+	Nsc = len(Tsc)
+	Nk = len(K)
+
+	#Calculate dipole projections from 3D positions
+	R = np.sqrt(X**2.0 + Y**2.0 + Z**2.0)
+	Lam = np.arcsin(Z/R)
+	Psc = np.arctan2(Y,X)
+	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
+
+	Req = R/(np.cos(Lam)**2.0)
+	Xeq = Req*np.cos(Psc)
+	Yeq = Req*np.sin(Psc)
+
+	#Calculate attention factor from latitude
+	cL = np.cos(Lam)
+	sL = np.sin(Lam)
+	lArg = cL**6.0/np.sqrt(1+3*sL*sL)
+	AeC = np.arcsin(np.sqrt(lArg)) #Critical equatorial alpha for this latitude
+	I0 = (AeC-0.5*np.sin(2*AeC))/(0.5*np.pi) #Attenuation factor
+
+	#Create arrays
+	iPts = np.zeros((Nk,4))
+	Isc = np.zeros((Nsc,Nk))
+	for i in range(Nsc):
+		#Get 3D position, project to plane along dipole
+		#Evaluate for all energies at this point
+		iPts[:,0] = Req[i]
+		iPts[:,1] = Psc[i]
+		iPts[:,2] = K
+		iPts[:,3] = Tsc[i]
+		if (Req[i]<=Rmin):
+			Isc[i,:] = 0.0
+		else:
+			Isc[i,:] = Ii(iPts)
+		if (doScl):
+			Isc[i,:] = Isc[i,:]*I0[i]
+		#print("Scaling by %f"%(I0[i]))
+	return Isc
+
 #Interpolate intensities from KCyl onto RB trajectory
 #SimKC = [R,P,K,Tkc,Is]
-#rbDat = [Xsc,Ysc,Tsc,Ksc]
+#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
 
 def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
-	Xsc,Ysc,Tsc,Ksc = rbDat
+	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
 	R,P,K,Tkc,Ikc = SimKC
 
 	
@@ -165,11 +207,13 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 
 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	for n in range(Niter):
-		IkcS = SmoothIter(IkcS)
+	IkcS = SmoothKCyl(IkcS,Niter)
+
+	# for n in range(Niter):
+	# 	IkcS = SmoothIter(IkcS)
 
 	Ii = GetInterp(R,P,K,Tkc,IkcS)
-	Isc = InterpI(Ii,Xsc,Ysc,Tsc,Ksc)
+	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc)
 
 
 	IscS = np.zeros(Isc.shape)
@@ -179,6 +223,12 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 
 	return IkcS,IscS
 
+def SmoothKCyl(Ikc,Niter=1):
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+	for n in range(Niter):
+		IkcS = SmoothIter(IkcS)
+	return IkcS
 
 #Does one iteration of smoothing on Ikc
 def SmoothIter(Ikc):
@@ -214,7 +264,7 @@ def SmoothIterT(Isc):
 		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
 	return IscS
 #Get Intensity from RBSP CDF
-def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,Rin=2.05):
+def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
 	print(cdf)
@@ -246,7 +296,7 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,Rin=2.05):
 
 	L = L[I]
 	#Ts = Ts[L>=Rin]
-	Itk[L<=Rin,:] = 0.0
+	Itk[L<=Rmin,:] = 0.0
 
 	#Enforce skipping if necessary
 	Ts = Ts[0::rbSK]
@@ -297,6 +347,31 @@ def Ts2date(Ts,T0S):
 	Td = np.array(Td)
 	return Td
 
+#Get pcolor bounds from R,Phi
+def xy2rp(R,P):
+	Nr = len(R)
+	Np = len(P)
+
+	Pi = np.linspace(0,2*np.pi,Np+1)
+	Ri = np.zeros(Nr+1)
+	for n in range(Nr-1):
+		dr = 0.5*(R[n+1]-R[n])
+		Ri[n] = R[n] - dr
+
+	Ri[Nr-1] = R[Nr-1] + dr
+	R0 = np.round(Ri[0])
+	R1 = np.round(Ri.max())
+
+	Ri = np.logspace(np.log10(R0),np.log10(R1),Nr+1)
+
+	XX = np.zeros((Nr+1,Np+1))
+	YY = np.zeros((Nr+1,Np+1))
+
+	for n in range(Nr+1):
+		for m in range(Np+1):
+			XX[n,m] = Ri[n]*np.cos(Pi[m])
+			YY[n,m] = Ri[n]*np.sin(Pi[m])
+	return XX,YY	
 #Given I(t,K) and K0 return total intensity above K0
 # def ICum(K,K0,I):
 # 	kC = (K>K0).argmax()

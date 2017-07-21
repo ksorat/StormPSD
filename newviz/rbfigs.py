@@ -27,15 +27,17 @@ tMax = 189000.0
 rbStrs = ["A","B"]
 rbSK = 2 #Skip cadence for RB intensity
 rbSKt = 1 #Skip cadence for RB trajectory
-doDip = True #Do dipole projection of trajectory
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-kcScls = np.pi*4*np.array([1.0,10.0])
+kcScls = np.pi*4*np.array([3.0,10.0])
 
 #Figure opts
 doSmoothFig = True
+Niter = 2
+NiterT = 0
+
 doPanelFig = True
 doLineFig = True
 #KLs = [2000,1000,750,500,250]
@@ -77,26 +79,24 @@ for nrb in range(NumRB):
 
 	#Get RB trajectory data
 	#Tsc = seconds after T0
-	Tsc,Xsc,Ysc,Z = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=rbSKt,doEq=doDip)
+	#Get full 3D trajectory
+	Tsc,Xsc,Ysc,Zsc = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=rbSKt,doEq=False)
 
 	#Get simulation K-Cyls
 	for n in range(NumPop):
 		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
+		#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
 		I0 = kcScls[n]*I0
-		#Is = I0
 
-		#Get interpolant and apply to trajectory
-		#Ii = kc.GetInterp(R,P,K,Tkc,Is,imeth="linear")
-		#Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Krb)
 
 		#Use different interpolation method
 		SimKC = [R,P,K,Tkc,I0]
-		rbDat = [Xsc,Ysc,Tsc,Krb]
+		rbDat = [Xsc,Ysc,Zsc,Tsc,Krb]
 
-		Is,Isc = kc.InterpSmooth(SimKC,rbDat)
+		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT)
 
 		#Save individual contributions
 		aI.append(Isc)
