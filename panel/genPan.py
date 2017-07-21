@@ -35,17 +35,26 @@ LabFS = "large"
 TitFS = "large"
 
 Ks = [100,250,500,750,1000]
+mSize = 6
+mTrk = 2
+Ntrk = 10
+Nskp = 6
 
+doTracks = True
 Ts = np.linspace(35000.0,185000.0,6)
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
 figSize = (12,12)
 figQ = 300
 cMap = "jet"
 cMap = "viridis"
+rbAC = "cyan"
+rbBC = "magenta"
+
 #Get started
 NumPop = len(kcStrs)
 Nk = len(Ks)
 Nt = len(Ts)
+NumRB = len(rbStrs)
 
 aI = []
 #Get KCyls (assuming same grid)
@@ -68,6 +77,17 @@ Irpkt = aI[0]+aI[1]
 #Get grid
 XX,YY = kc.xy2rp(R,P)
 
+#Get RB trajectories
+Xrbs = []
+Yrbs = []
+for n in range(NumRB):
+	rbStr = rbStrs[n]
+	OrbF = "vaporbRB" + rbStr.upper() + ".txt"
+	Tsc,Xsc,Ysc,Zsc = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=1,doEq=True)
+	Xrbs.append(Xsc)
+	Yrbs.append(Ysc)
+
+#Prep for figure
 fig = plt.figure(figsize=figSize)
 Nkp = 2
 HRs = np.ones(Nk+Nkp)
@@ -77,7 +97,6 @@ gs = gridspec.GridSpec(Nk+Nkp,Nt,height_ratios=HRs)
 
 Tp = kc.Ts2date(Ts,T0Str)
 
-print(Tp)
 #Loop over time/energies, find bounds and lin interpolate
 for n in range(Nt):
 	T0 = Ts[n]
@@ -87,6 +106,14 @@ for n in range(Nt):
 
 	#Get single KCyl
 	IKc = Irpkt[:,:,:,it0] + dt*(Irpkt[:,:,:,it1]-Irpkt[:,:,:,it0])
+
+	#Get RB points at this time
+	itRB = np.abs(Tsc-T0).argmin()
+	Xrba = Xrbs[0][itRB]
+	Yrba = Yrbs[0][itRB]
+	Xrbb = Xrbs[1][itRB]
+	Yrbb = Yrbs[1][itRB]
+
 	for k in range(Nk):
 		K0 = Ks[Nk-k-1]
 		if (K0>=1000):
@@ -104,7 +131,7 @@ for n in range(Nt):
 		plt.axis('scaled')
 		plt.xlim([-12.5,12.5])
 		plt.ylim([-15,15])
-
+		lfmv.addEarth2D()
 		if (n == 0):
 			plt.ylabel(KLab,fontsize=LabFS)
 		elif (n == Nt-1):
@@ -123,6 +150,18 @@ for n in range(Nt):
 			TLab = "%s\n%s"%(str(nT.time()),str(nT.date()))
 			plt.title(TLab,fontsize=TitFS)
 
+		#Plot RB points
+		Ax.plot(Xrba,Yrba,color=rbAC,marker="o",markersize=mSize)
+		Ax.plot(Xrbb,Yrbb,color=rbBC,marker="o",markersize=mSize)
+		#Plot RB tracks
+		if (doTracks):
+			for i in range(Ntrk):
+				iRB = itRB-(i+1)*Nskp
+				if (iRB<0):
+					continue
+				else:
+					Ax.plot(Xrbs[0][iRB],Yrbs[0][iRB],color=rbAC,marker="o",markersize=mTrk)
+					Ax.plot(Xrbs[1][iRB],Yrbs[1][iRB],color=rbBC,marker="o",markersize=mTrk)
 AxC = fig.add_subplot(gs[-1,0:Nt/2])
 cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
