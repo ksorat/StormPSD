@@ -32,20 +32,10 @@ doDip = True #Do dipole projection of trajectory
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-
-doSmooth = False
-SigR = 0.5
-SigP = 0.5
-SigT = 0.5
-#SigK = 0.5
-
-# SigR = 0.25
-# SigP = 0.25
-# SigT = 0.1
-#SigK = 0.5
+kcScls = np.pi*4*np.array([1.0,10.0])
 
 #Figure opts
-doSmoothFig = False
+doSmoothFig = True
 doPanelFig = True
 doLineFig = True
 #KLs = [2000,1000,750,500,250]
@@ -95,25 +85,18 @@ for nrb in range(NumRB):
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
-		Is = kcScls[n]*I0
-
-		# #Do some smoothing
-		# if (doSmooth):
-		# 	Is = gaussian_filter1d(Is,sigma=SigP,axis=1,mode='wrap')
-		# 	Is = gaussian_filter1d(Is,sigma=SigR,axis=0)
-		# 	#Is = gaussian_filter1d(Is,sigma=SigK,axis=2)
-		# 	Is = gaussian_filter1d(Is,sigma=SigT,axis=3)
-
+		I0 = kcScls[n]*I0
+		#Is = I0
 
 		#Get interpolant and apply to trajectory
 		#Ii = kc.GetInterp(R,P,K,Tkc,Is,imeth="linear")
 		#Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Krb)
 
 		#Use different interpolation method
-		SimKC = [R,P,K,Tkc,Is]
+		SimKC = [R,P,K,Tkc,I0]
 		rbDat = [Xsc,Ysc,Tsc,Krb]
 
-		Isc = kc.InterpSmooth(SimKC,rbDat)
+		Is,Isc = kc.InterpSmooth(SimKC,rbDat)
 
 		#Save individual contributions
 		aI.append(Isc)

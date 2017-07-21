@@ -59,12 +59,12 @@ kTSclStr = ["a","b","c"]
 Nkap = len(kappas)
 Nkt = len(kTScls)
 
-Nr = 30
-Np = 24
+Nr = 60
+Np = 48
 Nk = 20
 kMin = 30.0
 kMax = 4100.0
-Na = 9
+Na = 12
 
 
 NumPSD = len(aIDs)
