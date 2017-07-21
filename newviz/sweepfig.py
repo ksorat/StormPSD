@@ -34,7 +34,7 @@ kTScls = [0.15,0.25,0.4]
 kTSclStr = ["a","b","c"]
 
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([1.0,3.0])
+kcScls = np.pi*4*np.array([1.0,10.0])
 
 rbStrs = ["A","B"]
 rbSK = 2 #Skip cadence for RB intensity
@@ -66,7 +66,7 @@ for nrb in range(NumRB):
 
 	#Get RB trajectory data
 	#Tsc = seconds after T0
-	Tsc,Xsc,Ysc,Z = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=rbSKt,doEq=doDip)
+	Tsc,Xsc,Ysc,Zsc = kc.getTraj(OrbF,T0Str,tMin,tMax,Nsk=rbSKt,doEq=False)
 
 	#Create figure
 	fig = plt.figure(figsize=figSize)
@@ -84,11 +84,10 @@ for nrb in range(NumRB):
 				print("Reading %s"%fIn)
 
 				R,P,K,Tkc,I0 = kc.getCyl(fIn)
-				Is = kcScls[n]*I0
-
-				#Interpolate
-				Ii = kc.GetInterp(R,P,K,Tkc,Is,imeth="linear")
-				Isc = kc.InterpI(Ii,Xsc,Ysc,Tsc,Krb)
+				I0 = kcScls[n]*I0
+				SimKC = [R,P,K,Tkc,I0]
+				rbDat = [Xsc,Ysc,Zsc,Tsc,Krb]
+				Is,Isc = kc.InterpSmooth(SimKC,rbDat)
 
 				#Save contributions
 				aI.append(Isc)

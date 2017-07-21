@@ -23,7 +23,7 @@ tMin = 33600.0
 tMax = 189000.0
 
 doSmooth = True
-Niter = 1
+Niter = 2
 
 #RB Opts
 rbStrs = ["A","B"]

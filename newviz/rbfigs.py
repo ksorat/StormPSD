@@ -31,10 +31,13 @@ rbSKt = 1 #Skip cadence for RB trajectory
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-kcScls = np.pi*4*np.array([1.0,10.0])
+kcScls = np.pi*4*np.array([3.0,10.0])
 
 #Figure opts
 doSmoothFig = True
+Niter = 2
+NiterT = 0
+
 doPanelFig = True
 doLineFig = True
 #KLs = [2000,1000,750,500,250]
@@ -82,6 +85,7 @@ for nrb in range(NumRB):
 	#Get simulation K-Cyls
 	for n in range(NumPop):
 		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
+		#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
 
@@ -92,7 +96,7 @@ for nrb in range(NumRB):
 		SimKC = [R,P,K,Tkc,I0]
 		rbDat = [Xsc,Ysc,Zsc,Tsc,Krb]
 
-		Is,Isc = kc.InterpSmooth(SimKC,rbDat)
+		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT)
 
 		#Save individual contributions
 		aI.append(Isc)
