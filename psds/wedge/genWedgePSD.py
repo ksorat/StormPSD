@@ -19,7 +19,7 @@ def tWindow(t,Q,dt,SigQ=0.25):
 		Qw[i] = Q[I].mean()
 	return Qw
 
-doTest = False
+doTest = True
 doSmoothTS = True
 
 IDs = ["StormA","StormT","StormI"]
@@ -47,28 +47,16 @@ if (doTest):
 
 #Parameters
 
-#Config 1
-# kappa = 3.4
-# kTScl = 0.4
-# Nr = 25
-# Np = 24
-# Nk = 20
-# kMin = 30.0
-# kMax = 4100.0
-# Na = 9
-
 #Config 2
-
 kappa = 3.5
 kTScl = 0.25
-#Nr = 30
-#Np = 24
 Nr = 60
 Np = 48
 Nk = 20
 kMin = 30.0
 kMax = 4100.0
 Na = 12
+Ntheta = 3
 
 
 NumPSD = len(IDs)
@@ -149,7 +137,7 @@ for i in range(NumPSD):
 	#Options
 	oInfo = et.SubElement(iDeck,"options")
 	oInfo.set("relativistic","T")
-	oInfo.set("doFlux","T")
+	oInfo.set("doFlux","F")
 
 	#Phasespace
 	psInfo = et.SubElement(iDeck,"phasespace")
@@ -160,7 +148,8 @@ for i in range(NumPSD):
 	if (doLogR):
 		psR.set("log","T")
 	psT = et.SubElement(psInfo,"theta")
-	psT.set("N","1")
+	psT.set("N",str(Ntheta))
+	
 	psP = et.SubElement(psInfo,"phi")
 	psP.set("N",str(Np))
 	psK = et.SubElement(psInfo,"k")
