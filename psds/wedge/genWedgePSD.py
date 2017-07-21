@@ -149,7 +149,7 @@ for i in range(NumPSD):
 		psR.set("log","T")
 	psT = et.SubElement(psInfo,"theta")
 	psT.set("N",str(Ntheta))
-	
+
 	psP = et.SubElement(psInfo,"phi")
 	psP.set("N",str(Np))
 	psK = et.SubElement(psInfo,"k")
@@ -200,8 +200,8 @@ for i in range(NumPSD):
 #Sub all PSDs
 RunF = "SubPSDs.sh"
 wcS = "12:00"
-#qS = "regular"
-qS = "standby"
+qS = "regular"
+
 
 pS = "UJHB0003"
 with open(RunF,"w") as fID:
