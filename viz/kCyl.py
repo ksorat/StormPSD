@@ -191,7 +191,7 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True):
 #SimKC = [R,P,K,Tkc,Is]
 #rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
 
-def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
+def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True):
 	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
 	R,P,K,Tkc,Ikc = SimKC
 
@@ -207,13 +207,13 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1):
 
 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	IkcS = SmoothKCyl(IkcS,Niter)
+	IkcS = SmoothKCyl(IkcS,Niter=Niter)
 
 	# for n in range(Niter):
 	# 	IkcS = SmoothIter(IkcS)
 
 	Ii = GetInterp(R,P,K,Tkc,IkcS)
-	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc)
+	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl)
 
 
 	IscS = np.zeros(Isc.shape)

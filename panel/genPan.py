@@ -30,7 +30,7 @@ rbStrs = ["A","B"]
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([1.0,10.0])
+kcScls = np.pi*4*np.array([5.0,10.0])
 LabFS = "large"
 TitFS = "large"
 
@@ -38,15 +38,19 @@ Ks = [100,250,500,750,1000]
 mSize = 6
 mTrk = 2
 Ntrk = 10
-Nskp = 6
-
+Nskp = 15
+alTrk = 0.5
 doTracks = True
-Ts = np.linspace(35000.0,185000.0,6)
+DelT = 17400.0 #Seconds to get to 3/17
+#Ts = np.linspace(35000.0,185000.0,6)
+#Ts = (60*60)*np.array([7,13,21,26,32,39,43]) + DelT
+Ts = (60*60)*np.linspace(6,48,6) + DelT
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
 figSize = (12,12)
 figQ = 300
 cMap = "jet"
-cMap = "viridis"
+cMap = "gnuplot2"
+#cMap = "viridis"
 rbAC = "cyan"
 rbBC = "magenta"
 
@@ -130,7 +134,7 @@ for n in range(Nt):
 		Ax.pcolormesh(XX,YY,Ik,norm=vNorm,cmap=cMap)
 		plt.axis('scaled')
 		plt.xlim([-12.5,12.5])
-		plt.ylim([-15,15])
+		plt.ylim([-12.5,12.5])
 		lfmv.addEarth2D()
 		if (n == 0):
 			plt.ylabel(KLab,fontsize=LabFS)
@@ -160,8 +164,8 @@ for n in range(Nt):
 				if (iRB<0):
 					continue
 				else:
-					Ax.plot(Xrbs[0][iRB],Yrbs[0][iRB],color=rbAC,marker="o",markersize=mTrk)
-					Ax.plot(Xrbs[1][iRB],Yrbs[1][iRB],color=rbBC,marker="o",markersize=mTrk)
+					Ax.plot(Xrbs[0][iRB],Yrbs[0][iRB],color=rbAC,marker="o",markersize=mTrk,alpha=alTrk)
+					Ax.plot(Xrbs[1][iRB],Yrbs[1][iRB],color=rbBC,marker="o",markersize=mTrk,alpha=alTrk)
 AxC = fig.add_subplot(gs[-1,0:Nt/2])
 cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
