@@ -223,6 +223,39 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True):
 
 	return IkcS,IscS
 
+def ResampleCyl(Ikc,Ntp,Ncut=4):
+	Nr = Ikc.shape[0]
+	Np = Ikc.shape[1]
+	Nk = Ikc.shape[2]
+	Nt = Ikc.shape[3]
+
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+
+	for t in range(Nt):
+		for k in range(Nk):
+			for i in range(1,Nr-1):
+				for j in range(Np):
+					n0 = Ntp[i,j,k,t]
+					if (n0 >= Ncut):
+						continue
+					else:
+						#Replace with TP-weighted average
+						iM = i-1
+						iP = i+1
+						jM = j-1
+						jP = j+1
+						if (j==0):
+							jM = Np-1
+						if (j==Np-1):
+							jP = 0
+						NScl = Ntp[iP,j ,k,t] + Ntp[iM,j ,k,t] +Ntp[i ,jP,k,t] + Ntp[i ,jM,k,t]
+						
+						if (NScl>0):
+							IkcS[i,j,k,t] = Ntp[iP,j ,k,t]*Ikc[iP,j ,k,t] + Ntp[iM,j ,k,t]*Ikc[iM,j ,k,t] + Ntp[i ,jP,k,t]*Ikc[i ,jP,k,t] + Ntp[i ,jM,k,t]*Ikc[i ,jM,k,t]
+							IkcS[i,j,k,t] = IkcS[i,j,k,t]/NScl
+	return IkcS
+
 def SmoothKCyl(Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
 	IkcS[:] = Ikc[:]
@@ -278,29 +311,54 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 	cdf.close()
 
 	#Pull out empty channels, assuming at bottom
+	Nt = kRB.shape[0]
+	dkT = np.zeros(Nt)
+	for i in range(Nt):
+		dkT[i] = np.abs((kRB[i,:] - kRB[0,:])).max()
+	MdkT = dkT.max()
+	if (MdkT>1.0e-8):
+		i0 = dkT.argmax()
+		print("Max dkT = %f"%(dkT.max()))
+		print("i0 = %d"%(i0))
+		print("T = %s"%(T[i0]))
+		print("K0 = %s"%(kRB[0,:]))
+		print("Kd = %s"%(kRB[i0,:]))
+	
 	kMax = kRB.max(axis=0)
 	k0 = (kMax>0).argmax()
 	kRB  = kRB [:,k0:]
 	dkRB = dkRB[:,k0:]
 	Itk  = Itk [:,k0:]
 
+	Itk[kRB<=0] = 0.0
 	#print("RB Energies = %s"%str(kRB[0,:]))
 	#print("RB Widths = %s"%str(dkRB[0,:]))
 	#Pull data
+
 	kRB = kRB[0,:]
 	dkRB = dkRB[0,:]
+
 
 	#Constrain time domain
 	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
 	Itk = Itk[I,:]
-
 	L = L[I]
-	#Ts = Ts[L>=Rin]
 	Itk[L<=Rmin,:] = 0.0
 
+	#Pull out duplicate times
+	Nt = Ts.shape[0]
+	dt = np.zeros(Nt)
+	dt[0:-1] = Ts[1:]-Ts[0:-1]
+	I = (dt>=1.0e-8)
+	Ts = Ts[I]
+	Itk = Itk[I,:]
+	
+	#Ts = Ts[L>=Rin]
+
 	#Enforce skipping if necessary
-	Ts = Ts[0::rbSK]
-	Itk = Itk[0::rbSK,:]
+	if (rbSK>1):
+		Ts = Ts[0::rbSK]
+		Itk = Itk[0::rbSK,:]
 
 	return Ts,kRB,dkRB,Itk
 

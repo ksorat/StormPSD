@@ -23,7 +23,7 @@ tMin = 33600.0
 tMax = 189000.0
 
 doSmooth = True
-Niter = 2
+Niter = 1
 
 #RB Opts
 rbStrs = ["A","B"]
@@ -34,22 +34,25 @@ kcScls = np.pi*4*np.array([5.0,10.0])
 LabFS = "large"
 TitFS = "large"
 
-Ks = [100,250,500,750,1000]
+Ks = [100,250,500,750,1000,2000]
 mSize = 6
 mTrk = 2
 Ntrk = 10
 Nskp = 15
 alTrk = 0.5
 doTracks = True
-DelT = 17400.0 #Seconds to get to 3/17
+DelT = (50+6*60)*60 #Seconds to get to 3/17
+
 #Ts = np.linspace(35000.0,185000.0,6)
 #Ts = (60*60)*np.array([7,13,21,26,32,39,43]) + DelT
-Ts = (60*60)*np.linspace(6,48,6) + DelT
+#Ts = (60*60)*np.linspace(6,48,6) + DelT
+Ts = (60*60)*np.linspace(3,12,6) + DelT
+
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
 figSize = (12,12)
 figQ = 300
 cMap = "jet"
-cMap = "gnuplot2"
+#cMap = "gnuplot2"
 #cMap = "viridis"
 rbAC = "cyan"
 rbBC = "magenta"
@@ -65,10 +68,13 @@ aI = []
 for n in range(NumPop):
 	fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
 	R,P,K,Tkc,I0 = kc.getCyl(fIn)
+	_,_,_,_,Ntp = kc.getCyl(fIn,fVar="Ntp")
+
 	I0 = kcScls[n]*I0
 
 	#Smooth cylinder
 	if (doSmooth):
+		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
 		Irpkt = kc.SmoothKCyl(I0,Niter)
 	else:
 		Irpkt = I0
