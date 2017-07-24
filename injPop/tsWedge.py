@@ -46,7 +46,7 @@ for nw in range(NumW):
 	for i in range(Nf):
 		fIn = fIns[i]
 	
-		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,K0=K0)
+		t[i],Vst[i],kTt[i],Nt[i],Nkt[i] = lfmpre.injWedge(fIn,I,dvI,Pc=pC[nw],K0=K0)
 	
 	#Got all data, now sort
 	Is = np.argsort(t)

@@ -16,10 +16,17 @@ def tWindow(t,Q,dt):
 	#Window time series t,Q based on window size dt
 	Nt = len(t)
 	Qw =  np.zeros(Nt)
+	Qw[:] = Q[:]
+	J = (Q>0)
 	for i in range(Nt):
 		t0 = t[i]
 		I = (np.abs(t-t0) <= dt)
-		Qw[i] = Q[I].mean()
+		IJ = I & J
+		if (IJ.sum() > 0):
+			Qw[i] = Q[IJ].mean()
+		else:
+			Qw[i] = 0.0
+		
 	return Qw
 
 lfmv.ppInit()
@@ -36,7 +43,7 @@ tMin = 33600.0
 tMax = 189000.0
 tsID = ["0","21","3"]
 
-dt = 3000.0
+#dt = 3000.0
 dt = 600.0
 #dtW = 3000.0
 dtW = dt

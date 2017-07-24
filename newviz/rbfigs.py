@@ -14,6 +14,17 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 
+#Average over time window
+def TWin(Ik,Nw=4):
+	Nt = Ik.shape[0]
+	IkS = np.zeros(Nt)
+	IkS[:] = Ik[:]
+	if (Nw>0):
+		for i in range(Nt):
+			i0 = np.maximum(i-Nw,0)
+			i1 = np.minimum(i+Nw,Nt-1)
+			IkS[i] = Ik[i0:i1].mean()
+	return IkS
 #Time data
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -25,18 +36,22 @@ tMax = 189000.0
 
 #RB Opts
 rbStrs = ["A","B"]
-rbSK = 2 #Skip cadence for RB intensity
+rbSK = 1 #Skip cadence for RB intensity
 rbSKt = 1 #Skip cadence for RB trajectory
 
 #KC opts
+doZScl = True #Attenuate for Z
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-kcScls = np.pi*4*np.array([3.0,10.0])
+kcScls = np.pi*4*np.array([5.0,10.0])
 
 #Figure opts
 doSmoothFig = True
-Niter = 2
-NiterT = 0
+#Niter = 2
+#NiterT = 1
+Niter = 1
+NiterT = 1
+NTWin = 4
 
 doPanelFig = True
 doLineFig = True
@@ -69,6 +84,7 @@ for nrb in range(NumRB):
 	#Get RB intensity
 	print("Reading from %s"%rbStr)
 	Trb,Krb,dkrb,Irb = kc.GetRBSP(rbF,T0Str,tMin=tMin,tMax=tMax,rbID=rbFs,rbSK=rbSK)
+	#Krb = KrbT[0,:]
 	aI.append(Irb)
 	aT.append(Trb)
 	aK.append(Krb)
@@ -88,15 +104,16 @@ for nrb in range(NumRB):
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
 		R,P,K,Tkc,I0 = kc.getCyl(fIn)
+		_,_,_,_,Ntp = kc.getCyl(fIn,fVar="Ntp")
 
 		I0 = kcScls[n]*I0
-
+		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
 
 		#Use different interpolation method
 		SimKC = [R,P,K,Tkc,I0]
 		rbDat = [Xsc,Ysc,Zsc,Tsc,Krb]
 
-		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT)
+		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT,doZScl=doZScl)
 
 		#Save individual contributions
 		aI.append(Isc)
@@ -182,6 +199,12 @@ for nrb in range(NumRB):
 			Ik1 = kcIi1(iPts)
 			Ik2 = kcIi2(iPts)
 			Ik3 = kcIi(iPts)
+			
+			
+			Ik1 = TWin(Ik1,Nw=NTWin)
+			Ik2 = TWin(Ik2,Nw=NTWin)
+			Ik3 = TWin(Ik3,Nw=NTWin)
+			
 			Ax.semilogy(Tp,Ik0,'k',linewidth=lw1)
 			Ax.semilogy(Tp,Ik1,'g',linewidth=lw2)
 			Ax.semilogy(Tp,Ik2,'r',linewidth=lw2)
