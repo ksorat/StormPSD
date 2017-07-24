@@ -10,11 +10,29 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.colors import LogNorm
+from matplotlib.colors import Normalize
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 
+eqDT = 600
+eqT0 = 2000.0
+vtiDir = os.path.expanduser('~') + "/Work/StormPSD/Data/eqSlc"
+def getFld(t,eqStub="eqSlc"):
+	tSlc = np.int( (t-eqT0)/eqDT )
+	vtiFile = vtiDir + "/" + eqStub + ".%04d.vti"%(tSlc)
+	#print("Reading %s"%vtiFile)
+
+	dBz = lfmv.getVTI_SlcSclr(vtiFile).T
+	ori,dx,ex = lfmv.getVTI_Eq(vtiFile)
+	xi = ori[0] + np.arange(ex[0],ex[1]+1)*dx[0]
+	yi = ori[1] + np.arange(ex[2],ex[3]+1)*dx[1]
+	#print(xi.shape)
+	#print(dBz.shape)
+
+	return xi,yi,dBz
 lfmv.ppInit()
+
 #Time data
 T0Str = "2013-03-16T17:10:00Z"
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -34,7 +52,7 @@ kcScls = np.pi*4*np.array([5.0,10.0])
 LabFS = "large"
 TitFS = "large"
 
-Ks = [100,250,500,750,1000,2000]
+Ks = [100,250,500,750,1000]
 mSize = 6
 mTrk = 2
 Ntrk = 10
@@ -46,13 +64,19 @@ DelT = (50+6*60)*60 #Seconds to get to 3/17
 #Ts = np.linspace(35000.0,185000.0,6)
 #Ts = (60*60)*np.array([7,13,21,26,32,39,43]) + DelT
 #Ts = (60*60)*np.linspace(6,48,6) + DelT
-Ts = (60*60)*np.linspace(3,12,6) + DelT
+Ts = (60*60)*np.linspace(5,45,5) + DelT
 
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
+Vc = np.linspace(-35,35,5)
+vcNorm = Normalize(vmin=Vc.min(),vmax=Vc.max())
+
 figSize = (12,12)
 figQ = 300
-cMap = "jet"
-#cMap = "gnuplot2"
+#cMap = "jet"
+cMap = "gnuplot2"
+cMapC = "RdGy"
+cAl = 0.5
+cLW = 0.25
 #cMap = "viridis"
 rbAC = "cyan"
 rbBC = "magenta"
@@ -136,8 +160,13 @@ for n in range(Nt):
 		#Get single slice
 		Ik = IKc[:,:,ik0] + dt*(IKc[:,:,ik1]-IKc[:,:,ik0])
 
+		#Get dBz data
+		xi,yi,dBz = getFld(T0)
+
+		#Create plots
 		Ax = fig.add_subplot(gs[k,n])
 		Ax.pcolormesh(XX,YY,Ik,norm=vNorm,cmap=cMap)
+		Ax.contour(xi,yi,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
 		plt.axis('scaled')
 		plt.xlim([-12.5,12.5])
 		plt.ylim([-12.5,12.5])
@@ -175,7 +204,9 @@ for n in range(Nt):
 AxC = fig.add_subplot(gs[-1,0:Nt/2])
 cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
-
+AxCC = fig.add_subplot(gs[-1,Nt/2:])
+cb = mpl.colorbar.ColorbarBase(AxCC,cmap=cMapC,norm=vcNorm,orientation='horizontal')
+cb.set_label("Residual Vertical Field [nT]",fontsize="large")
 plt.savefig("IPans.png",dpi=figQ)
 plt.close('all')
 
