@@ -2,7 +2,7 @@
 import numpy as np
 import datetime
 Re = 6.38e+3 #Earth radius [km]
-Rmin = 2.1 #Minimum worthwhile radius
+Rmin = 1.9 #Minimum worthwhile radius
 
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -118,7 +118,7 @@ def SmoothI(I,sig=1.0):
 def GetInterp(R,P,K,t,I,imeth="linear"):
 	import scipy
 	import scipy.interpolate
-	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
+	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=None)
 	return Irpkt
 
 
@@ -139,10 +139,11 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 		iPts[:,1] = Psc[i]
 		iPts[:,2] = K
 		iPts[:,3] = Tsc[i]
-		if (Rsc[i]<=Rmin):
-			Isc[i,:] = 0.0
-		else:
-			Isc[i,:] = Ii(iPts)
+		Isc[i,:] = Ii(iPts)
+		# if (Rsc[i]<=Rmin):
+		# 	Isc[i,:] = 0.0
+		# else:
+		# 	Isc[i,:] = Ii(iPts)
 
 	return Isc
 
