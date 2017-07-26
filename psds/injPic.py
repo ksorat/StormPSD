@@ -101,6 +101,7 @@ plt.ylabel("Convection Velocity")
 #Save and close
 plt.savefig("WedgeV.png",dpi=figQ)
 plt.close('all')
+lfmv.trimFig("WedgeV.png")
 
 plt.figure(figsize=figSize)
 for n in range(NumPop):
@@ -111,6 +112,7 @@ plt.ylabel("Temperature [keV]")
 #Save and close
 plt.savefig("WedgeT.png",dpi=figQ)
 plt.close('all')
+lfmv.trimFig("WedgeT.png")
 
 plt.figure(figsize=figSize)
 for n in range(NumPop):
@@ -121,6 +123,6 @@ plt.ylabel("Number Density [1/cm3]")
 #Save and close
 plt.savefig("WedgeN.png",dpi=figQ)
 plt.close('all')
-
+lfmv.trimFig("WedgeN.png")
 
 

@@ -49,7 +49,7 @@ rbStrs = ["A","B"]
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([3.0,2.0])
+kcScls = np.pi*4*np.array([2.0,2.0])
 LabFS = "large"
 TitFS = "large"
 
@@ -100,7 +100,7 @@ for n in range(NumPop):
 	#Smooth cylinder
 	if (doSmooth):
 		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
-		Irpkt = kc.SmoothKCyl(I0,Niter)
+		Irpkt = kc.SmoothKCyl(R,P,I0,Niter)
 	else:
 		Irpkt = I0
 
@@ -212,6 +212,7 @@ if (doField):
 	cb.set_label("Residual Vertical Field [nT]",fontsize="large")
 plt.savefig("IPans.png",dpi=figQ)
 plt.close('all')
+lfmv.trimFig("IPans.png")
 
 
 

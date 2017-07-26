@@ -49,6 +49,7 @@ if (doTest):
 	#Tf = T0+10*dt
 
 dtW = dt
+dtFull = 10 #Num of timesteps between full output
 
 #Parameters
 
@@ -181,7 +182,7 @@ for i in range(NumPSD):
 	#Output
 	ioInfo = et.SubElement(iDeck,"output")
 	ioInfo.set("base",IDs[i])
-	ioInfo.set("fullevery","0")
+	ioInfo.set("fullevery",str(dtFull))
 	slc = et.SubElement(ioInfo,"slice3D1")
 	slc.set("dim1","r")
 	slc.set("dim2","phi")

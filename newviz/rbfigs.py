@@ -43,15 +43,15 @@ rbSKt = 1 #Skip cadence for RB trajectory
 doZScl = True #Attenuate for Z
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-kcScls = np.pi*4*np.array([2.0,1.0])
+kcScls = np.pi*4*np.array([2.0,2.0])
 
 #Figure opts
 doSmoothFig = True
 #Niter = 2
 #NiterT = 1
-Niter = 0
-NiterT = 1
-NTWin = 0
+Niter = 1
+NiterT = 0
+NTWin = 2
 
 doPanelFig = True
 doLineFig = True
