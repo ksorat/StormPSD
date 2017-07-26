@@ -33,13 +33,13 @@ yH = Kf[I]
 
 vNorm=LogNorm(vmin=1.0,vmax=1.0e+3)
 
-#xb = np.logspace(np.log10(10),np.log10(10000),Nb0)
-#yb = np.logspace(np.log10(10),np.log10(10000),NbF)
+xb = np.logspace(np.log10(10),np.log10(5000),Nb0)
+yb = np.logspace(np.log10(10),np.log10(5000),NbF)
 #xb = np.linspace(10,1000,Nb0)
 #yb = np.linspace(10,10000,NbF)
 
-#plt.hist2d(xH,yH,[xb,yb],norm=vNorm)
-plt.hist2d(xH,yH,40,norm=vNorm)
+plt.hist2d(xH,yH,[xb,yb],norm=vNorm)
+#plt.hist2d(xH,yH,40,norm=vNorm)
 plt.xscale('log')
 plt.yscale('log')
 plt.colorbar()

@@ -41,6 +41,7 @@ tMin = 33600.0
 tMax = 189000.0
 
 doSmooth = True
+doField = False
 Niter = 1
 
 #RB Opts
@@ -48,7 +49,7 @@ rbStrs = ["A","B"]
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([5.0,10.0])
+kcScls = np.pi*4*np.array([2.0,2.0])
 LabFS = "large"
 TitFS = "large"
 
@@ -64,16 +65,16 @@ DelT = (50+6*60)*60 #Seconds to get to 3/17
 #Ts = np.linspace(35000.0,185000.0,6)
 #Ts = (60*60)*np.array([7,13,21,26,32,39,43]) + DelT
 #Ts = (60*60)*np.linspace(6,48,6) + DelT
-Ts = (60*60)*np.linspace(5,45,5) + DelT
+Ts = (60*60)*np.linspace(4,46,8) + DelT
 
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
 Vc = np.linspace(-35,35,5)
 vcNorm = Normalize(vmin=Vc.min(),vmax=Vc.max())
 
-figSize = (12,12)
+figSize = (18,12)
 figQ = 300
-#cMap = "jet"
-cMap = "gnuplot2"
+cMap = "jet"
+#cMap = "gnuplot2"
 cMapC = "RdGy"
 cAl = 0.5
 cLW = 0.25
@@ -99,7 +100,7 @@ for n in range(NumPop):
 	#Smooth cylinder
 	if (doSmooth):
 		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
-		Irpkt = kc.SmoothKCyl(I0,Niter)
+		Irpkt = kc.SmoothKCyl(R,P,I0,Niter)
 	else:
 		Irpkt = I0
 
@@ -160,13 +161,14 @@ for n in range(Nt):
 		#Get single slice
 		Ik = IKc[:,:,ik0] + dt*(IKc[:,:,ik1]-IKc[:,:,ik0])
 
-		#Get dBz data
-		xi,yi,dBz = getFld(T0)
 
 		#Create plots
 		Ax = fig.add_subplot(gs[k,n])
 		Ax.pcolormesh(XX,YY,Ik,norm=vNorm,cmap=cMap)
-		Ax.contour(xi,yi,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
+		if (doField):
+			#Get dBz data
+			xi,yi,dBz = getFld(T0)
+			Ax.contour(xi,yi,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
 		plt.axis('scaled')
 		plt.xlim([-12.5,12.5])
 		plt.ylim([-12.5,12.5])
@@ -204,11 +206,13 @@ for n in range(Nt):
 AxC = fig.add_subplot(gs[-1,0:Nt/2])
 cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
-AxCC = fig.add_subplot(gs[-1,Nt/2:])
-cb = mpl.colorbar.ColorbarBase(AxCC,cmap=cMapC,norm=vcNorm,orientation='horizontal')
-cb.set_label("Residual Vertical Field [nT]",fontsize="large")
+if (doField):
+	AxCC = fig.add_subplot(gs[-1,Nt/2:])
+	cb = mpl.colorbar.ColorbarBase(AxCC,cmap=cMapC,norm=vcNorm,orientation='horizontal')
+	cb.set_label("Residual Vertical Field [nT]",fontsize="large")
 plt.savefig("IPans.png",dpi=figQ)
 plt.close('all')
+lfmv.trimFig("IPans.png")
 
 
 

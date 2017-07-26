@@ -2,7 +2,7 @@
 import numpy as np
 import datetime
 Re = 6.38e+3 #Earth radius [km]
-Rmin = 2.1 #Minimum worthwhile radius
+Rmin = 1.9 #Minimum worthwhile radius
 
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -118,7 +118,8 @@ def SmoothI(I,sig=1.0):
 def GetInterp(R,P,K,t,I,imeth="linear"):
 	import scipy
 	import scipy.interpolate
-	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False)
+	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=None)
+	
 	return Irpkt
 
 
@@ -139,10 +140,11 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 		iPts[:,1] = Psc[i]
 		iPts[:,2] = K
 		iPts[:,3] = Tsc[i]
-		if (Rsc[i]<=Rmin):
-			Isc[i,:] = 0.0
-		else:
-			Isc[i,:] = Ii(iPts)
+		Isc[i,:] = Ii(iPts)
+		# if (Rsc[i]<=Rmin):
+		# 	Isc[i,:] = 0.0
+		# else:
+		# 	Isc[i,:] = Ii(iPts)
 
 	return Isc
 
@@ -207,7 +209,7 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True):
 
 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	IkcS = SmoothKCyl(IkcS,Niter=Niter)
+	IkcS = SmoothKCyl(R,P,IkcS,Niter=Niter)
 
 	# for n in range(Niter):
 	# 	IkcS = SmoothIter(IkcS)
@@ -256,17 +258,29 @@ def ResampleCyl(Ikc,Ntp,Ncut=4):
 							IkcS[i,j,k,t] = IkcS[i,j,k,t]/NScl
 	return IkcS
 
-def SmoothKCyl(Ikc,Niter=1):
+def SmoothKCyl(R,P,Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
 	IkcS[:] = Ikc[:]
+	Nr = len(R)
+	Np = len(P)
+	xx = np.zeros((Nr,Np))
+	yy = np.zeros((Nr,Np))
+	for i in range(Nr):
+		for j in range(Np):
+			xx[i,j] = R[i]*np.cos(P[j])
+			yy[i,j] = R[i]*np.sin(P[j])
+
 	for n in range(Niter):
-		IkcS = SmoothIter(IkcS)
+		IkcS = SmoothIter(IkcS,xx,yy)
 	return IkcS
 
 #Does one iteration of smoothing on Ikc
-def SmoothIter(Ikc):
+def SmoothIter(Ikc,xx,yy,doT=True):
 	Nr = Ikc.shape[0]
 	Np = Ikc.shape[1]
+	Nk = Ikc.shape[2]
+	Nt = Ikc.shape[3]
+
 	IkcS = np.zeros(Ikc.shape)
 	IkcS[:] = Ikc[:]
 
@@ -282,12 +296,51 @@ def SmoothIter(Ikc):
 			if (j==Np-1):
 				jP = 0
 
+			a0,aCj,aCip,aCim,aDp,aDm = getWeights(xx,yy,i,j,iM,iP,jM,jP)
+			aScl = a0 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
 			IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
-							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
-							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
-							 )/aScl2D
+							 aCj*(Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
+							 aCip*Ikc[iP,j,:,:] + aCim*Ikc[iM,j,:,:] +
+							 aDp*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:]) +
+							 aDm*(Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
+							)/aScl
+
+			# IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
+			# 				 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
+			# 				 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
+			# 				 )/aScl2D
+
+	a0 = np.exp(0)
+	aC = np.exp(-2.0)
+	aScl1D = a0+2*aC
+
+	Ikc[:] = IkcS[:]
+	for n in range(1,Nt-1):
+		IkcS[:,:,:,n] = (a0*Ikc[:,:,:,n]+aC*Ikc[:,:,:,n-1]+aC*Ikc[:,:,:,n+1])/aScl1D	
 	return IkcS
 
+#Weight function
+#Order: a0,aCj,aCip,aCim,aDp,aDm
+def getWeights(xx,yy,i,j,iM,iP,jM,jP):
+	x0 = xx[i,j]
+	y0 = yy[i,j]
+	Is = [i,i,iP,iM,iP,iM]
+	Js = [j,jP,j,j,jP,jP]
+	#Use main diagonal for L
+	L = np.sqrt( (xx[iM,jM]-xx[iP,jP])**2.0 + (yy[iM,jM]-yy[iP,jP])**2.0)
+	L = np.sqrt( (xx[i,jP]-xx[i,jM])**2.0 + (yy[i,jP]-yy[i,jM])**2.0)
+	A = np.zeros(6)
+	for n in range(6):
+		xp = xx[Is[n],Js[n]]
+		yp = yy[Is[n],Js[n]]
+		t = np.sqrt( (xp-x0)**2.0 + (yp-y0)**2.0 )/L
+		if (t<=1):
+			Wt = (1-t**3.0)**3.0
+			#Wt = 0.75*(1-t**2.0)
+		else:
+			Wt = 0.0
+		A[n] = Wt
+	return A[0],A[1],A[2],A[3],A[4],A[5]
 #Does one time iteration of smoothing on IscS
 def SmoothIterT(Isc):
 	Nt = Isc.shape[0]

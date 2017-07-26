@@ -43,15 +43,15 @@ rbSKt = 1 #Skip cadence for RB trajectory
 doZScl = True #Attenuate for Z
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 kcScls = np.pi*4*np.array([1.0,3.0])
-kcScls = np.pi*4*np.array([5.0,10.0])
+kcScls = np.pi*4*np.array([2.0,2.0])
 
 #Figure opts
 doSmoothFig = True
 #Niter = 2
 #NiterT = 1
 Niter = 1
-NiterT = 1
-NTWin = 4
+NiterT = 0
+NTWin = 2
 
 doPanelFig = True
 doLineFig = True
@@ -160,8 +160,9 @@ for nrb in range(NumRB):
 		cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
 
 		#Save and close
-		plt.savefig(figName,dpi=figQ)
+		plt.savefig(figName,dpi=figQ)		
 		plt.close('all')
+		lfmv.trimFig(figName)
 
 	if (doLineFig):
 		Np = len(KLs)
@@ -228,7 +229,7 @@ for nrb in range(NumRB):
 		#Save and close
 		plt.savefig(figName,dpi=figQ)
 		plt.close('all')
-
+		lfmv.trimFig(figName)
 
 
 if (doSmoothFig):
