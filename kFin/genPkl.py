@@ -19,7 +19,7 @@ else:
 Ns = len(Stubs)
 #Loop over stubs, and each file within each directory
 
-for n in range(Ns):
+for n in range(1,Ns):
 	fDir = RootDir+Stubs[n]
 	h5ps = glob.glob(fDir+"/*.h5part")
 	fOut = "%s.pkl"%Stubs[n]
@@ -33,9 +33,12 @@ for n in range(Ns):
 	Af = np.array([])
 	Rf = np.array([])
 	IDs = np.array([])
-
+	Nread = 1
+	Ntot = len(h5ps)
 	for h5p in h5ps:
-		print("\tReading %s"%(h5p))
+		#print("\tReading %s"%(h5p))
+		#print("\tReading file %d of %d"%(Nread,Ntot))
+		
 		pid,kev0 = lfmpp.getH5pInit(h5p,"kev")
 		pid,kevF = lfmpp.getH5pFin (h5p,"kev")
 		pid,inP  = lfmpp.getH5pFin (h5p,"in")
@@ -53,7 +56,8 @@ for n in range(Ns):
 		#Find remaining particles with K above KCut
 		I = (inP>0.5) & (kevF>=KCut)
 		#print("\t\tKilling %d particles"%(I0.sum()))
-		print("\tFound %d particles"%(I.sum()))
+		print("\t(%d/%d): Found %d particles"%(Nread,Ntot,I.sum()))
+		Nread = Nread+1
 		xeq = xeq[I]
 		yeq = yeq[I]
 		Req = np.sqrt(xeq**2.0+yeq**2.0)	
