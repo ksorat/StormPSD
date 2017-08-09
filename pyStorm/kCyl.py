@@ -17,6 +17,27 @@ aD = np.exp(-2.0)
 aScl2D = a0+4*aC+4*aD
 aScl1D = a0+2*aC
 
+#Given sin^n(alpha) dep. on intensity calculate fraction based on accessible Alpha
+def getIScl(Ac,en=2.0):
+	Na = 360
+	A = np.linspace(0,0.5*np.pi,Na)
+	da = A[1]-A[0]
+	Ia = np.sin(A)**en
+	Ic = np.zeros(Ia.shape)
+	Nt = len(Ac)
+	I0 = Ia.sum()
+	
+	It = np.zeros(Nt)
+	for n in range(Nt):
+		Ic[:] = Ia[:]
+		Icut = (A>Ac[n])
+		Ic[Icut] = 0.0
+		It[n] = Ic.sum()/I0
+	
+
+	return It
+
+
 
 #Get trajectory from orbit file, return time in seconds after T0 (datetime)
 #Chop out times outside of tMin,tMax range
@@ -149,7 +170,7 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 	return Isc
 
 #Interpolate intensities at dipole-projection and attenuate model intensity for latitude
-def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True):
+def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0):
 	Nsc = len(Tsc)
 	Nk = len(K)
 
@@ -168,7 +189,8 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True):
 	sL = np.sin(Lam)
 	lArg = cL**6.0/np.sqrt(1+3*sL*sL)
 	AeC = np.arcsin(np.sqrt(lArg)) #Critical equatorial alpha for this latitude
-	I0 = (AeC-0.5*np.sin(2*AeC))/(0.5*np.pi) #Attenuation factor
+	#I0 = (AeC-0.5*np.sin(2*AeC))/(0.5*np.pi) #Attenuation factor
+	I0 = getIScl(AeC,en=en)
 
 	#Create arrays
 	iPts = np.zeros((Nk,4))
@@ -193,7 +215,7 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True):
 #SimKC = [R,P,K,Tkc,Is]
 #rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
 
-def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True):
+def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
 	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
 	R,P,K,Tkc,Ikc = SimKC
 
@@ -215,7 +237,7 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True):
 	# 	IkcS = SmoothIter(IkcS)
 
 	Ii = GetInterp(R,P,K,Tkc,IkcS)
-	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl)
+	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl,en=en)
 
 
 	IscS = np.zeros(Isc.shape)

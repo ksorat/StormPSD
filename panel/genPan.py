@@ -63,8 +63,6 @@ doTracks = True
 DelT = (50+6*60)*60 #Seconds to get to 3/17
 
 #Ts = np.linspace(35000.0,185000.0,6)
-#Ts = (60*60)*np.array([7,13,21,26,32,39,43]) + DelT
-#Ts = (60*60)*np.linspace(6,48,6) + DelT
 Ts = (60*60)*np.linspace(4,46,8) + DelT
 
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
