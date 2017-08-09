@@ -31,6 +31,7 @@ for n in range(Ns):
 	T0 = np.array([])
 	A0 = np.array([])
 	Af = np.array([])
+	Rf = np.array([])
 	IDs = np.array([])
 
 	for h5p in h5ps:
@@ -41,7 +42,10 @@ for n in range(Ns):
 		pid,T0p  = lfmpp.getH5pInit(h5p,"T0p")
 		pid,a0p  = lfmpp.getH5pInit(h5p,"alpheq")
 		pid,aFp  = lfmpp.getH5pFin (h5p,"alpheq")
-		
+		pid,xeq = lfmpp.getH5pFin(h5p,"xeq")
+		pid,yeq = lfmpp.getH5pFin(h5p,"yeq")
+
+
 		#Kill bad energy particles
 		I0 = np.isnan(kevF)
 		kevF[I0] = 0.0
@@ -49,13 +53,17 @@ for n in range(Ns):
 		#Find remaining particles with K above KCut
 		I = (inP>0.5) & (kevF>=KCut)
 		#print("\t\tKilling %d particles"%(I0.sum()))
-		print("\tFound %d particles"%(I.sum()))		
+		print("\tFound %d particles"%(I.sum()))
+		xeq = xeq[I]
+		yeq = yeq[I]
+		Req = np.sqrt(xeq**2.0+yeq**2.0)	
 		K0 = np.append(K0,kev0[I])
 		Kf = np.append(Kf,kevF[I])
 		T0 = np.append(T0,T0p[I])
 		A0 = np.append(A0,a0p[I])
 		Af = np.append(Af,aFp[I])
 		IDs= np.append(IDs,pid[I])
+		Rf = np.append(Rf,Req)
 
 	#Save data for this collection
 	print("Found %d total particles"%(K0.shape))
@@ -67,5 +75,6 @@ for n in range(Ns):
 		pickle.dump(T0 ,f)
 		pickle.dump(A0 ,f)
 		pickle.dump(Af ,f)
+		pickle.dump(Rf ,f)
 		pickle.dump(IDs,f)
 
