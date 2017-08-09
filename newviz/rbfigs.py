@@ -41,8 +41,8 @@ rbSKt = 1 #Skip cadence for RB trajectory
 
 #KC opts
 doZScl = True #Attenuate for Z
+En = 2
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([1.0,3.0])
 kcScls = np.pi*4*np.array([2.0,2.0])
 
 #Figure opts
@@ -113,7 +113,7 @@ for nrb in range(NumRB):
 		SimKC = [R,P,K,Tkc,I0]
 		rbDat = [Xsc,Ysc,Zsc,Tsc,Krb]
 
-		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT,doZScl=doZScl)
+		Is,Isc = kc.InterpSmooth(SimKC,rbDat,Niter=Niter,NiterT=NiterT,doZScl=doZScl,en=En)
 
 		#Save individual contributions
 		aI.append(Isc)

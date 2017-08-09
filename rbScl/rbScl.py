@@ -22,7 +22,7 @@ figQ = 300
 
 #RB Opts
 rbStrs = ["A","B"]
-
+En = 2.0
 NumRB = len(rbStrs)
 
 aT = []
@@ -49,7 +49,12 @@ for nrb in range(NumRB):
 
 	lArg = cL**6.0/np.sqrt(1+3*sL*sL)
 	AeC = np.arcsin(np.sqrt(lArg))
-	IScl = (AeC-0.5*np.sin(2*AeC))/(0.5*np.pi)
+	IScl = kc.getIScl(AeC,en=En)
+	# IScl = np.zeros(len(AeC))
+	# #IScl = (AeC-0.5*np.sin(2*AeC))/(0.5*np.pi)
+	# for i in range(len(AeC)):
+	# 	IScl[i] = kc.getIScl(AeC[i],en=En)
+	# 	#print("I/I0 = %f,%f"%(IScl[i],IScl0[i]))
 	LCut = (L>=2.0)
 
 	aT.append(Tsc)
