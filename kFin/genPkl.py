@@ -19,7 +19,7 @@ else:
 Ns = len(Stubs)
 #Loop over stubs, and each file within each directory
 
-for n in range(1,Ns):
+for n in range(2,Ns):
 	fDir = RootDir+Stubs[n]
 	h5ps = glob.glob(fDir+"/*.h5part")
 	fOut = "%s.pkl"%Stubs[n]
