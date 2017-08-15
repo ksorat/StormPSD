@@ -6,7 +6,7 @@
   <phi min="0" max="360" N="10"/>
   <psi min="0" max="360" N="1"/>
   <alpha min="5" max="175" N="4"/>
-  <time tfin="197000" Ns="60" Nf="150" T0="30000"/>
+  <time tfin="197000" Ns="150" Nf="150" T0="30000"/>
   <integrator dt="1" method="dynamic"/>
   <field infile = "ebtab.txt"/>
   <output outdir="Data/Trap" slimeq="T"/>
