@@ -131,6 +131,7 @@ for i in range(NumPSD):
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
 	pInfo.set("equatorial","T")
+	pInfo.set("eqFix","T")
 	pn = 0
 	for p in range(NumPop):
 		if (doPop[p]):
