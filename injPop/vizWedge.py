@@ -1,67 +1,75 @@
-#Visualize time series pulled from wedge
-import numpy as np
+#Figures for Injection rate
+
 import os
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+import kCyl as kc
+import numpy as np
 import cPickle as pickle
-import matplotlib.gridspec as gridspec
-from matplotlib.colors import LogNorm
-import scipy.interpolate as interpolate
-import lfmPreproc as lfmpre
 import datetime
-import lfmViz as lfmv
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib.colors import LogNorm
+import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
+import lfmPreproc as lfmpre
+import lfmViz as lfmv
 
-def injRate(fPkl):
-	#Load data
-	with open(fPkl,"rb") as f:
-		t = pickle.load(f)
-		Vst = pickle.load(f)
-		kTt = pickle.load(f)
-		Nt = pickle.load(f)
-		Nkt = pickle.load(f)	
-	#Create probability distribution
-	fTot = Vst*Nkt
-	f = fTot/fTot.sum()	
-	return t,f
+def tWindow(t,Q,dt):
+        #Window time series t,Q based on window size dt
+        Nt = len(t)
+        Qw =  np.zeros(Nt)
+        Qw[:] = Q[:]
+        J = (Q>0)
+        for i in range(Nt):
+                t0 = t[i]
+                I = (np.abs(t-t0) <= dt)
+                IJ = I & J
+                if (IJ.sum() > 0):
+                        Qw[i] = Q[IJ].mean()
+                else:
+                        Qw[i] = 0.0
+
+        return Qw
+
 lfmv.ppInit()
+T0Cut = 40000.0
 
-T0Str = "2013-03-16T17:10:00Z"
-T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
-tm = 30000
-tM = 120000
-fPkls = ["tsWedge_0.pkl","tsWedge_21.pkl","tsWedge_3.pkl"]
-wLabs = ["Midnight","2100 MLT","0300 MLT"]
-Nsk = 10
+doSmoothTS = True
+figQ = 300
+dtW = 150.0
 
-T0 = datetime.datetime.strptime(T0Str,T0Fmt)
+tsID = ["0","21","3"]
 
+NumPop = len(tsID)
+T0s = []
+Np = 1000000
 
-#Make figure
-figSize = (20,4)
-figQ = 300 #DPI
-fig = plt.figure(1,figsize=figSize)
+for n in range(NumPop):
 
-NumW = len(fPkls)
+        fPkl = "tsWedge_%s.pkl"%(tsID[n])
+        fTab = "tsWedge_%s.csv"%(tsID[n])
+      
+        with open(fPkl,"rb") as f:
+                t = pickle.load(f) #Time [s]
+                Vst = pickle.load(f) #Earthward tail velocity [km/s]
+                kTt = pickle.load(f) #Thermal energy, kT [keV]
+                Nt  = pickle.load(f) #Number density, [#/cm3]
+                Nkt = pickle.load(f)
 
-for nw in range(NumW):
-	t,f = injRate(fPkls[nw])
-	i0 = (t>tm).argmax()
-	i1 = (t<tM).argmin()
+        I = (t<T0Cut)
+        Vst[I] = 0.0
+        fTot = Vst*Nkt
 
-	tC = t[i0:i1:Nsk]
-	fC = f[i0:i1:Nsk]
+        if (doSmoothTS):
+        	fTotW = tWindow(t,fTot,dtW)
+        else:
+        	fTotW = fTot
 
-	#Presentation figure
-	tD = []
-	Nt = len(tC)
-	for i in range(Nt):
-		dt = T0 + datetime.timedelta(seconds=tC[i])
-		tD.append(dt)
-	plt.plot(tD,fC*100,linewidth=0.75)
+        T0p = lfmpre.genSample(t,fTotW,Np)
 
-plt.ylabel('Injection Rate',fontsize='large')
-fig.autofmt_xdate()
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
-plt.legend(wLabs)
+        T0s.append(T0p)
+
+Nb = 50
+plt.hist(T0s,Nb)
+plt.legend(tsID)
+plt.xlim([30000,195000])
 plt.show()
