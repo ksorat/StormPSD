@@ -31,10 +31,10 @@ Nb = 100 #Number of particle blocks
 #Run info
 T0 = 30000
 Tfin = 197000
-Ns = 60
-Nf = 600
+Ns = 150
+Nf = 150
 #Alpha = [40,140]
-Alpha = [15,165]
+Alpha = [1,179]
 R = [9.0,12.0]
 Z = [-0.25,0.25]
 K0 = [10,2000]
