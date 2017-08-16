@@ -7,13 +7,30 @@ import os
 import cPickle as pickle
 import lfmPreproc as lfmpre
 from sys import exit
+#import matplotlib.pyplot as plt
 
+def tWindow(t,Q,dt):
+        #Window time series t,Q based on window size dt
+        Nt = len(t)
+        Qw =  np.zeros(Nt)
+        Qw[:] = Q[:]
+        J = (Q>0)
+        for i in range(Nt):
+                t0 = t[i]
+                I = (np.abs(t-t0) <= dt)
+                IJ = I & J
+                if (IJ.sum() > 0):
+                        Qw[i] = Q[IJ].mean()
+                else:
+                        Qw[i] = 0.0
+
+        return Qw
 
 #ipID = 0 #Which injected population: (0,3,21)
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 #Nswp = 1
 ipIDs = [0,3,21]
-Nswps = [5,6,7,8]
+Nswps = [1]
 
 
 #Universal constants
@@ -22,6 +39,7 @@ Nswps = [5,6,7,8]
 rDir = os.path.expanduser('~') + "/Work/StormPSD/"
 doWedgeOnly = False #Only create wedge TS
 Kc = 10 #Cutoff for high-energy
+T0Cut = 40000.0 #Cutoff for earliest injection time
 
 #PBlock info / Sweep has blocks, blocks have particles
 
@@ -33,6 +51,9 @@ T0 = 30000
 Tfin = 197000
 Ns = 150
 Nf = 150
+dtW = 150.0
+doSmooth = True
+
 #Alpha = [40,140]
 Alpha = [1,179]
 R = [9.0,12.0]
@@ -99,6 +120,7 @@ for ipID in ipIDs:
 				kTt = pickle.load(f)
 				Nt = pickle.load(f)
 				Nkt = pickle.load(f)	
+
 		else:
 			print("Generating Wedge TS")
 			fIns =glob.glob(lfmDir + "/*.hdf")
@@ -123,7 +145,14 @@ for ipID in ipIDs:
 		#Generate H5s
 
 		#Start by calculating injection times
-		fTot = Vst*Nkt #High-energy number flux in wedge
+		I = (t<T0Cut)
+		Vst[I] = 0.0
+		fTotTmp = Vst*Nkt #High-energy number flux in wedge
+		if (doSmooth):
+			fTot = tWindow(t,fTotTmp,dtW)
+		else:
+			fTot = fTotTmp
+
 		T0p = lfmpre.genSample(t,fTot,Np)
 		T0p = np.maximum(T0p,T0)
 
