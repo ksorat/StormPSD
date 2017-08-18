@@ -8,7 +8,7 @@
   <alpha min="5" max="175" N="4"/>
   <time tfin="197000" Ns="150" Nf="150" T0="30000"/>
   <integrator dt="1" method="dynamic" epsfp="0.025" epsgc="0.025"/>
-  <field infile = "ebtab.txt" FastJ="F"/>
+  <field infile = "ebtab.txt" FastJ="T"/>
   <output outdir="Data/Trap" slimeq="T"/>
   <run tag="StormTrap"/>
 </Params>
