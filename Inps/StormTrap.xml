@@ -3,7 +3,7 @@
   <particle species="e"/>
   <energy min="50" max="3000" N="10"/>
   <radius min="3" max="8" N="5"/>
-  <phi min="0" max="360" N="5"/>
+  <phi min="0" max="360" N="10"/>
   <psi min="0" max="360" N="1"/>
   <alpha min="5" max="175" N="4"/>
   <time tfin="197000" Ns="150" Nf="150" T0="30000"/>
