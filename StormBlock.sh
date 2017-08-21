@@ -4,7 +4,7 @@
 module restore lfmtp
 module list
 
-export OMP_NUM_THREADS=16
+export OMP_NUM_THREADS=32
 export JOBID=${LSB_JOBINDEX}
 
 printf -v PID %"04d" $JOBID

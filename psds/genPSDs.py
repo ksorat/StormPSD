@@ -28,9 +28,9 @@ doSmoothTS = True
 IDs = ["StormA","StormT","StormI"]
 
 BaseP = "~/Work/StormPSD/Data/"
-MaskP = ["Inj0","Inj21","Inj3","Trap","TrapC"]
-doTS = [True,True,True,False,False]
-tsID = ["0","21","3",None,None]
+MaskP = ["Inj0","Inj21","Inj3","Trap"]
+doTS = [True,True,True,False]
+tsID = ["0","21","3",None]
 
 tsS = "tsWedge_"
 dR_W = 3 #Wedge radial length [Re]
@@ -39,13 +39,14 @@ ReKM = 6.38e+3
 #Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
-dt = 600.0
+dt = 150.0
 Rin = 2
 Rout = 18
 Nth = 16 #Number of threads
+
 doLogR = True
 if (doTest):
-	dt = 3000.0
+	dt = 5*dt
 	#Tf = T0+10*dt
 
 dtW = dt
@@ -215,6 +216,7 @@ for i in range(NumPSD):
 		ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
 		fID.write(ComS)
 	os.chmod(RunP, 0744)
+	
 #Sub all PSDs
 RunF = "SubPSDs.sh"
 wcS = "12:00"
