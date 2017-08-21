@@ -44,8 +44,9 @@ tMax = 189000.0
 tsID = ["0","21","3"]
 
 #dt = 3000.0
-dt = 600.0
+#dt = 600.0
 #dtW = 3000.0
+dt = 150.0
 dtW = dt
 NumPop = len(tsID)
 
