@@ -192,7 +192,7 @@ for ipID in ipIDs:
 			resFile = ipDir + "%s.%04d.h5part"%(oTag,nId)
 			ideckFile = "%s%s.%04d.xml"%(inpDir,oTag,nId)
 			iDeck = lfmpre.genDeck(spc="e",tagStr=oTag,outDir=outDir)
-			iDeck = lfmpre.itDeck(iDeck,T0=T0,Tf=Tfin,dt=1.0,dtS=Ns,dtF=Nf,iMeth="dynamic")
+			iDeck = lfmpre.itDeck(iDeck,T0=T0,Tf=Tfin,dt=1.0,dtS=Ns,dtF=Nf,iMeth="dynamic",kMin="1.0")
 			iDeck = lfmpre.resDeck(iDeck,resFile,outTag=oTag,doApp=False,Ts=T0)
 			iDeck = lfmpre.streamDeck(iDeck)
 			lfmpre.writeDeck(iDeck,fOut=ideckFile)
