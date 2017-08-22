@@ -6,4 +6,4 @@ INJSIZE="900M"
 TRAPSIZE="100M"
 
 COMS="ls -lh"
-find Trap -name "*.h5part" -size -${INJSIZE} -exec ${COMS} {} +
+find Trap -name "*.h5part" -size -${TRAPSIZE} -exec ${COMS} {} +
