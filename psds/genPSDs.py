@@ -42,7 +42,7 @@ Tf = 197000.0
 dt = 150.0
 Rin = 2
 Rout = 18
-Nth = 16 #Number of threads
+Nth = 24 #Number of threads
 
 doLogR = True
 if (doTest):
