@@ -42,7 +42,7 @@ Tf = 197000.0
 dt = 150.0
 Rin = 2
 Rout = 18
-Nth = 24 #Number of threads
+Nth = 16 #Number of threads
 
 doLogR = True
 if (doTest):
@@ -210,6 +210,8 @@ for i in range(NumPSD):
 		fID.write("\n\n")
 		fID.write("module restore lfmtp\n")
 		fID.write("module list\n")
+		fID.write("hostname\n")
+		fID.write("date\n")
 		fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
 		ComS = "psd.x %s.xml\n"%IDi
 		fID.write(ComS)
