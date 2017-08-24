@@ -25,7 +25,9 @@ def tWindow(t,Q,dt):
 doTest = False
 doSmoothTS = True
 
-IDs = ["StormA","StormT","StormI"]
+#All,All trapped, injected wedges, all injected
+IDs = ["StormA","StormT","StormI_0","StormI_21","StormI_3","StormI"]
+doID = [False,False,True,True,True,False]
 
 BaseP = "~/Work/StormPSD/Data/"
 MaskP = ["Inj0","Inj21","Inj3","Trap"]
@@ -55,16 +57,6 @@ dtFull = 10 #Num of timesteps between full output
 #Parameters
 
 #Config 1
-# kappa = 3.4
-# kTScl = 0.4
-# Nr = 25
-# Np = 24
-# Nk = 20
-# kMin = 30.0
-# kMax = 4100.0
-# Na = 9
-
-#Config 2
 
 kappa = 3.5
 kTScl = 0.25
@@ -114,6 +106,10 @@ for n in range(NumPop):
 		np.savetxt(fTab,dOut.T,delimiter=',')
 
 for i in range(NumPSD):
+	if (not doID[i]):
+		print("Skipping %s"%(IDs[i]))
+		continue
+	print("Creating %s"%(IDs[i]))
 
 	#Create XML
 	iDeck = et.Element('Params')
@@ -121,18 +117,26 @@ for i in range(NumPSD):
 	#Particle/population details
 	if (IDs[i] == IDs[0]):
 		#All
-		doPop = [True,True,True,True,True]
+		doPop = [True,True,True,True]
 	elif (IDs[i] == IDs[1]):
 		#Trapped
-		doPop = [False,False,False,True,True]
+		doPop = [False,False,False,True]
+	elif (IDs[i] == "StormI_0"):
+		#0 wedge
+		doPop = [True,False,False,False]
+	elif (IDs[i] == "StormI_21"):
+		#21 wedge
+		doPop = [False,True,False,False]
+	elif (IDs[i] == "StormI_3"):
+		#3 wedge
+		doPop = [False,False,True,False]
 	else:
-		#Injected
+		#All Injected
 		doPop = [True,True,True,False,False]
 
 	pInfo = et.SubElement(iDeck,"particles")
 	pInfo.set("species","")
 	pInfo.set("equatorial","T")
-	pInfo.set("eqFix","T")
 	pn = 0
 	for p in range(NumPop):
 		if (doPop[p]):
@@ -203,21 +207,22 @@ for i in range(NumPSD):
 #Generate runners
 #Individual PSD
 for i in range(NumPSD):
-	IDi = IDs[i]
-	RunP = "RunPSD_%s.sh"%(IDi)
-	with open(RunP,"w") as fID:
-		fID.write("#!/bin/bash")
-		fID.write("\n\n")
-		fID.write("module restore lfmtp\n")
-		fID.write("module list\n")
-		fID.write("hostname\n")
-		fID.write("date\n")
-		fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-		ComS = "psd.x %s.xml\n"%IDi
-		fID.write(ComS)
-		ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
-		fID.write(ComS)
-	os.chmod(RunP, 0744)
+	if (doID[i]):
+		IDi = IDs[i]
+		RunP = "RunPSD_%s.sh"%(IDi)
+		with open(RunP,"w") as fID:
+			fID.write("#!/bin/bash")
+			fID.write("\n\n")
+			fID.write("module restore lfmtp\n")
+			fID.write("module list\n")
+			fID.write("hostname\n")
+			fID.write("date\n")
+			fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
+			ComS = "psd.x %s.xml\n"%IDi
+			fID.write(ComS)
+			ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
+			fID.write(ComS)
+		os.chmod(RunP, 0744)
 	
 #Sub all PSDs
 RunF = "SubPSDs.sh"
@@ -231,11 +236,12 @@ with open(RunF,"w") as fID:
 	fID.write("\n\n")
 
 	for i in range(NumPSD):
-		IDi = IDs[i]
-		logF = "PSD_%s.log"%(IDi)
-		jobS = "PSD%s"%(IDi)
-		ComS = "bsub -a poe -P " + pS + " -W " + wcS + " -n 1 -q " + qS + " -J " + jobS + " -e %s -o %s"%(logF,logF)
-		ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
-		fID.write(ComS)
+		if (doID[i]):
+			IDi = IDs[i]
+			logF = "PSD_%s.log"%(IDi)
+			jobS = "PSD%s"%(IDi)
+			ComS = "bsub -a poe -P " + pS + " -W " + wcS + " -n 1 -q " + qS + " -J " + jobS + " -e %s -o %s"%(logF,logF)
+			ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
+			fID.write(ComS)
 os.chmod(RunF, 0744)
 
