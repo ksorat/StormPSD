@@ -45,24 +45,22 @@ En = 2
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 dOm = np.pi*4
 #kcScls = np.pi*4*np.array([2.0,2.0])
-kcScls = np.array([1.0,1.0])/5.0
+kcScls = np.array([0.5,2.5])
 
 #Figure opts
-doSmoothFig = False
-#Niter = 1
-#NiterT = 0
+doSmoothFig = True
+Niter = 1
+NiterT = 1
+NTWin = 2
 #NTWin = 2
 
-Niter = 0
-NiterT = 0
-NTWin = 0
 
 doPanelFig = True
 doLineFig = True
 #KLs = [2000,1000,750,500,250]
 KLs = [3000,2000,1000,500,250,50]
-vMins = [1.0e-1,1.0e-1,1.0e+1,1.0e+1,1.0e+2,1.0e+4]
-vMaxs = [1.0e+3,1.0e+3,1.0e+5,1.0e+5,1.0e+6,1.0e+8]
+vMins = [1.0e-2,1.0e-1,1.0e+0,1.0e+1,1.0e+2,1.0e+3]
+vMaxs = [1.0e+2,1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+7]
 
 #KLs = [2500,1000,800,600,200]
 figQ = 300 #DPI
@@ -107,11 +105,22 @@ for nrb in range(NumRB):
 		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
 		#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
-		R,P,K,Tkc,I0 = kc.getCyl(fIn)
-		_,_,_,_,Ntp = kc.getCyl(fIn,fVar="Ntp")
+		if (n == 0):
+			fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
+			R,P,K,Tkc,I0 = kc.getCyl(fIn)
+		else:
+			IStubs = ["_0","_21","_3"]
+			fIns = []
+			for s in IStubs:
+				fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + s + ".h5"
+				fIns.append(fIn)
+			print(fIns)
+			R,P,K,Tkc,I0 = kc.getCyls(fIns)
+			
+		
+		#_,_,_,_,Ntp = kc.getCyl(fIn,fVar="Ntp")
 
 		I0 = kcScls[n]*I0
-		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
 
 		#Use different interpolation method
 		SimKC = [R,P,K,Tkc,I0]

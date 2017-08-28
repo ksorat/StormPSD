@@ -90,6 +90,16 @@ def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1,doEq=False):
 
 	return T,X,Y,Z
 
+#Reads in and sums multiple data cylinders
+#Assume same domain
+def getCyls(fIns,fVar="f"):
+	N = len(fIns)
+	R,P,K,t,I = getCyl(fIns[0],fVar)
+	for i in range(1,N):
+		Rp,Pp,Kp,tp,Ip = getCyl(fIns[i],fVar)
+		I = I + Ip
+	return R,P,K,t,I	
+
 #Reads in data cylinder
 def getCyl(fIn,fVar="f"):
 	import h5py
@@ -126,20 +136,11 @@ def getCyl(fIn,fVar="f"):
 			t[n] = grp.attrs.get("time")
 		return R,P,K,t,I
 
-#Smooth intensity data
-def SmoothI(I,sig=1.0):
-	import scipy
-	import scipy.ndimage
-	from scipy.ndimage.filters import gaussian_filter
-
-	I = gaussian_filter(I,sig)
-	return I
-
 #Create interpolator for K-Cylinder
-def GetInterp(R,P,K,t,I,imeth="linear"):
+def GetInterp(R,P,K,t,I,imeth="linear",fillVal=0.0):
 	import scipy
 	import scipy.interpolate
-	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=None)
+	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=fillVal)
 	
 	return Irpkt
 
@@ -233,9 +234,6 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
 	IkcS = SmoothKCyl(R,P,IkcS,Niter=Niter)
 
-	# for n in range(Niter):
-	# 	IkcS = SmoothIter(IkcS)
-
 	Ii = GetInterp(R,P,K,Tkc,IkcS)
 	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl,en=en)
 
@@ -247,38 +245,7 @@ def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
 
 	return IkcS,IscS
 
-def ResampleCyl(Ikc,Ntp,Ncut=4):
-	Nr = Ikc.shape[0]
-	Np = Ikc.shape[1]
-	Nk = Ikc.shape[2]
-	Nt = Ikc.shape[3]
 
-	IkcS = np.zeros(Ikc.shape)
-	IkcS[:] = Ikc[:]
-
-	for t in range(Nt):
-		for k in range(Nk):
-			for i in range(1,Nr-1):
-				for j in range(Np):
-					n0 = Ntp[i,j,k,t]
-					if (n0 >= Ncut):
-						continue
-					else:
-						#Replace with TP-weighted average
-						iM = i-1
-						iP = i+1
-						jM = j-1
-						jP = j+1
-						if (j==0):
-							jM = Np-1
-						if (j==Np-1):
-							jP = 0
-						NScl = Ntp[iP,j ,k,t] + Ntp[iM,j ,k,t] +Ntp[i ,jP,k,t] + Ntp[i ,jM,k,t]
-						
-						if (NScl>0):
-							IkcS[i,j,k,t] = Ntp[iP,j ,k,t]*Ikc[iP,j ,k,t] + Ntp[iM,j ,k,t]*Ikc[iM,j ,k,t] + Ntp[i ,jP,k,t]*Ikc[i ,jP,k,t] + Ntp[i ,jM,k,t]*Ikc[i ,jM,k,t]
-							IkcS[i,j,k,t] = IkcS[i,j,k,t]/NScl
-	return IkcS
 
 def SmoothKCyl(R,P,Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
@@ -318,23 +285,20 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 			if (j==Np-1):
 				jP = 0
 
-			a0,aCj,aCip,aCim,aDp,aDm = getWeights(xx,yy,i,j,iM,iP,jM,jP)
-			aScl = a0 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
+			# a00,aCj,aCip,aCim,aDp,aDm = getWeights(xx,yy,i,j,iM,iP,jM,jP)
+			# aScl = a0 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
+
+			# IkcS[i,j,:,:] = (a00*Ikc[i,j,:,:] + 
+			# 				 aCj*(Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
+			# 				 aCip*Ikc[iP,j,:,:] + aCim*Ikc[iM,j,:,:] +
+			# 				 aDp*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:]) +
+			# 				 aDm*(Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
+			# 				)/aScl
+
 			IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
-							 aCj*(Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
-							 aCip*Ikc[iP,j,:,:] + aCim*Ikc[iM,j,:,:] +
-							 aDp*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:]) +
-							 aDm*(Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
-							)/aScl
-
-			# IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
-			# 				 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
-			# 				 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
-			# 				 )/aScl2D
-
-	a0 = np.exp(0)
-	aC = np.exp(-2.0)
-	aScl1D = a0+2*aC
+							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
+							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
+							 )/aScl2D
 
 	Ikc[:] = IkcS[:]
 	for n in range(1,Nt-1):
@@ -363,6 +327,7 @@ def getWeights(xx,yy,i,j,iM,iP,jM,jP):
 			Wt = 0.0
 		A[n] = Wt
 	return A[0],A[1],A[2],A[3],A[4],A[5]
+
 #Does one time iteration of smoothing on IscS
 def SmoothIterT(Isc):
 	Nt = Isc.shape[0]
@@ -372,7 +337,7 @@ def SmoothIterT(Isc):
 		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
 	return IscS
 #Get Intensity from RBSP CDF
-def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
+def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,CutR=True):
 	from spacepy import pycdf
 	cdf = pycdf.CDF(fIn)
 	print(cdf)
@@ -415,10 +380,11 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1):
 
 
 	#Constrain time domain
-	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
-	Itk = Itk[I,:]
-	L = L[I]
-	Itk[L<=Rmin,:] = 0.0
+	if (CutR):
+		I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
+		Itk = Itk[I,:]
+		L = L[I]
+		Itk[L<=Rmin,:] = 0.0
 
 	#Pull out duplicate times
 	Nt = Ts.shape[0]
@@ -505,14 +471,36 @@ def xy2rp(R,P):
 			XX[n,m] = Ri[n]*np.cos(Pi[m])
 			YY[n,m] = Ri[n]*np.sin(Pi[m])
 	return XX,YY	
-#Given I(t,K) and K0 return total intensity above K0
-# def ICum(K,K0,I):
-# 	kC = (K>K0).argmax()
-# 	sK = np.sqrt(K)
-# 	Nk = K.shape[0]
-# 	Nt = I.shape[0]
-# 	Ic = np.zeros(Nt)
-# 	for n in range(Nt):
-# 		It = I[n,:]
-# 		Iscl = sK*It
-# 		Ic = 
+
+def ResampleCyl(Ikc,Ntp,Ncut=4):
+	Nr = Ikc.shape[0]
+	Np = Ikc.shape[1]
+	Nk = Ikc.shape[2]
+	Nt = Ikc.shape[3]
+
+	IkcS = np.zeros(Ikc.shape)
+	IkcS[:] = Ikc[:]
+
+	for t in range(Nt):
+		for k in range(Nk):
+			for i in range(1,Nr-1):
+				for j in range(Np):
+					n0 = Ntp[i,j,k,t]
+					if (n0 >= Ncut):
+						continue
+					else:
+						#Replace with TP-weighted average
+						iM = i-1
+						iP = i+1
+						jM = j-1
+						jP = j+1
+						if (j==0):
+							jM = Np-1
+						if (j==Np-1):
+							jP = 0
+						NScl = Ntp[iP,j ,k,t] + Ntp[iM,j ,k,t] +Ntp[i ,jP,k,t] + Ntp[i ,jM,k,t]
+						
+						if (NScl>0):
+							IkcS[i,j,k,t] = Ntp[iP,j ,k,t]*Ikc[iP,j ,k,t] + Ntp[iM,j ,k,t]*Ikc[iM,j ,k,t] + Ntp[i ,jP,k,t]*Ikc[i ,jP,k,t] + Ntp[i ,jM,k,t]*Ikc[i ,jM,k,t]
+							IkcS[i,j,k,t] = IkcS[i,j,k,t]/NScl
+	return IkcS
