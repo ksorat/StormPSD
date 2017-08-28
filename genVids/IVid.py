@@ -19,10 +19,10 @@ K0 = 1000.0
 #K for line plots
 Ks = [500,1000,1500]
 KLab = ["500 keV","1MeV","1.5MeV"]
-dpiQ = 100
+dpiQ = 300
 
 #Visual defaults
-figSize = (16,8)
+figSize = (16,7.75)
 vNorm = LogNorm(vmin=1.0e-2,vmax=1.0e+3)
 cMap = "viridis"
 
@@ -42,9 +42,9 @@ lwDST = 1.5
 lwRB = 1.5
 NumT = 500
 
-Nsk = 10
+Nsk = 1
 MSkl = 4
-vNL = (1.0,1.0e+5)
+vNL = (1.0,5.0e+4)
 #-------------------
 #Get data
 #Get total KCyl
@@ -87,9 +87,12 @@ dMin = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(second
 dMax = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(seconds=pS.tMax)
 
 #for n in range(0,Nkc):
+nMin = 10
+nMax = 1000
 nVid = 0
 
-for n in range(0,Nkc):
+print("Starting video ...")
+for n in range(nMin,nMax):
 	#------------------
 	#Setup figure
 	fig = plt.figure(figsize=figSize)
@@ -111,7 +114,7 @@ for n in range(0,Nkc):
 
 	AxRBb = fig.add_subplot(gs[2:4,4:])
 	AxRBa = fig.add_subplot(gs[0:2,4:])
-	AxDST = fig.add_subplot(gs[4:6,4:])
+	AxDST = fig.add_subplot(gs[4:,4:])
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
 
@@ -138,7 +141,7 @@ for n in range(0,Nkc):
 	#-----------------------
 	#RB A K-lines
 	AxRBa.semilogy(tIp,IkAs[0],'g',tIp,IkAs[1],'b',tIp,IkAs[2],'r')
-	AxRBa.semilogy(tSp,sIkAs[0],'g--',tSp,sIkAs[1],'b--',tSp,sIkAs[2],'r--')
+	AxRBa.semilogy(tSp,sIkAs[0],'g:',tSp,sIkAs[1],'b:',tSp,sIkAs[2],'r:')
 	AxRBa.set_ylim(vNL)
 	AxRBa.yaxis.tick_right()
 	AxRBa.yaxis.set_label_position("right")
@@ -151,7 +154,7 @@ for n in range(0,Nkc):
 	#-----------------------
 	#RB B K-lines
 	AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
-	AxRBb.semilogy(tSp,sIkBs[0],'g--',tSp,sIkBs[1],'b--',tSp,sIkBs[2],'r--')
+	AxRBb.semilogy(tSp,sIkBs[0],'g:',tSp,sIkBs[1],'b:',tSp,sIkBs[2],'r:')
 	AxRBb.set_ylim(vNL)
 	plt.setp(AxRBb.get_xticklabels(),visible=False)
 	AxRBb.yaxis.tick_right()
@@ -176,7 +179,7 @@ for n in range(0,Nkc):
 	lfmv.trimFig(fOut)
 	plt.close('all')
 	nVid = nVid+1
-
+	
 
 # if (os.path.isfile(inPkl)):
 # 	print("Reading PKL")

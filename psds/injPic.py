@@ -29,6 +29,7 @@ def tWindow(t,Q,dt):
 		
 	return Qw
 
+T0Cut = 40000.0
 lfmv.ppInit()
 doSmoothTS = True
 figQ = 300
@@ -53,7 +54,7 @@ NumPop = len(tsID)
 aV = []
 aT = []
 aN = []
-
+aNk = []
 
 
 for n in range(NumPop):
@@ -66,6 +67,7 @@ for n in range(NumPop):
 		Vst = pickle.load(f) #Earthward tail velocity [km/s]
 		kTt = pickle.load(f) #Thermal energy, kT [keV]
 		Nt  = pickle.load(f) #Number density, [#/cm3]
+		Nkt = pickle.load(f) #Number density above Kcrit
 
 	N = t.shape[0]
 	dOut = np.zeros((3,N))
@@ -74,6 +76,8 @@ for n in range(NumPop):
 	wVst = tWindow(t,Vst,dtW)
 	wkTt = tWindow(t,kTt,dtW)
 	wNt  = tWindow(t,Nt ,dtW)
+	wNkt = tWindow(t,Nkt,dtW)
+
 	if (doSmoothTS):
 		nScl = (dt*wVst)/(dR_W*ReKM)
 		dOut[1,:] = nScl*wNt
@@ -81,6 +85,7 @@ for n in range(NumPop):
 		aV.append(wVst)
 		aT.append(wkTt)
 		aN.append(wNt)
+		aNk.append(wNkt)
 	else:
 		nScl = (dt*Vst)/(dR_W*ReKM)
 		dOut[1,:] = nScl*Nt
@@ -88,7 +93,7 @@ for n in range(NumPop):
 		aV.append(Vst)
 		aT.append(kTt)
 		aN.append(Nt)
-
+		aNk.append(Nkt)
 
 Tp = kc.Ts2date(t,T0Str)
 figSize = (12,8)
@@ -125,5 +130,21 @@ plt.ylabel("Number Density [1/cm3]")
 plt.savefig("WedgeN.png",dpi=figQ)
 plt.close('all')
 lfmv.trimFig("WedgeN.png")
+
+plt.figure(figsize=figSize)
+for n in range(NumPop):
+	Vst = aV[n]
+	I = (t<=T0Cut)
+	Vst[I] = 0.0
+	pInj = dt*Vst*aNk[n]/(dR_W*ReKM)
+	plt.plot(Tp,pInj)
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
+plt.legend(tsID)
+plt.ylabel("Injection Rate")
+#Save and close
+plt.savefig("WedgeInj.png",dpi=figQ)
+plt.close('all')
+lfmv.trimFig("WedgeInj.png")
+
 
 

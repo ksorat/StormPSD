@@ -27,6 +27,7 @@ trapScl = 0.5
 
 #Smoothing defaults
 nSm = 1
+NTWin = 2
 
 #Defaults for RB data
 fOrbA = Base + "/VAP/vaporbRBA.txt"
@@ -40,7 +41,6 @@ rbBC = "magenta"
 def getFld(t):
 	tSlc = np.int( (t-T0VTI)/dtVTI )
 	vtiFile = VTIDir + "eqSlc.%04d.vti"%(tSlc)
-	print("Reading %s"%vtiFile)
 
 	dBz = lfmv.getVTI_SlcSclr(vtiFile).T
 	ori,dx,ex = lfmv.getVTI_Eq(vtiFile)
@@ -127,11 +127,25 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 	sIkBs = []
 	NumK = len(Ks)
 	for n in range(NumK):
-		sIkAs.append(IkA[::Nsk,n])
-		sIkBs.append(IkB[::Nsk,n])
+		IknA = TWin(IkA[:,n],Nw=NTWin)
+		IknB = TWin(IkB[:,n],Nw=NTWin)
+		sIkAs.append(IknA[::Nsk])
+		sIkBs.append(IknB[::Nsk])
 
 	Tsc = Tsc[::Nsk]
 	return Tsc,sIkAs,sIkBs
+
+#Average over time window
+def TWin(Ik,Nw=4):
+	Nt = Ik.shape[0]
+	IkS = np.zeros(Nt)
+	IkS[:] = Ik[:]
+	if (Nw>0):
+		for i in range(Nt):
+			i0 = np.maximum(i-Nw,0)
+			i1 = np.minimum(i+Nw,Nt-1)
+			IkS[i] = Ik[i0:i1].mean()
+	return IkS
 
 #Get DST
 def GetDST():
