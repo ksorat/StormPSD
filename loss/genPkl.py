@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
 			print("\t(%d/%d): Found %d particles"%(Nread,Ntot,I.sum()))
 			Np = Np + I.sum()
-			
+			Nread = Nread + 1
 			
 		#Save data for this collection
 		print("Found %d total particles"%(Np))
