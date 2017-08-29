@@ -19,7 +19,7 @@ K0 = 1000.0
 #K for line plots
 Ks = [500,1000,1500]
 KLab = ["500 keV","1MeV","1.5MeV"]
-dpiQ = 300
+dpiQ = 100
 
 #Visual defaults
 figSize = (16,7.75)
@@ -90,6 +90,9 @@ dMax = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(second
 nMin = 10
 nMax = 1000
 nVid = 0
+
+TINY = 1.0e-8
+I0[I0<TINY] = TINY
 
 print("Starting video ...")
 for n in range(nMin,nMax):
