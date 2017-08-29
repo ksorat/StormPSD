@@ -5,6 +5,9 @@ import datetime
 import kCyl as kc
 import os
 import lfmViz as lfmv
+import scipy
+import scipy.interpolate
+
 T0Str = "2013-03-16T17:10:00Z"
 
 #Globals
@@ -24,6 +27,7 @@ trapScl = 0.5
 
 #Smoothing defaults
 nSm = 1
+NTWin = 2
 
 #Defaults for RB data
 fOrbA = Base + "/VAP/vaporbRBA.txt"
@@ -37,7 +41,6 @@ rbBC = "magenta"
 def getFld(t):
 	tSlc = np.int( (t-T0VTI)/dtVTI )
 	vtiFile = VTIDir + "eqSlc.%04d.vti"%(tSlc)
-	print("Reading %s"%vtiFile)
 
 	dBz = lfmv.getVTI_SlcSclr(vtiFile).T
 	ori,dx,ex = lfmv.getVTI_Eq(vtiFile)
@@ -80,6 +83,69 @@ def GetRBs():
 	Zrb = [Za,Zb]
 
 	return Tsc,Xrb,Yrb,Zrb
+
+#Get I(K,t) lines for RB A/B
+def GetRBKt(t,Ks):
+	#Get RB data
+	TrbA,KrbA,_,IrbA = kc.GetRBSP(fRBa,T0Str,tMin,tMax,"rbspa")
+	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
+
+	#Create interpolants
+	Ia = scipy.interpolate.RegularGridInterpolator((TrbA,KrbA),IrbA,method='linear',bounds_error=False)
+	Ib = scipy.interpolate.RegularGridInterpolator((TrbB,KrbB),IrbB,method='linear',bounds_error=False)
+
+	IkAs = []
+	IkBs = []
+	NumK = len(Ks)
+	NumT = len(t)
+	iPts = np.zeros((NumT,2))
+	iPts[:,0] = t
+	for i in range(NumK):
+		iPts[:,1] = Ks[i]
+		IkA = Ia(iPts)
+		IkB = Ib(iPts)
+		
+		IkAs.append(IkA)
+		IkBs.append(IkB)
+	return IkAs,IkBs
+
+#Get simulated I(K,t) lines for RB trajectories
+#SimKC = [R,P,K,Tkc,Is]
+#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
+
+def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
+	Tsc,Xrb,Yrb,Zrb = rbDat
+	R,P,K,Tkc,Ikc = SimKC
+
+	Ksc = np.array(Ks)
+	#Already smoothed if gonna smooth
+	Ii = kc.GetInterp(R,P,K,Tkc,Ikc)
+	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=2)
+	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=2)
+
+	sIkAs = []
+	sIkBs = []
+	NumK = len(Ks)
+	for n in range(NumK):
+		IknA = TWin(IkA[:,n],Nw=NTWin)
+		IknB = TWin(IkB[:,n],Nw=NTWin)
+		sIkAs.append(IknA[::Nsk])
+		sIkBs.append(IknB[::Nsk])
+
+	Tsc = Tsc[::Nsk]
+	return Tsc,sIkAs,sIkBs
+
+#Average over time window
+def TWin(Ik,Nw=4):
+	Nt = Ik.shape[0]
+	IkS = np.zeros(Nt)
+	IkS[:] = Ik[:]
+	if (Nw>0):
+		for i in range(Nt):
+			i0 = np.maximum(i-Nw,0)
+			i1 = np.minimum(i+Nw,Nt-1)
+			IkS[i] = Ik[i0:i1].mean()
+	return IkS
 
 #Get DST
 def GetDST():

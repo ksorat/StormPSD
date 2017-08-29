@@ -446,6 +446,14 @@ def Ts2date(Ts,T0S):
 	Td = np.array(Td)
 	return Td
 
+#Convert from T = seconds after T0s to num for mdates plotting
+def Date2Num(T,T0S):
+	import matplotlib.dates
+	T0 = datetime.datetime.strptime(T0S,T0Fmt)
+	dt = datetime.timedelta(seconds=T)
+	tdt = T0+dt
+	return matplotlib.dates.date2num(tdt)
+	
 #Get pcolor bounds from R,Phi
 def xy2rp(R,P):
 	Nr = len(R)

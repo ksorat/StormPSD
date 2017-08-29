@@ -49,7 +49,7 @@ rbStrs = ["A","B"]
 
 #KC opts
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
-kcScls = np.pi*4*np.array([2.0,2.0])
+kcScls = np.array([0.5,2.5])
 LabFS = "large"
 TitFS = "large"
 
@@ -90,8 +90,19 @@ aI = []
 #Get KCyls (assuming same grid)
 for n in range(NumPop):
 	fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
-	R,P,K,Tkc,I0 = kc.getCyl(fIn)
-	_,_,_,_,Ntp = kc.getCyl(fIn,fVar="Ntp")
+	#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
+	#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
+	if (n == 0):
+		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
+		R,P,K,Tkc,I0 = kc.getCyl(fIn)
+	else:
+		IStubs = ["_0","_21","_3"]
+		fIns = []
+		for s in IStubs:
+			fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + s + ".h5"
+			fIns.append(fIn)
+		print(fIns)
+		R,P,K,Tkc,I0 = kc.getCyls(fIns)
 
 	I0 = kcScls[n]*I0
 
