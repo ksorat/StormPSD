@@ -27,7 +27,7 @@ lfmv.ppInit()
 Rcrit = 2.1
 Zcrit = 7.5
 Tcrit = 35000.0
-KCrit = -1000.0
+KCrit = 1000.0
 
 #Load trapped data from PKL
 with open(fPkl,"rb") as f:
@@ -73,6 +73,8 @@ fig = plt.figure(figsize=figSize)
 plt.hist(Tatm,Nt,alpha=Al,log=True)
 plt.hist(Tmp ,Nt,alpha=Al,log=True)
 plt.legend(Leg)
+plt.xlabel("Loss Time")
+plt.ylabel("Number of Test Particles")
 plt.savefig(figName,dpi=dpiQ)
 lfmv.trimFig(figName)
 plt.close('all')
@@ -80,7 +82,7 @@ plt.close('all')
 #2D histogram, ATM
 figName = "Loss2D_Atm.png"
 fig = plt.figure(figsize=figSize)
-vNorm = LogNorm(vmin=1.0,vmax=1.0e+3)
+vNorm = LogNorm(vmin=1.0,vmax=5.0e+3)
 plt.hist2d(Patm,Tatm,bins=50,norm=vNorm,cmap="viridis")
 plt.title("Atmospheric Losses")
 plt.xlabel("MLT")
@@ -93,7 +95,7 @@ plt.close('all')
 #2D histogram, MP
 figName = "Loss2D_MP.png"
 fig = plt.figure(figsize=figSize)
-vNorm = LogNorm(vmin=1.0,vmax=1.0e+3)
+vNorm = LogNorm(vmin=1.0,vmax=5.0e+3)
 plt.hist2d(Pmp,Tmp,bins=50,norm=vNorm,cmap="viridis")
 plt.title("Magnetopause Losses")
 plt.xlabel("MLT")

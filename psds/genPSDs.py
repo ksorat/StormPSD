@@ -27,7 +27,7 @@ doSmoothTS = True
 
 #All,All trapped, injected wedges, all injected
 IDs = ["StormA","StormT","StormI_0","StormI_21","StormI_3","StormI"]
-doID = [False,False,True,True,True,False]
+doID = [False,True,False,False,False,False]
 
 BaseP = "~/Work/StormPSD/Data/"
 MaskP = ["Inj0","Inj21","Inj3","Trap"]
@@ -151,7 +151,9 @@ for i in range(NumPSD):
 				tsF = tsS + tsID[p] + ".csv"
 				popInfo.set("seriesfile",tsF)
 			else:
-				popInfo.set("weighting","rbtrap")
+				#popInfo.set("weighting","rbtrap")
+				popInfo.set("weighting","rbinterp")
+				popInfo.set("infile","rbInterp.h5")
 	#Timing data
 	tInfo = et.SubElement(iDeck,"timing")
 	tInfo.set("weighting",str(T0))

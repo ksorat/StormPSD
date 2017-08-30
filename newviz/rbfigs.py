@@ -45,7 +45,7 @@ En = 2
 kcStrs = ["KCyl_StormT","KCyl_StormI"]
 dOm = np.pi*4
 #kcScls = np.pi*4*np.array([2.0,2.0])
-kcScls = np.array([0.5,2.5])
+kcScls = np.array([0.5,0*2.5])
 
 #Figure opts
 doSmoothFig = True
