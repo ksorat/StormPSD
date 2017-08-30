@@ -38,6 +38,9 @@ fRBb = Base + "/VAP/rbspb.cdf"
 rbAC = "cyan"
 rbBC = "magenta"
 
+#Defaults for weighting info
+fRBw = Base + "/VAP/rbWgt.cdf"
+
 def getFld(t):
 	tSlc = np.int( (t-T0VTI)/dtVTI )
 	vtiFile = VTIDir + "eqSlc.%04d.vti"%(tSlc)
@@ -151,3 +154,49 @@ def TWin(Ik,Nw=4):
 def GetDST():
 	Ts,dst = kc.GetRBSP_DST(fRBa,T0Str,tMin,tMax,rbID="rbspa")
 	return Ts,dst
+
+#Get L3 data for f(L,K) PSD
+def GetRBPSD():
+	from spacepy import pycdf
+	cdf = pycdf.CDF(fRBw)
+	print(cdf)
+	#Get main data
+	Tdt = cdf['rbspa_ect-mageis_l3_time_epoch'][...]
+	L = cdf['rbspa_ect-mageis_l3_L'][...]
+	K = cdf['rbspa_ect-mageis_l3_FEDU_CORR_T5_channel_energy'][...]
+	Ilk = cdf['rbspa_ect-mageis_l3_FEDU_CORR_T5'][...]
+	cdf.close()
+
+	#Kill bad energies
+	#Ilk[K<=0] = 0.0
+
+	#Silly hard-coded numbers to find orbit
+	i0 = 7400
+	i1 = 10500
+
+	iMin = L[i0:i1].argmin()
+	iMax = L[i0:i1].argmax()
+
+	#New index bounds
+	j0 = i0+iMin
+	j1 = i0+iMax
+
+	#Cut down to what we want
+	L = L[j0:j1]
+	K = K[j0:j1,:]
+	Ilk = Ilk[j0:j1,:]
+
+	#Find good energy channels
+	kMax = K.max(axis=0)
+	Ik = (kMax >= 0)
+
+	K = kMax[Ik]
+	Ilk = Ilk[:,Ik]
+
+	#More cutting
+	I0 = Ilk.max(axis=0)
+	Ik = (I0 >= 1.0e-8)
+
+	K = K[Ik]
+	Ilk = Ilk[:,Ik]
+	return L,K,Ilk
