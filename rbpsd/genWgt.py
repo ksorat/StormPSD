@@ -11,6 +11,7 @@ from matplotlib.colors import LogNorm
 import scipy
 import scipy.interpolate
 import h5py
+import lfmViz as lfmv
 
 fOut = "rbInterp.h5"
 
@@ -29,9 +30,13 @@ def genFig(L,K,I,fOut):
 	plt.xlim([1.5,8])
 	plt.ylim([10,5000])
 	plt.gca().set_yscale('log')
-	plt.colorbar()
+	cb = plt.colorbar()
+	cb.set_label('Intensity\ncm-2 sr-1 s-1 keV-1')
+	plt.xlabel('L [Re]')
+	plt.ylabel('Energy [keV]')
 	plt.savefig(fOut)
 	plt.close('all')
+	lfmv.trimFig(fOut)
 
 #-----------------
 #L2 data
@@ -106,7 +111,7 @@ for n in range(Nk):
 	gamma = 1 + Ki[n]/mec2
 	jScl = ((vc/mec2)**2.0)/(gamma*gamma-1)
 	fLK[:,n] = jScl*Ii[:,n]
-	print("K/jScl = %f,%e"%(Ki[n],jScl))
+	#print("K/jScl = %f,%e"%(Ki[n],jScl))
 
 #----------------------
 #Write out
@@ -114,3 +119,37 @@ with h5py.File(fOut,'w') as hfw:
 	hfw.create_dataset("Li" ,data=Li)
 	hfw.create_dataset("Ki" ,data=Ki)
 	hfw.create_dataset("fLK",data=fLK.T) #Transpose for Fortran
+
+#-----------------
+#Analytic approximation
+
+B = -3.5
+A = 4.54238496204e+26
+en = 2.0
+Ian = np.zeros((Nl,Nk))
+for i in range(Nl):
+	for j in range(Nk):
+		L = Li[i]
+		K = Ki[j]
+		if (K >= 1000.0):
+			L0 = 3.5
+			Lm = 4.5
+		elif (K >= 200.0):
+			L0 = 4.75 -1.25*(K/1000.0)
+			Lm = 6.37 - 1.88*(K/1000.0)
+		else:
+			L0 = 2.8 + 7.5*(K/1000.0)
+			Lm = 6.0
+		gamma = 1 + K/mec2
+		fScl = (gamma*gamma-1)/((vc/mec2)**2.0)
+		if (L <= L0):
+			fIJ = 0.0
+		else:
+			Lscl = (L-L0)/(Lm-L0)
+			eAA = (1 - Lscl**en)
+			fExp = np.exp((2.0/en)*eAA)
+			fLKscl = Lscl**2.0
+			fIJ = fLKscl*fExp
+		Ian[i,j] = fScl*A*(K**B)*fIJ
+
+genFig(Li,Ki,Ian,"RBPSD_An.png")

@@ -19,6 +19,7 @@ K0 = 1000.0
 #K for line plots
 Ks = [500,1000,1500]
 KLab = ["500 keV","1MeV","1.5MeV"]
+
 dpiQ = 100
 
 #Visual defaults
@@ -34,8 +35,11 @@ NumC = 13
 Vc = np.linspace(-30,30,NumC)
 vcNorm = Normalize(vmin=Vc.min(),vmax=Vc.max())
 
-#RB positions
+#RB positions/tracks
 mSize = 12
+alTrk = 0.5
+Ntrk = 3
+Nskp = 30
 
 #Line plots
 lwDST = 1.5
@@ -96,6 +100,7 @@ I0[I0<TINY] = TINY
 
 print("Starting video ...")
 for n in range(nMin,nMax):
+#for n in range(500,501):
 	#------------------
 	#Setup figure
 	fig = plt.figure(figsize=figSize)
@@ -135,6 +140,16 @@ for n in range(nMin,nMax):
 	#Field contours
 	Xc,Yc,dBz = pS.getFld(Tkc[n])
 	AxM.contour(Xc,Yc,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
+
+	#Plot tracks (do before RB current)
+	for i in range(Ntrk):
+		iRB = nRB-(i+1)*Nskp
+		if (iRB<0):
+			continue
+		else:
+			msTrk = mSize/(i+2.0)
+			AxM.plot(Xrb[0][iRB],Yrb[0][iRB],color=pS.rbAC,marker="o",markersize=msTrk,alpha=alTrk)
+			AxM.plot(Xrb[1][iRB],Yrb[1][iRB],color=pS.rbBC,marker="o",markersize=msTrk,alpha=alTrk)
 	#Plot RB points
 	AxM.plot(Xrb[0][nRB],Yrb[0][nRB],color=pS.rbAC,marker="o",markersize=mSize)
 	AxM.plot(Xrb[1][nRB],Yrb[1][nRB],color=pS.rbBC,marker="o",markersize=mSize)
@@ -154,6 +169,7 @@ for n in range(nMin,nMax):
 	AxRBa.set_xlim(dMin,dMax)
 	AxRBa.xaxis.set_major_locator(mdates.HourLocator(interval=6))
 	AxRBa.set_ylabel("Intensity")
+	AxRBa.text(-0.035,0.55,'RBSP-A',color=pS.rbAC,rotation='vertical',transform=AxRBa.transAxes,fontsize=16)
 	#-----------------------
 	#RB B K-lines
 	AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
@@ -166,6 +182,7 @@ for n in range(nMin,nMax):
 	AxRBb.set_xlim(dMin,dMax)
 	AxRBb.xaxis.set_major_locator(mdates.HourLocator(interval=6))
 	AxRBb.set_ylabel("Intensity")
+	AxRBb.text(-0.035,0.55,'RBSP-B',color=pS.rbBC,rotation='vertical',transform=AxRBb.transAxes,fontsize=16)
 	#-----------------------
 	#DST plot
 	AxDST.plot(tdstP,dst,'k')

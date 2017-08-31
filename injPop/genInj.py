@@ -30,7 +30,7 @@ def tWindow(t,Q,dt):
 #Nswp = Sweep number, generates block 1+(Ns-1)*Nb,Ns*Nb
 #Nswp = 1
 ipIDs = [0,3,21]
-Nswps = [3,4]
+Nswps = [5,6]
 
 
 #Universal constants
