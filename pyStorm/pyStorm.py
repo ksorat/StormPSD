@@ -9,6 +9,7 @@ import scipy
 import scipy.interpolate
 
 T0Str = "2013-03-16T17:10:00Z"
+figQ = 300 #DPI
 
 #Globals
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
@@ -94,8 +95,8 @@ def GetRBKt(t,Ks):
 	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
 
 	#Create interpolants
-	Ia = scipy.interpolate.RegularGridInterpolator((TrbA,KrbA),IrbA,method='linear',bounds_error=False)
-	Ib = scipy.interpolate.RegularGridInterpolator((TrbB,KrbB),IrbB,method='linear',bounds_error=False)
+	Ia = scipy.interpolate.RegularGridInterpolator((TrbA,KrbA),IrbA,method='linear',bounds_error=False,fill_value=0.0)
+	Ib = scipy.interpolate.RegularGridInterpolator((TrbB,KrbB),IrbB,method='linear',bounds_error=False,fill_value=0.0)
 
 	IkAs = []
 	IkBs = []
@@ -112,6 +113,16 @@ def GetRBKt(t,Ks):
 		IkBs.append(IkB)
 	return IkAs,IkBs
 
+#Get 2D I(K,t) from RB A/B
+def GetRB_I2D():
+	#Get RB data
+	TrbA,KrbA,_,IrbA = kc.GetRBSP(fRBa,T0Str,tMin,tMax,"rbspa")
+	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
+	
+	Trbs = [TrbA,TrbB]
+	Krbs = [KrbA,KrbB]
+	Irbs = [IrbA,IrbB]
+	return Trbs,Krbs,Irbs	
 #Get simulated I(K,t) lines for RB trajectories
 #SimKC = [R,P,K,Tkc,Is]
 #rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
