@@ -27,7 +27,7 @@ doSmoothTS = True
 
 #All,All trapped, injected wedges, all injected
 IDs = ["StormA","StormT","StormI_0","StormI_21","StormI_3","StormI"]
-doID = [False,True,False,False,False,False]
+doID = [False,False,True,True,True,False]
 
 BaseP = "~/Work/StormPSD/Data/"
 MaskP = ["Inj0","Inj21","Inj3","Trap"]
@@ -60,8 +60,6 @@ dtFull = 10 #Num of timesteps between full output
 
 kappa = 3.5
 kTScl = 0.25
-#Nr = 30
-#Np = 24
 Nr = 60
 Np = 48
 Nk = 20
