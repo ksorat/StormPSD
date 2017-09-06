@@ -192,11 +192,11 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 	if (L is None):
 		Req = R/(np.cos(Lam)**2.0)
 	else:
-		plt.plot(Tsc,Req,'r',Tsc,L,'b')
-		plt.show()
+		#Req = R/(np.cos(Lam)**2.0)
+		#plt.plot(Tsc,Req,'r',Tsc,L,'b')
+		#plt.show()
 		Req = L
-	#Xeq = Req*np.cos(Psc)
-	#Yeq = Req*np.sin(Psc)
+		#Lam = np.arctan(L/Z)
 
 	#Calculate attention factor from latitude
 	cL = np.cos(Lam)
