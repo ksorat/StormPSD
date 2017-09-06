@@ -44,7 +44,7 @@ Tf = 197000.0
 dt = 150.0
 Rin = 2
 Rout = 18
-Nth = 24 #Number of threads
+Nth = 20 #Number of threads
 
 doLogR = True
 if (doTest):
@@ -225,6 +225,7 @@ for i in range(NumPSD):
 			fID.write("hostname\n")
 			fID.write("date\n")
 			fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
+			fID.write("export KMP_STACKSIZE=128M\n"%Nth)
 			ComS = "psd.x %s.xml\n"%IDi
 			fID.write(ComS)
 			ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
@@ -233,8 +234,10 @@ for i in range(NumPSD):
 	
 #Sub all PSDs
 RunF = "SubPSDs.sh"
-wcS = "12:00"
-qS = "regular"
+#wcS = "12:00"
+#qS = "regular"
+wcS = "24:00"
+qS = "geyser"
 
 
 pS = "P28100045"
