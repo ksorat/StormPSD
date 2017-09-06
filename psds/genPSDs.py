@@ -27,7 +27,7 @@ doSmoothTS = True
 
 #All,All trapped, injected wedges, all injected
 IDs = ["StormA","StormT","StormI_0","StormI_21","StormI_3","StormI"]
-doID = [False,False,True,True,True,False]
+doID = [False,True,True,True,True,False]
 
 BaseP = "~/Work/StormPSD/Data/"
 MaskP = ["Inj0","Inj21","Inj3","Trap"]
