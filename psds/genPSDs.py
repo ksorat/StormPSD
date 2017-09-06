@@ -225,7 +225,7 @@ for i in range(NumPSD):
 			fID.write("hostname\n")
 			fID.write("date\n")
 			fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-			fID.write("export KMP_STACKSIZE=128M\n"%Nth)
+			fID.write("export KMP_STACKSIZE=128M\n")
 			ComS = "psd.x %s.xml\n"%IDi
 			fID.write(ComS)
 			ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
