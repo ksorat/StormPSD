@@ -1,8 +1,9 @@
 #Various routines to deal with K-Cylinders from PSDs
 import numpy as np
 import datetime
+from pylab import *
 Re = 6.38e+3 #Earth radius [km]
-Rmin = 1.9 #Minimum worthwhile radius
+Rmin = 1.95 #Minimum worthwhile radius
 
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -92,12 +93,19 @@ def getTraj(oFile,T0S,tMin=None,tMax=None,Nsk=1,doEq=False):
 
 #Reads in and sums multiple data cylinders
 #Assume same domain
-def getCyls(fIns,fVar="f"):
+def getCyls(fIns,fVar="f",IScls=None):
 	N = len(fIns)
+	if (IScls is None):
+		IScl = np.ones(N)
+	else:
+		IScl = IScls
 	R,P,K,t,I = getCyl(fIns[0],fVar)
+	I = I*IScl[0]
+
 	for i in range(1,N):
 		Rp,Pp,Kp,tp,Ip = getCyl(fIns[i],fVar)
-		I = I + Ip
+		I = I + IScl[i]*Ip
+
 	return R,P,K,t,I	
 
 #Reads in data cylinder
@@ -137,7 +145,7 @@ def getCyl(fIn,fVar="f"):
 		return R,P,K,t,I
 
 #Create interpolator for K-Cylinder
-def GetInterp(R,P,K,t,I,imeth="linear",fillVal=0.0):
+def GetInterp(R,P,K,t,I,imeth="linear",fillVal=None):
 	import scipy
 	import scipy.interpolate
 	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=fillVal)
@@ -171,7 +179,7 @@ def InterpI(Ii,Xsc,Ysc,Tsc,K):
 	return Isc
 
 #Interpolate intensities at dipole-projection and attenuate model intensity for latitude
-def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0):
+def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 	Nsc = len(Tsc)
 	Nk = len(K)
 
@@ -181,9 +189,14 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0):
 	Psc = np.arctan2(Y,X)
 	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
 
-	Req = R/(np.cos(Lam)**2.0)
-	Xeq = Req*np.cos(Psc)
-	Yeq = Req*np.sin(Psc)
+	if (L is None):
+		Req = R/(np.cos(Lam)**2.0)
+	else:
+		plt.plot(Tsc,Req,'r',Tsc,L,'b')
+		plt.show()
+		Req = L
+	#Xeq = Req*np.cos(Psc)
+	#Yeq = Req*np.sin(Psc)
 
 	#Calculate attention factor from latitude
 	cL = np.cos(Lam)
@@ -211,6 +224,7 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0):
 			Isc[i,:] = Isc[i,:]*I0[i]
 		#print("Scaling by %f"%(I0[i]))
 	return Isc
+
 
 #Interpolate intensities from KCyl onto RB trajectory
 #SimKC = [R,P,K,Tkc,Is]
@@ -286,7 +300,7 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 				jP = 0
 
 			# a00,aCj,aCip,aCim,aDp,aDm = getWeights(xx,yy,i,j,iM,iP,jM,jP)
-			# aScl = a0 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
+			# aScl = a00 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
 
 			# IkcS[i,j,:,:] = (a00*Ikc[i,j,:,:] + 
 			# 				 aCj*(Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
@@ -314,15 +328,16 @@ def getWeights(xx,yy,i,j,iM,iP,jM,jP):
 	Js = [j,jP,j,j,jP,jP]
 	#Use main diagonal for L
 	L = np.sqrt( (xx[iM,jM]-xx[iP,jP])**2.0 + (yy[iM,jM]-yy[iP,jP])**2.0)
-	L = np.sqrt( (xx[i,jP]-xx[i,jM])**2.0 + (yy[i,jP]-yy[i,jM])**2.0)
+	#L = np.sqrt( (xx[i,jP]-xx[i,jM])**2.0 + (yy[i,jP]-yy[i,jM])**2.0)
+
 	A = np.zeros(6)
 	for n in range(6):
 		xp = xx[Is[n],Js[n]]
 		yp = yy[Is[n],Js[n]]
 		t = np.sqrt( (xp-x0)**2.0 + (yp-y0)**2.0 )/L
 		if (t<=1):
-			Wt = (1-t**3.0)**3.0
-			#Wt = 0.75*(1-t**2.0)
+			#Wt = (1-t**3.0)**3.0
+			Wt = 0.75*(1-t**2.0)
 		else:
 			Wt = 0.0
 		A[n] = Wt
@@ -380,9 +395,9 @@ def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,CutR=True):
 
 
 	#Constrain time domain
+	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
+	Itk = Itk[I,:]
 	if (CutR):
-		I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
-		Itk = Itk[I,:]
 		L = L[I]
 		Itk[L<=Rmin,:] = 0.0
 
@@ -416,6 +431,20 @@ def GetRBSP_DST(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
 	dst = dst[I]
 
 	return Ts,dst
+
+def GetRBSP_L(fIn,T0S,tMin=None,tMax=None,rbID="rbspa"):
+	from spacepy import pycdf
+	cdf = pycdf.CDF(fIn)
+
+	#Get main data
+	T = cdf[rbID+'_ect-mageis_l2_ele_time_epoch'][...]
+	L = cdf[rbID+'_ect-mageis_l2_ele_L'][...]
+
+	#Constrain time domain
+	I,Ts = CutTime(T,T0S,tMin=tMin,tMax=tMax)
+	L = L[I]
+
+	return Ts,L
 
 #Index of inside time domain
 def CutTime(T,T0S,tMin=None,tMax=None):

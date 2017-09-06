@@ -7,8 +7,9 @@ import os
 import lfmViz as lfmv
 import scipy
 import scipy.interpolate
-
+from pylab import *
 T0Str = "2013-03-16T17:10:00Z"
+figQ = 300 #DPI
 
 #Globals
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
@@ -22,8 +23,15 @@ tMin = 33600.0
 tMax = 189000.0
 
 #Scale factors for both populations
-injScl = 2.5
-trapScl = 0.5
+injScl = 1.5
+#wSums = np.array([16410.878300,21524.367016,21489.215491])
+#wSums = np.array([5487.535701,5533.957220,5916.816624])
+wSums = np.array([1,1,1])
+injScls = wSums/wSums.max() #Wedge scaling
+
+trapScl = 1/(4*np.pi)
+
+alpEn = 2.0
 
 #Smoothing defaults
 nSm = 1
@@ -52,21 +60,26 @@ def getFld(t):
 
 	return xi,yi,dBz
 
-def InjCyl():
+def InjCyl(doSmooth=False):
 	fIns = []
 	NumW = len(InjWs)
 	for i in range(NumW):
 		fIn = Base + "/Merge/KCyl_StormI_%d.h5"%(InjWs[i])
 		fIns.append(fIn)
 	print(fIns)
-	R,P,K,Tkc,I0 = kc.getCyls(fIns)
+	print("Using wedge scaling %s"%(injScls))
+	R,P,K,Tkc,I0 = kc.getCyls(fIns,IScls=injScls)
 	I0 = injScl*I0
+	if (doSmooth):
+		I0 = kc.SmoothKCyl(R,P,I0,nSm)	
 	return R,P,K,Tkc,I0
 
-def TrapCyl():
+def TrapCyl(doSmooth=False):
 	fIn = Base + "/Merge/KCyl_StormT.h5"
 	R,P,K,Tkc,I0 = kc.getCyl(fIn)
 	I0 = trapScl*I0
+	if (doSmooth):
+		I0 = kc.SmoothKCyl(R,P,I0,nSm)	
 	return R,P,K,Tkc,I0
 
 def TotCyl(doSmooth=True):
@@ -79,13 +92,47 @@ def TotCyl(doSmooth=True):
 
 #Get RB positions
 def GetRBs():
-	Tsc,Xa,Ya,Za = kc.getTraj(fOrbA,T0Str,tMin,tMax,Nsk=1,doEq=True)
-	Tsc,Xb,Yb,Zb = kc.getTraj(fOrbB,T0Str,tMin,tMax,Nsk=1,doEq=True)
+	
+	Tsc,Xa,Ya,Za = kc.getTraj(fOrbA,T0Str,tMin,tMax,Nsk=1,doEq=False)
+	Tsc,Xb,Yb,Zb = kc.getTraj(fOrbB,T0Str,tMin,tMax,Nsk=1,doEq=False)
 	Xrb = [Xa,Xb]
 	Yrb = [Ya,Yb]
 	Zrb = [Za,Zb]
 
-	return Tsc,Xrb,Yrb,Zrb
+	Ta,Laa = kc.GetRBSP_L(fRBa,T0Str,tMin,tMax,"rbspa")
+	Tb,Lbb = kc.GetRBSP_L(fRBb,T0Str,tMin,tMax,"rbspb")
+	Nt = len(Xa)
+	La = np.zeros(Nt)
+	Lb = np.zeros(Nt)
+
+	for i in range(Nt):
+		t0 = Tsc[i]
+		nA = np.abs(Ta-t0).argmin()
+		nB = np.abs(Tb-t0).argmin()
+		La[i] = Laa[nA]
+		Lb[i] = Lbb[nB]
+	Lrb = [La,Lb]
+
+	#Calculate dipole projections from 3D positions
+	#print(Za)
+	# R = np.sqrt(Xa**2.0 + Y**2.0 + Z**2.0)
+	# Lam = np.arcsin(Z/R)
+	# Psc = np.arctan2(Y,X)
+	# iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
+
+	# Req = R/(np.cos(Lam)**2.0)
+	# Xeq = Req*np.cos(Psc)
+	# Yeq = Req*np.sin(Psc)
+
+	#
+	#L2 = np.sqrt(Xa**2.0+Ya**2.0+Za**2.0)
+	#print(len(T1))
+	#print(len(Tsc))
+	#plt.plot(T1,L1,'ro-',Tsc,L2,'bx-')
+	#plt.show()
+
+
+	return Tsc,Xrb,Yrb,Zrb,Lrb
 
 #Get I(K,t) lines for RB A/B
 def GetRBKt(t,Ks):
@@ -94,8 +141,8 @@ def GetRBKt(t,Ks):
 	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
 
 	#Create interpolants
-	Ia = scipy.interpolate.RegularGridInterpolator((TrbA,KrbA),IrbA,method='linear',bounds_error=False)
-	Ib = scipy.interpolate.RegularGridInterpolator((TrbB,KrbB),IrbB,method='linear',bounds_error=False)
+	Ia = scipy.interpolate.RegularGridInterpolator((TrbA,KrbA),IrbA,method='linear',bounds_error=False,fill_value=0.0)
+	Ib = scipy.interpolate.RegularGridInterpolator((TrbB,KrbB),IrbB,method='linear',bounds_error=False,fill_value=0.0)
 
 	IkAs = []
 	IkBs = []
@@ -112,19 +159,48 @@ def GetRBKt(t,Ks):
 		IkBs.append(IkB)
 	return IkAs,IkBs
 
+#Get 2D I(K,t) from RB A/B
+def GetRB_I2D():
+	#Get RB data
+	TrbA,KrbA,_,IrbA = kc.GetRBSP(fRBa,T0Str,tMin,tMax,"rbspa")
+	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
+	
+	Trbs = [TrbA,TrbB]
+	Krbs = [KrbA,KrbB]
+	Irbs = [IrbA,IrbB]
+	return Trbs,Krbs,Irbs	
+
+#SimKC = [R,P,K,Tkc,Is]
+#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc,L]	
+
+#Get matching as above from simulation
+def GetSim_I2D(SimKC,rbDat,K):
+	Tsc,sIka,sIkb = GetSimRBKt(SimKC,rbDat,K)
+
+	Nk = len(K)
+	Nt = len(Tsc)
+	Ika = np.zeros((Nt,Nk))
+	Ikb = np.zeros((Nt,Nk))
+
+	for n in range(Nk):
+		Ika[:,n] = sIka[n]
+		Ikb[:,n] = sIkb[n]
+	Iks = [Ika,Ikb]
+	Ts = [Tsc,Tsc]
+	return Ts,Iks
+
 #Get simulated I(K,t) lines for RB trajectories
 #SimKC = [R,P,K,Tkc,Is]
-#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
-
+#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc,L]	
 def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
-	Tsc,Xrb,Yrb,Zrb = rbDat
+	Tsc,Xrb,Yrb,Zrb,Lrb = rbDat
 	R,P,K,Tkc,Ikc = SimKC
 
 	Ksc = np.array(Ks)
 	#Already smoothed if gonna smooth
 	Ii = kc.GetInterp(R,P,K,Tkc,Ikc)
-	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=2)
-	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=2)
+	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[0])
+	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[1])
 
 	sIkAs = []
 	sIkBs = []
