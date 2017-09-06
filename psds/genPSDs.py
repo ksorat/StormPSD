@@ -44,7 +44,7 @@ Tf = 197000.0
 dt = 150.0
 Rin = 2
 Rout = 18
-Nth = 16 #Number of threads
+Nth = 24 #Number of threads
 
 doLogR = True
 if (doTest):
@@ -83,6 +83,7 @@ for n in range(NumPop):
 			Vst = pickle.load(f) #Earthward tail velocity [km/s]
 			kTt = pickle.load(f) #Thermal energy, kT [keV]
 			Nt  = pickle.load(f) #Number density, [#/cm3]
+			Nkt = pickle.load(f) #High-energy number density
 
 		N = t.shape[0]
 		dOut = np.zeros((3,N))
@@ -91,15 +92,21 @@ for n in range(NumPop):
 		wVst = tWindow(t,Vst,dtW)
 		wkTt = tWindow(t,kTt,dtW)
 		wNt  = tWindow(t,Nt ,dtW)
+		wNkt = tWindow(t,Nkt,dtW)
+
 		if (doSmoothTS):
 			nScl = (dt*wVst)/(dR_W*ReKM)
 			dOut[1,:] = nScl*wNt
 			dOut[2,:] = wkTt
+			Ntot = np.sum(dtW*nScl*wNt)
 		else:
 			nScl = (dt*Vst)/(dR_W*ReKM)
 			dOut[1,:] = nScl*Nt
 			dOut[2,:] = kTt
+			Ntot = np.sum(dtW*nScl*Nt)
+
 		print("\tMin/Mean/Max nScl = %f,%f,%f"%(nScl.min(),nScl.mean(),nScl.max()))
+		print("\tTotal particles = %f"%Ntot)
 		#print(nScl)
 		np.savetxt(fTab,dOut.T,delimiter=',')
 
@@ -230,7 +237,7 @@ wcS = "12:00"
 qS = "regular"
 
 
-pS = "UJHB0003"
+pS = "P28100045"
 with open(RunF,"w") as fID:
 	fID.write("#!/bin/bash")
 	fID.write("\n\n")
