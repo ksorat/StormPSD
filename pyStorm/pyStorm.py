@@ -23,13 +23,13 @@ tMin = 33600.0
 tMax = 189000.0
 
 #Scale factors for both populations
-injScl = 1.5
+injScl = 2.0
 #wSums = np.array([16410.878300,21524.367016,21489.215491])
 #wSums = np.array([5487.535701,5533.957220,5916.816624])
 wSums = np.array([1,1,1])
 injScls = wSums/wSums.max() #Wedge scaling
 
-trapScl = 1/(4*np.pi)
+trapScl = 2/(4*np.pi)
 
 alpEn = 2.0
 
@@ -199,8 +199,8 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 	Ksc = np.array(Ks)
 	#Already smoothed if gonna smooth
 	Ii = kc.GetInterp(R,P,K,Tkc,Ikc)
-	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[0])
-	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[1])
+	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=alpEn)#,L=Lrb[0])
+	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=alpEn)#,L=Lrb[1])
 
 	sIkAs = []
 	sIkBs = []
