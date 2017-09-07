@@ -12,6 +12,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 
+
 def tWindow(t,Q,dt):
 	#Window time series t,Q based on window size dt
 	Nt = len(t)
@@ -43,12 +44,13 @@ ReKM = 6.38e+3
 tMin = 33600.0
 tMax = 189000.0
 tsID = ["0","21","3"]
-
+tsLabs = ["Midnight","2100","0300"]
 #dt = 3000.0
 #dt = 600.0
 #dtW = 3000.0
 dt = 150.0
-dtW = dt
+dtW = 2*dt
+
 NumPop = len(tsID)
 
 aV = []
@@ -137,9 +139,14 @@ for n in range(NumPop):
 	I = (t<=T0Cut)
 	Vst[I] = 0.0
 	pInj = dt*Vst*aNk[n]/(dR_W*ReKM)
-	plt.plot(Tp,pInj)
+	plt.plot(Tp,pInj,linewidth=0.75)
+	T0Str = "2013-03-16T17:10:00Z"
+datemin = datetime.datetime.strptime("2013-03-17T04:00:00Z",T0Fmt)
+datemax = datetime.datetime.strptime("2013-03-18T06:00:00Z",T0Fmt)
+
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
-plt.legend(tsID)
+plt.gca().set_xlim(datemin,datemax)
+plt.legend(tsLabs)
 plt.ylabel("Injection Rate")
 #Save and close
 plt.savefig("WedgeInj.png",dpi=figQ)

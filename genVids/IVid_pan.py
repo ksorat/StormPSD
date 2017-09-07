@@ -12,7 +12,12 @@ import matplotlib.dates as mdates
 import lfmViz as lfmv
 import cPickle as pickle
 
-inPkl = "IVid2d.pkl"
+vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
+cMap = "gnuplot2"
+
+def pI2D(Ax,T,K,I):
+	Tp = kc.Ts2date(T,pS.T0Str)
+	iPlt = Ax.pcolormesh(Tp,K,I.T,norm=vNorm,cmap=cMap)
 
 #K value for main panel
 K0 = 1000.0
@@ -20,7 +25,7 @@ K0 = 1000.0
 Ks = [500,1000,1500]
 KLab = ["500 keV","1MeV","1.5MeV"]
 
-dpiQ = 100
+dpiQ = 300
 
 #Visual defaults
 figSize = (16,7.75)
@@ -41,14 +46,11 @@ alTrk = 0.5
 Ntrk = 3
 Nskp = 30
 
-#Line plots
-lwDST = 1.5
-lwRB = 1.5
-NumT = 500
 
+NumT = 500
 Nsk = 1
-MSkl = 4
-vNL = (1.0,5.0e+4)
+
+
 #-------------------
 #Get data
 #Get total KCyl
@@ -63,6 +65,9 @@ IkAs,IkBs = pS.GetRBKt(tI,Ks)
 tIp = kc.Ts2date(tI,pS.T0Str)
 
 #Get KCyl->RB trajectories
+#2D-I plots
+Trbs,Krbs,Irbs = pS.GetRB_I2D()
+
 SimKC = [R,P,K,Tkc,I0]
 rbDat = [Tsc,Xrb,Yrb,Zrb,Lrb]
 tS,sIkAs,sIkBs = pS.GetSimRBKt(SimKC,rbDat,Ks,Nsk)
@@ -120,8 +125,12 @@ for n in range(nMin,nMax):
 	AxM.set_xlim(-15.5,12.5)
 	AxM.set_ylim(-15,15)
 
-	AxRBb = fig.add_subplot(gs[2:4,4:])
-	AxRBa = fig.add_subplot(gs[0:2,4:])
+	#AxRBb = fig.add_subplot(gs[2:4,4:])
+	AxRBaa = fig.add_subplot(gs[0,4:])
+	AxRBa  = fig.add_subplot(gs[1,4:])
+	AxRBba = fig.add_subplot(gs[2,4:])
+	AxRBb  = fig.add_subplot(gs[3,4:])
+	
 	AxDST = fig.add_subplot(gs[4:,4:])
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
@@ -157,32 +166,36 @@ for n in range(nMin,nMax):
 
 	lfmv.addEarth2D(ax=AxM)
 	#-----------------------
-	#RB A K-lines
-	AxRBa.semilogy(tIp,IkAs[0],'g',tIp,IkAs[1],'b',tIp,IkAs[2],'r')
-	AxRBa.semilogy(tSp,sIkAs[0],'g:',tSp,sIkAs[1],'b:',tSp,sIkAs[2],'r:')
-	AxRBa.set_ylim(vNL)
-	AxRBa.yaxis.tick_right()
-	AxRBa.yaxis.set_label_position("right")
-	plt.setp(AxRBa.get_xticklabels(),visible=False)
-	AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
-	AxRBa.legend(KLab,bbox_to_anchor=(0.2,1.15))#,loc='upper left')
-	AxRBa.set_xlim(dMin,dMax)
-	AxRBa.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	AxRBa.set_ylabel("Intensity")
-	AxRBa.text(-0.035,0.55,'RBSP-A',color=pS.rbAC,rotation='vertical',transform=AxRBa.transAxes,fontsize=16)
-	#-----------------------
-	#RB B K-lines
-	AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
-	AxRBb.semilogy(tSp,sIkBs[0],'g:',tSp,sIkBs[1],'b:',tSp,sIkBs[2],'r:')
-	AxRBb.set_ylim(vNL)
-	plt.setp(AxRBb.get_xticklabels(),visible=False)
-	AxRBb.yaxis.tick_right()
-	AxRBb.yaxis.set_label_position("right")
-	AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
-	AxRBb.set_xlim(dMin,dMax)
-	AxRBb.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	AxRBb.set_ylabel("Intensity")
+	#I2D Plots
+	pI2D(AxRbaa,Trbs[0],Krbs[0],Irbs[0])
+
+	# #RB A K-lines
+	# AxRBa.semilogy(tIp,IkAs[0],'g',tIp,IkAs[1],'b',tIp,IkAs[2],'r')
+	# AxRBa.semilogy(tSp,sIkAs[0],'g:',tSp,sIkAs[1],'b:',tSp,sIkAs[2],'r:')
+	# AxRBa.set_ylim(vNL)
+	# AxRBa.yaxis.tick_right()
+	# AxRBa.yaxis.set_label_position("right")
+	# plt.setp(AxRBa.get_xticklabels(),visible=False)
+	# AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
+	# AxRBa.legend(KLab,bbox_to_anchor=(0.2,1.15))#,loc='upper left')
+	# AxRBa.set_xlim(dMin,dMax)
+	# AxRBa.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	# AxRBa.set_ylabel("Intensity")
+	# AxRBa.text(-0.035,0.55,'RBSP-A',color=pS.rbAC,rotation='vertical',transform=AxRBa.transAxes,fontsize=16)
+	# #-----------------------
+	# #RB B K-lines
+	# AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
+	# AxRBb.semilogy(tSp,sIkBs[0],'g:',tSp,sIkBs[1],'b:',tSp,sIkBs[2],'r:')
+	# AxRBb.set_ylim(vNL)
+	# plt.setp(AxRBb.get_xticklabels(),visible=False)
+	# AxRBb.yaxis.tick_right()
+	# AxRBb.yaxis.set_label_position("right")
+	# AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
+	# AxRBb.set_xlim(dMin,dMax)
+	# AxRBb.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	# AxRBb.set_ylabel("Intensity")
 	AxRBb.text(-0.035,0.55,'RBSP-B',color=pS.rbBC,rotation='vertical',transform=AxRBb.transAxes,fontsize=16)
+
 	#-----------------------
 	#DST plot
 	AxDST.plot(tdstP,dst,'k')
