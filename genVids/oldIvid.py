@@ -11,29 +11,8 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 import cPickle as pickle
-from matplotlib.patches import Wedge
 
-vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
-cMapP = "jet"
-KBds = [75,4.0e+3]
-def pI2D(Ax,T,K,I,Lab="Stupid",doX=False):
-	Tp = kc.Ts2date(T,pS.T0Str)
-	iPlt = Ax.pcolormesh(Tp,K,I.T,norm=vNormP,cmap=cMapP)
-	Ax.set_ylim(KBds)
-	Ax.set_yscale('log')
-	Ax.yaxis.tick_right()
-	Ax.yaxis.set_label_position("right")
-
-	if (not doX):
-		plt.setp(Ax.get_xticklabels(),visible=False)
-	else:
-		Ax.xaxis.tick_top()
-		Ax.xaxis.set_label_position("top")
-	Ax.set_ylabel("Energy [keV]",fontsize="x-small")
-	Ax.set_xlim(dMin,dMax)
-	Ax.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
-	Ax.text(-0.04,0.5,Lab,rotation='vertical',transform=Ax.transAxes,fontsize=12,ha='center')
+inPkl = "IVid2d.pkl"
 
 #K value for main panel
 K0 = 1000.0
@@ -41,7 +20,7 @@ K0 = 1000.0
 Ks = [500,1000,1500]
 KLab = ["500 keV","1MeV","1.5MeV"]
 
-dpiQ = 300
+dpiQ = 100
 
 #Visual defaults
 figSize = (16,7.75)
@@ -62,13 +41,14 @@ alTrk = 0.5
 Ntrk = 3
 Nskp = 30
 
-#Lines
+#Line plots
 lwDST = 1.5
 lwRB = 1.5
 NumT = 500
+
 Nsk = 1
-
-
+MSkl = 4
+vNL = (1.0,5.0e+4)
 #-------------------
 #Get data
 #Get total KCyl
@@ -83,15 +63,10 @@ IkAs,IkBs = pS.GetRBKt(tI,Ks)
 tIp = kc.Ts2date(tI,pS.T0Str)
 
 #Get KCyl->RB trajectories
-#2D-I plots
-Trbs,Krbs,Irbs = pS.GetRB_I2D()
-
 SimKC = [R,P,K,Tkc,I0]
 rbDat = [Tsc,Xrb,Yrb,Zrb,Lrb]
-Nk2D = 80
-Ksim = np.logspace(1,np.log10(5000),Nk2D)
-Tsims,Iksims = pS.GetSim_I2D(SimKC,rbDat,Ksim)
-
+tS,sIkAs,sIkBs = pS.GetSimRBKt(SimKC,rbDat,Ks,Nsk)
+tSp = kc.Ts2date(tS,pS.T0Str)
 
 #Prep counters
 Nkc = len(Tkc)
@@ -104,10 +79,9 @@ NRow = 7
 NCol = 8
 Npx = 4
 Npy = 4
-HRs = 1.25*np.ones(NRow)
-HRs[-1] = 0.2
-HRs[-2] = 0.125
-
+HRs = np.ones(NRow)
+HRs[-1] = 0.25
+HRs[-2] = 0.1
 
 #Get grid
 XX,YY = kc.xy2rp(R,P)
@@ -146,32 +120,9 @@ for n in range(nMin,nMax):
 	AxM.set_xlim(-15.5,12.5)
 	AxM.set_ylim(-15,15)
 
-	#Add wedge markers
-	wLW = 1.5
-	w1 = Wedge((0,0), 12,170,190, width=3.0,fill=False,ec='b',linewidth=wLW)
-	w2 = Wedge((0,0), 12,125,145, width=3.0,fill=False,ec='lime',linewidth=wLW)
-	w3 = Wedge((0,0), 12,215,235, width=3.0,fill=False,ec='r',linewidth=wLW)
-	for w in [w1,w2,w3]:
-		AxM.add_artist(w)
-
-	#Add RB labels
-	rbFS = 14
-	AxM.text(0.75,1.01,'RBSP-B',color=pS.rbBC,transform=AxM.transAxes,fontsize=rbFS)
-	AxM.text(0.10,1.01,'RBSP-A',color=pS.rbAC,transform=AxM.transAxes,fontsize=rbFS)
-
-
-	#Add pcolor panels
-	AxRBaa = fig.add_subplot(gs[0,4:])
-	AxRBa  = fig.add_subplot(gs[1,4:])
-	AxRBba = fig.add_subplot(gs[2,4:])
-	AxRBb  = fig.add_subplot(gs[3,4:])
-
-	#Add pcolor colorbar
-	AxCI2D = fig.add_subplot(gs[-1,4:])
-	cbI = mpl.colorbar.ColorbarBase(AxCI2D,cmap=cMapP,norm=vNormP,orientation='horizontal')
-	cbI.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
-
-	AxDST = fig.add_subplot(gs[4,4:])
+	AxRBb = fig.add_subplot(gs[2:4,4:])
+	AxRBa = fig.add_subplot(gs[0:2,4:])
+	AxDST = fig.add_subplot(gs[4:,4:])
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
 
@@ -206,25 +157,39 @@ for n in range(nMin,nMax):
 
 	lfmv.addEarth2D(ax=AxM)
 	#-----------------------
-	#I2D Plots
-	pI2D(AxRBaa,Trbs[0],Krbs[0],Irbs[0],Lab='RBSP-A\nActual',doX=True)
-	pI2D(AxRBa ,Tsims[0],Ksim,Iksims[0],Lab='RBSP-A\nModel' )
-	AxRBaa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
+	#RB A K-lines
+	AxRBa.semilogy(tIp,IkAs[0],'g',tIp,IkAs[1],'b',tIp,IkAs[2],'r')
+	AxRBa.semilogy(tSp,sIkAs[0],'g:',tSp,sIkAs[1],'b:',tSp,sIkAs[2],'r:')
+	AxRBa.set_ylim(vNL)
+	AxRBa.yaxis.tick_right()
+	AxRBa.yaxis.set_label_position("right")
+	plt.setp(AxRBa.get_xticklabels(),visible=False)
 	AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
-
-	pI2D(AxRBba,Trbs[1],Krbs[1],Irbs[1],Lab='RBSP-B\nActual')
-	pI2D(AxRBb ,Tsims[1],Ksim,Iksims[1],Lab='RBSP-B\nModel' )
-	AxRBba.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
+	AxRBa.legend(KLab,bbox_to_anchor=(0.2,1.15))#,loc='upper left')
+	AxRBa.set_xlim(dMin,dMax)
+	AxRBa.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	AxRBa.set_ylabel("Intensity")
+	AxRBa.text(-0.035,0.55,'RBSP-A',color=pS.rbAC,rotation='vertical',transform=AxRBa.transAxes,fontsize=16)
+	#-----------------------
+	#RB B K-lines
+	AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
+	AxRBb.semilogy(tSp,sIkBs[0],'g:',tSp,sIkBs[1],'b:',tSp,sIkBs[2],'r:')
+	AxRBb.set_ylim(vNL)
+	plt.setp(AxRBb.get_xticklabels(),visible=False)
+	AxRBb.yaxis.tick_right()
+	AxRBb.yaxis.set_label_position("right")
 	AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
-
-
+	AxRBb.set_xlim(dMin,dMax)
+	AxRBb.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	AxRBb.set_ylabel("Intensity")
+	AxRBb.text(-0.035,0.55,'RBSP-B',color=pS.rbBC,rotation='vertical',transform=AxRBb.transAxes,fontsize=16)
 	#-----------------------
 	#DST plot
 	AxDST.plot(tdstP,dst,'k')
 	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color='k',linewidth=lwDST)
 	AxDST.yaxis.tick_right()
 	AxDST.yaxis.set_label_position("right")
-	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ'))
 	AxDST.set_xlim(dMin,dMax)
 	AxDST.xaxis.set_major_locator(mdates.HourLocator(interval=6))
 	AxDST.set_ylabel("DST [nT]")
@@ -235,4 +200,19 @@ for n in range(nMin,nMax):
 	plt.close('all')
 	nVid = nVid+1
 	
+
+# if (os.path.isfile(inPkl)):
+# 	print("Reading PKL")
+# 	with open(inPkl, "rb") as f:
+# 		R,P,K,Tkc,I0 = pickle.load(f)
+# 		Tsc,Xrb,Yrb,Zrb = pickle.load(f)
+# 		tdst,dst = pickle.load(f)
+# else:
+
+	# #Save to pkl
+	# print("Creating PKL")
+	# with open(inPkl,"wb") as f:
+	# 	pickle.dump((R,P,K,Tkc,I0),f)
+	# 	pickle.dump((Tsc,Xrb,Yrb,Zrb),f)
+	# 	pickle.dump((tdst,dst),f)
 

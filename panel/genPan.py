@@ -1,11 +1,8 @@
 #Figures for RB comparison
 import kCyl as kc
+import pyStorm as pS
 import os
 import numpy as np
-import scipy
-import scipy.interpolate
-import scipy.ndimage
-from scipy.ndimage.filters import gaussian_filter1d
 import datetime
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -53,7 +50,8 @@ kcScls = np.array([0.5,2.5])
 LabFS = "large"
 TitFS = "large"
 
-Ks = [100,250,500,750,1000]
+#Ks = [100,250,500,750,1000]
+Ks = [100,250,500,1000,1500]
 mSize = 6
 mTrk = 2
 Ntrk = 10
@@ -62,7 +60,7 @@ alTrk = 0.5
 doTracks = True
 DelT = (50+6*60)*60 #Seconds to get to 3/17
 
-#Ts = np.linspace(35000.0,185000.0,6)
+#Ts = (60*60)*np.linspace(4,46,8) + DelT
 Ts = (60*60)*np.linspace(4,46,8) + DelT
 
 vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
@@ -71,8 +69,8 @@ vcNorm = Normalize(vmin=Vc.min(),vmax=Vc.max())
 
 figSize = (18,12)
 figQ = 300
-cMap = "jet"
-#cMap = "gnuplot2"
+#cMap = "jet"
+cMap = "gnuplot2"
 cMapC = "RdGy"
 cAl = 0.5
 cLW = 0.25
@@ -86,37 +84,8 @@ Nk = len(Ks)
 Nt = len(Ts)
 NumRB = len(rbStrs)
 
-aI = []
-#Get KCyls (assuming same grid)
-for n in range(NumPop):
-	fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
-	#fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/MergeWedge/" + kcStrs[n] + ".h5"
-	#fIn = os.path.expanduser('~') + "/Work/StormPSD/grab/std/" + kcStrs[n] + ".h5"
-	if (n == 0):
-		fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + ".h5"
-		R,P,K,Tkc,I0 = kc.getCyl(fIn)
-	else:
-		IStubs = ["_0","_21","_3"]
-		fIns = []
-		for s in IStubs:
-			fIn = os.path.expanduser('~') + "/Work/StormPSD/Data" + "/Merge/" + kcStrs[n] + s + ".h5"
-			fIns.append(fIn)
-		print(fIns)
-		R,P,K,Tkc,I0 = kc.getCyls(fIns)
 
-	I0 = kcScls[n]*I0
-
-	#Smooth cylinder
-	if (doSmooth):
-		#I0 = kc.ResampleCyl(I0,Ntp,Ncut=4)
-		Irpkt = kc.SmoothKCyl(R,P,I0,Niter)
-	else:
-		Irpkt = I0
-
-	aI.append(Irpkt)
-
-#Total intensity
-Irpkt = aI[0]+aI[1]
+R,P,K,Tkc,Irpkt = pS.TotCyl(doSmooth=True)
 
 #Get grid
 XX,YY = kc.xy2rp(R,P)
@@ -161,9 +130,9 @@ for n in range(Nt):
 	for k in range(Nk):
 		K0 = Ks[Nk-k-1]
 		if (K0>=1000):
-			KLab = "%d MeV"%(np.round(K0/1000))
+			KLab = "%s MeV"%(str(K0/1000))
 		else:
-			KLab = "%d keV"%(np.round(K0))
+			KLab = "%s keV"%(str(K0))
 		ik1 = (K>=K0).argmax()
 		ik0 = ik1-1
 		dk = (K0-K[ik0])/(K[ik1]-K[ik0])
@@ -212,13 +181,17 @@ for n in range(Nt):
 				else:
 					Ax.plot(Xrbs[0][iRB],Yrbs[0][iRB],color=rbAC,marker="o",markersize=mTrk,alpha=alTrk)
 					Ax.plot(Xrbs[1][iRB],Yrbs[1][iRB],color=rbBC,marker="o",markersize=mTrk,alpha=alTrk)
-AxC = fig.add_subplot(gs[-1,0:Nt/2])
-cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
-cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
 if (doField):
 	AxCC = fig.add_subplot(gs[-1,Nt/2:])
 	cb = mpl.colorbar.ColorbarBase(AxCC,cmap=cMapC,norm=vcNorm,orientation='horizontal')
 	cb.set_label("Residual Vertical Field [nT]",fontsize="large")
+	AxC = fig.add_subplot(gs[-1,0:Nt/2])
+
+else:
+	AxC = fig.add_subplot(gs[-1,Nt/2-Nt/4:Nt/2+Nt/4+1])
+cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
+cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+
 plt.savefig("IPans.png",dpi=figQ)
 plt.close('all')
 lfmv.trimFig("IPans.png")

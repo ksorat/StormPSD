@@ -135,6 +135,7 @@ for n in range(Nrb):
 	#-------------------
 	#Limited Panel figure
 	if (doLimPanelFig):
+		doCbar = False
 		LimLabs = [Labs[0],"Simulation"]
 		Np = 2
 		figSize = (16,10)
@@ -165,10 +166,11 @@ for n in range(Nrb):
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
 			npan = npan+1
-		#Do colorbar
-		AxC = fig.add_subplot(gs[-1,0])
-		cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
-		cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+		if (doCbar):
+			#Do colorbar
+			AxC = fig.add_subplot(gs[-1,0])
+			cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
+			cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
 
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)

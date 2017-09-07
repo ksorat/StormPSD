@@ -11,19 +11,41 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 import cPickle as pickle
+from matplotlib.patches import Wedge
 
-inPkl = "IVid2d.pkl"
+doTest = False
+
+vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
+cMapP = "gnuplot2"
+cMapP = "gnuplot"
+#cMapP = "nipy_spectral"
+KBds = [75,4.0e+3]
+def pI2D(Ax,T,K,I,Lab="Stupid",doX=False,tC='r'):
+	Tp = kc.Ts2date(T,pS.T0Str)
+	iPlt = Ax.pcolormesh(Tp,K,I.T,norm=vNormP,cmap=cMapP)
+	Ax.set_ylim(KBds)
+	Ax.set_yscale('log')
+	Ax.yaxis.tick_right()
+	Ax.yaxis.set_label_position("right")
+
+	if (not doX):
+		plt.setp(Ax.get_xticklabels(),visible=False)
+	else:
+		Ax.xaxis.tick_top()
+		Ax.xaxis.set_label_position("top")
+	Ax.set_ylabel("Energy [keV]",fontsize="x-small")
+	Ax.set_xlim(dMin,dMax)
+	Ax.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	Ax.text(-0.015,0.6,Lab,color=tC,rotation='vertical',transform=Ax.transAxes,fontsize=16,ha='center')
 
 #K value for main panel
 K0 = 1000.0
-#K for line plots
-Ks = [500,1000,1500]
-KLab = ["500 keV","1MeV","1.5MeV"]
 
-dpiQ = 100
+dpiQ = 300
 
 #Visual defaults
-figSize = (16,7.75)
+figSize = (16.0,7.8)
 vNorm = LogNorm(vmin=1.0e-2,vmax=1.0e+3)
 cMap = "viridis"
 
@@ -40,15 +62,15 @@ mSize = 12
 alTrk = 0.5
 Ntrk = 3
 Nskp = 30
+lwTRK = 1.5
 
-#Line plots
+#Lines
 lwDST = 1.5
 lwRB = 1.5
 NumT = 500
-
 Nsk = 1
-MSkl = 4
-vNL = (1.0,5.0e+4)
+
+
 #-------------------
 #Get data
 #Get total KCyl
@@ -59,14 +81,17 @@ Tsc,Xrb,Yrb,Zrb,Lrb = pS.GetRBs()
 tdst,dst = pS.GetDST()
 tdstP = kc.Ts2date(tdst,pS.T0Str)
 tI = np.linspace(tdst.min(),tdst.max(),NumT)
-IkAs,IkBs = pS.GetRBKt(tI,Ks)
-tIp = kc.Ts2date(tI,pS.T0Str)
 
 #Get KCyl->RB trajectories
+#2D-I plots
+Trbs,Krbs,Irbs = pS.GetRB_I2D()
+
 SimKC = [R,P,K,Tkc,I0]
 rbDat = [Tsc,Xrb,Yrb,Zrb,Lrb]
-tS,sIkAs,sIkBs = pS.GetSimRBKt(SimKC,rbDat,Ks,Nsk)
-tSp = kc.Ts2date(tS,pS.T0Str)
+Nk2D = 80
+Ksim = np.logspace(1,np.log10(5000),Nk2D)
+Tsims,Iksims = pS.GetSim_I2D(SimKC,rbDat,Ksim)
+
 
 #Prep counters
 Nkc = len(Tkc)
@@ -79,9 +104,10 @@ NRow = 7
 NCol = 8
 Npx = 4
 Npy = 4
-HRs = np.ones(NRow)
-HRs[-1] = 0.25
-HRs[-2] = 0.1
+HRs = 1.25*np.ones(NRow)
+HRs[-1] = 0.2
+HRs[-2] = 0.125
+
 
 #Get grid
 XX,YY = kc.xy2rp(R,P)
@@ -99,6 +125,9 @@ TINY = 1.0e-8
 I0[I0<TINY] = TINY
 
 print("Starting video ...")
+if (doTest):
+	nMin = 500
+	nMax = 501
 for n in range(nMin,nMax):
 #for n in range(500,501):
 	#------------------
@@ -111,7 +140,7 @@ for n in range(nMin,nMax):
 
 	#Add colorbars for main panel
 	cbI = mpl.colorbar.ColorbarBase(AxCI,cmap=cMap,norm=vNorm,orientation='horizontal')
-	cbI.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+	cbI.set_label("Intensity [cm-2 sr-1 s-1 keV-1]",fontsize="large")
 	cbF = mpl.colorbar.ColorbarBase(AxCF,cmap=cMapC,norm=vcNorm,orientation='horizontal')
 	cbF.set_label("Residual Vertical Field [nT]",fontsize="large")
 
@@ -120,9 +149,52 @@ for n in range(nMin,nMax):
 	AxM.set_xlim(-15.5,12.5)
 	AxM.set_ylim(-15,15)
 
-	AxRBb = fig.add_subplot(gs[2:4,4:])
-	AxRBa = fig.add_subplot(gs[0:2,4:])
-	AxDST = fig.add_subplot(gs[4:,4:])
+	#Add wedge markers
+	wLW = 1.5
+	w1 = Wedge((0,0), 12,170,190, width=3.0,fill=False,ec='b',linewidth=wLW)
+	w2 = Wedge((0,0), 12,125,145, width=3.0,fill=False,ec='lime',linewidth=wLW)
+	w3 = Wedge((0,0), 12,215,235, width=3.0,fill=False,ec='r',linewidth=wLW)
+	for w in [w1,w2,w3]:
+		AxM.add_artist(w)
+
+	#Add RB labels
+	rbFS = 14
+	AxM.text(0.75,1.01,'RBSP-B',color=pS.rbBC,transform=AxM.transAxes,fontsize=rbFS)
+	AxM.text(0.10,1.01,'RBSP-A',color=pS.rbAC,transform=AxM.transAxes,fontsize=rbFS)
+
+
+	#Add pcolor panels
+	AxRBaa = fig.add_subplot(gs[0,4:])
+	AxRBa  = fig.add_subplot(gs[1,4:])
+	AxRBba = fig.add_subplot(gs[2,4:])
+	AxRBb  = fig.add_subplot(gs[3,4:])
+
+	#Tweak pcolors to touch
+	x0 = 0.50851064
+	y0A = 0.770166
+	y0A = 0.785
+	#y0B = 0.32212742
+	y0B = 0.31
+	y0DST = 0.17278123
+	y0DST = 0.1715
+	dX = 0.4
+	dY = 0.15
+	dYDST = 0.125
+
+	eps = 0.005/2
+	AxRBaa.set_position([x0,y0A,dX,dY])
+	AxRBa .set_position([x0,y0A-dY-eps,dX,dY])
+	AxRBba.set_position([x0,y0B+dY+eps,dX,dY])
+	AxRBb .set_position([x0,y0B,dX,dY])
+
+	#Add pcolor colorbar
+	AxCI2D = fig.add_subplot(gs[-1,4:])
+	cbI = mpl.colorbar.ColorbarBase(AxCI2D,cmap=cMapP,norm=vNormP,orientation='horizontal')
+	cbI.set_label("Intensity [cm-2 sr-1 s-1 keV-1]",fontsize="large")
+
+	AxDST = fig.add_subplot(gs[4,4:])
+	AxDST.set_position([x0,y0DST,dX,dYDST])
+	print(AxDST.get_position().get_points())
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
 
@@ -142,14 +214,18 @@ for n in range(nMin,nMax):
 	AxM.contour(Xc,Yc,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
 
 	#Plot tracks (do before RB current)
-	for i in range(Ntrk):
-		iRB = nRB-(i+1)*Nskp
-		if (iRB<0):
-			continue
-		else:
-			msTrk = mSize/(i+2.0)
-			AxM.plot(Xrb[0][iRB],Yrb[0][iRB],color=pS.rbAC,marker="o",markersize=msTrk,alpha=alTrk)
-			AxM.plot(Xrb[1][iRB],Yrb[1][iRB],color=pS.rbBC,marker="o",markersize=msTrk,alpha=alTrk)
+	iRB = max(0,nRB-Ntrk*Nskp)
+	AxM.plot(Xrb[0][iRB:nRB],Yrb[0][iRB:nRB],color=pS.rbAC,linewidth=lwTRK)
+	AxM.plot(Xrb[1][iRB:nRB],Yrb[1][iRB:nRB],color=pS.rbBC,linewidth=lwTRK)
+	# for i in range(Ntrk):
+	# 	iRB = nRB-(i+1)*Nskp
+	# 	if (iRB<0):
+	# 		continue
+	# 	else:
+	# 		msTrk = mSize/(i+2.0)
+	# 		AxM.plot(Xrb[0][iRB],Yrb[0][iRB],color=pS.rbAC,marker="o",markersize=msTrk,alpha=alTrk)
+	# 		AxM.plot(Xrb[1][iRB],Yrb[1][iRB],color=pS.rbBC,marker="o",markersize=msTrk,alpha=alTrk)
+
 	#Plot RB points
 	AxM.plot(Xrb[0][nRB],Yrb[0][nRB],color=pS.rbAC,marker="o",markersize=mSize)
 	AxM.plot(Xrb[1][nRB],Yrb[1][nRB],color=pS.rbBC,marker="o",markersize=mSize)
@@ -157,62 +233,42 @@ for n in range(nMin,nMax):
 
 	lfmv.addEarth2D(ax=AxM)
 	#-----------------------
-	#RB A K-lines
-	AxRBa.semilogy(tIp,IkAs[0],'g',tIp,IkAs[1],'b',tIp,IkAs[2],'r')
-	AxRBa.semilogy(tSp,sIkAs[0],'g:',tSp,sIkAs[1],'b:',tSp,sIkAs[2],'r:')
-	AxRBa.set_ylim(vNL)
-	AxRBa.yaxis.tick_right()
-	AxRBa.yaxis.set_label_position("right")
-	plt.setp(AxRBa.get_xticklabels(),visible=False)
+	#I2D Plots
+	pI2D(AxRBaa,Trbs[0],Krbs[0],Irbs[0],tC=pS.rbAC,Lab='Data',doX=True)
+	pI2D(AxRBa ,Tsims[0],Ksim,Iksims[0],tC=pS.rbAC,Lab='Model' )
+	AxRBaa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
 	AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
-	AxRBa.legend(KLab,bbox_to_anchor=(0.2,1.15))#,loc='upper left')
-	AxRBa.set_xlim(dMin,dMax)
-	AxRBa.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	AxRBa.set_ylabel("Intensity")
-	AxRBa.text(-0.035,0.55,'RBSP-A',color=pS.rbAC,rotation='vertical',transform=AxRBa.transAxes,fontsize=16)
-	#-----------------------
-	#RB B K-lines
-	AxRBb.semilogy(tIp,IkBs[0],'g',tIp,IkBs[1],'b',tIp,IkBs[2],'r')
-	AxRBb.semilogy(tSp,sIkBs[0],'g:',tSp,sIkBs[1],'b:',tSp,sIkBs[2],'r:')
-	AxRBb.set_ylim(vNL)
-	plt.setp(AxRBb.get_xticklabels(),visible=False)
-	AxRBb.yaxis.tick_right()
-	AxRBb.yaxis.set_label_position("right")
+
+	pI2D(AxRBba,Trbs[1],Krbs[1],Irbs[1],tC=pS.rbBC,Lab='Data')
+	pI2D(AxRBb ,Tsims[1],Ksim,Iksims[1],tC=pS.rbBC,Lab='Model' )
+	AxRBba.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
 	AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
-	AxRBb.set_xlim(dMin,dMax)
-	AxRBb.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	AxRBb.set_ylabel("Intensity")
-	AxRBb.text(-0.035,0.55,'RBSP-B',color=pS.rbBC,rotation='vertical',transform=AxRBb.transAxes,fontsize=16)
+
+	#Add double labels
+	rb1DX = -0.055
+	rb1DY = -0.05
+	rbFS = 18
+	#rbAbox = dict(boxstyle="darrow", ec=pS.rbAC, lw=2)
+	AxRBaa.text(rb1DX,rb1DY,"RBSP-A",color=pS.rbAC,rotation='vertical',transform=AxRBaa.transAxes,fontsize=rbFS,va="center",ha='center')
+	AxRBba.text(rb1DX,rb1DY,"RBSP-B",color=pS.rbBC,rotation='vertical',transform=AxRBba.transAxes,fontsize=rbFS,va="center",ha='center')
+
+
 	#-----------------------
 	#DST plot
 	AxDST.plot(tdstP,dst,'k')
 	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color='k',linewidth=lwDST)
 	AxDST.yaxis.tick_right()
 	AxDST.yaxis.set_label_position("right")
-	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ'))
+	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 	AxDST.set_xlim(dMin,dMax)
 	AxDST.xaxis.set_major_locator(mdates.HourLocator(interval=6))
 	AxDST.set_ylabel("DST [nT]")
 
 	fOut = "Data/Vid.%04d.png"%nVid
 	plt.savefig(fOut,dpi=dpiQ)
-	lfmv.trimFig(fOut)
+	lfmv.trimFig(fOut,bLenX=20,bLenY=20)
+	lfmv.shaveFig(fOut,bLenX=1,bLenY=0)
 	plt.close('all')
 	nVid = nVid+1
 	
-
-# if (os.path.isfile(inPkl)):
-# 	print("Reading PKL")
-# 	with open(inPkl, "rb") as f:
-# 		R,P,K,Tkc,I0 = pickle.load(f)
-# 		Tsc,Xrb,Yrb,Zrb = pickle.load(f)
-# 		tdst,dst = pickle.load(f)
-# else:
-
-	# #Save to pkl
-	# print("Creating PKL")
-	# with open(inPkl,"wb") as f:
-	# 	pickle.dump((R,P,K,Tkc,I0),f)
-	# 	pickle.dump((Tsc,Xrb,Yrb,Zrb),f)
-	# 	pickle.dump((tdst,dst),f)
 
