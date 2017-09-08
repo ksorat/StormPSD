@@ -41,7 +41,7 @@ ReKM = 6.38e+3
 #Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
-dt = 150.0
+dt = 150.0*2
 Rin = 2
 Rout = 18
 Nth = 20 #Number of threads
@@ -49,10 +49,9 @@ Nth = 20 #Number of threads
 doLogR = True
 if (doTest):
 	dt = 5*dt
-	#Tf = T0+10*dt
 
 dtW = dt
-dtFull = 10 #Num of timesteps between full output
+dtFull = 0 #Num of timesteps between full output
 
 #Parameters
 

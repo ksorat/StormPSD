@@ -43,7 +43,8 @@ fOrbB = Base + "/VAP/vaporbRBB.txt"
 fRBa = Base + "/VAP/rbspa.cdf"
 fRBb = Base + "/VAP/rbspb.cdf"
 
-rbAC = "cyan"
+#rbAC = "darkturquoise"
+rbAC = "dodgerblue"
 rbBC = "magenta"
 
 #Defaults for weighting info

@@ -18,7 +18,12 @@ KLs = [3000,2000,1000,500,250,75]
 vMins = [1.0e-2,1.0e-1,1.0e+0,1.0e+1,1.0e+2,1.0e+3]
 vMaxs = [1.0e+2,1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+7]
 
+#vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
+vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
+cMapP = "gnuplot2"
+
 doPanelFig = True
+doLimPanelFig = True
 doLineFig = True
 Nk2D = 80
 
@@ -49,8 +54,10 @@ Ts = Ts_tot[0]
 rbaIKs,rbbIKs = pS.GetRBKt(Tsc,KLs)
 #Get line data from SIM
 Tkl,simaIKs,simbIKs = pS.GetSimRBKt(SimKC_tot,rbDat,KLs)
+_  ,simaIKs_trp,simbIKs_trp = pS.GetSimRBKt(SimKC_trp,rbDat,KLs)
+_  ,simaIKs_inj,simbIKs_inj = pS.GetSimRBKt(SimKC_inj,rbDat,KLs)
 
-Labs = ["NULL","Trapped","Injected","Combined"]
+Labs = ["NULL","Initial","Injected","Combined"]
 rbStrs = ["A","B"]
 Nrb = 2
 
@@ -78,17 +85,20 @@ for n in range(Nrb):
 	if (n == 0):
 		rbIKs = rbaIKs
 		simIKs = simaIKs
+		simIKs_trp = simaIKs_trp
+		simIKs_inj = simaIKs_inj
 	else:
 		rbIKs = rbbIKs
 		simIKs = simbIKs
-
+		simIKs_trp = simbIKs_trp
+		simIKs_inj = simbIKs_inj
 	#-------------------
 	#Panel figure
 	if (doPanelFig):
 		Np = 4
 		figSize = (16,16)
-		vNorm = LogNorm(vmin=1.0,vmax=1.0e+6)
-		cMap = "jet"
+		vNorm = vNormP
+		cMap = cMapP
 		figName = "IComp2D_%s.png"%(rbStrs[n])
 
 		fig = plt.figure(figsize=figSize)
@@ -123,13 +133,58 @@ for n in range(Nrb):
 		plt.close('all')
 		lfmv.trimFig(figName)
 	#-------------------
+	#Limited Panel figure
+	if (doLimPanelFig):
+		doCbar = False
+		LimLabs = [Labs[0],"Simulation"]
+		Np = 2
+		figSize = (16,10)
+		vNorm = vNormP
+		cMap = cMapP
+		figName = "ICompLim2D_%s.png"%(rbStrs[n])
+
+		fig = plt.figure(figsize=figSize)
+		gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,1,1])
+		npan = 0
+		for npp in [0,3]:
+			#print(aT[np].shape,aK[np].shape,aI[np].shape)
+			Ax = fig.add_subplot(gs[npan,0])
+			Tp = kc.Ts2date(aT[npp],pS.T0Str)
+			iPlt = Ax.pcolormesh(Tp,aK[npp],aI[npp].T,norm=vNorm,cmap=cMap)
+
+			#Set axes
+			yStr = "%s\nEnergy [keV]"%LimLabs[npan]
+			plt.ylabel(yStr,fontsize="large")
+			plt.ylim([75,5.0e+3])
+			plt.yscale('log')
+			if (npp==0):
+				Ax.xaxis.tick_top()
+				Ax.xaxis.set_label_position('top')
+				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+			elif (npp<Np-1):
+				plt.setp(Ax.get_xticklabels(),visible=False)
+			else:
+				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
+			npan = npan+1
+		if (doCbar):
+			#Do colorbar
+			AxC = fig.add_subplot(gs[-1,0])
+			cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
+			cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+
+		#Save and close
+		plt.savefig(figName,dpi=pS.figQ)
+		plt.close('all')
+		lfmv.trimFig(figName)		
+	#-------------------
 	#Line figure
 	if (doLineFig):
 		Np = len(KLs)
 		figSize = (12,12)
 		figName = "ICompKs_%s.png"%(rbStrs[n])
-		LWrb = 2.0
-		LWsim = 1.0
+		LWrb = 2
+		LWsim = 1.5
+		LWsim_c = 0.75
 		#height_ratios=[10,10,10,10,1,1]
 		#HRs = 10*np.ones(Np+2)
 		#HRs[0] = 1; HRs[-1] = 1
@@ -142,10 +197,16 @@ for n in range(Nrb):
 		for npp in range(Np):
 			Ax = fig.add_subplot(gs[npp,0])
 			Ax.semilogy(Trb,rbIKs[npp],'k',linewidth=LWrb)
+			Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
+			Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
 			Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
 			Ax.set_ylim([vMins[npp],vMaxs[npp]])
 
-			KLab = "%s keV"%(str(KLs[npp]))
+			K0 = KLs[npp]
+			if (K0>=1000):
+				KLab = "%s MeV"%(str(K0/1000.0))
+			else:
+				KLab = "%s keV"%(str(K0))
 			Ax.text(0.025,0.8,KLab,transform=Ax.transAxes,fontsize='large')
 
 			#Set axes
@@ -159,8 +220,8 @@ for n in range(Nrb):
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))	
 				Ax.tick_params(axis='x', which='major', pad=15)		
-
-		plt.suptitle(Labs[0])
+		SupS = "Intensity Comparison (%s)"%(Labs[0])
+		plt.suptitle(SupS)
 
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)
