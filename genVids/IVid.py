@@ -14,6 +14,7 @@ import cPickle as pickle
 from matplotlib.patches import Wedge
 
 doTest = False
+NvSkp = 1 #Video frame skip
 
 vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
@@ -41,7 +42,7 @@ def pI2D(Ax,T,K,I,Lab="Stupid",doX=False,tC='r'):
 
 #K value for main panel
 K0 = 1000.0
-
+Rcut = 2.35
 dpiQ = 300
 
 #Visual defaults
@@ -111,6 +112,7 @@ HRs[-2] = 0.125
 
 #Get grid
 XX,YY = kc.xy2rp(R,P)
+rI = (R>Rcut).argmax()
 
 #Set XLims
 dMin = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(seconds=pS.tMin)
@@ -194,7 +196,7 @@ for n in range(nMin,nMax):
 
 	AxDST = fig.add_subplot(gs[4,4:])
 	AxDST.set_position([x0,y0DST,dX,dYDST])
-	print(AxDST.get_position().get_points())
+	
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
 
@@ -207,7 +209,9 @@ for n in range(nMin,nMax):
 
 	#------------------
 	#Main panel
-	AxM.pcolormesh(XX,YY,I0[:,:,k0,n],norm=vNorm,cmap=cMap)
+	Ixy = I0[:,:,k0,n]
+	Ixy[0:rI,:] = 0.0
+	AxM.pcolormesh(XX,YY,Ixy,norm=vNorm,cmap=cMap)
 	AxM.set_title(TitS)
 	#Field contours
 	Xc,Yc,dBz = pS.getFld(Tkc[n])
@@ -267,7 +271,7 @@ for n in range(nMin,nMax):
 	fOut = "Data/Vid.%04d.png"%nVid
 	plt.savefig(fOut,dpi=dpiQ)
 	lfmv.trimFig(fOut,bLenX=20,bLenY=20)
-	lfmv.shaveFig(fOut,bLenX=1,bLenY=0)
+	#lfmv.shaveFig(fOut,bLenX=1,bLenY=0)
 	plt.close('all')
 	nVid = nVid+1
 	
