@@ -7,35 +7,67 @@ import os
 import lfmViz as lfmv
 import scipy
 import scipy.interpolate
-from pylab import *
+from scipy.special import gamma
+from scipy.integrate import quad
+import cPickle as pickle
+
 T0Str = "2013-03-16T17:10:00Z"
+CME_T0Str = "2013-03-17T05:55:00Z" #Time of CME impact
+
 figQ = 300 #DPI
 
 #Globals
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
-VTIDir = Base + "/eqSlc/"
+#PSDir = "Merge_LC"
+PSDir = "Merge"
+
+#Injection wedges
 InjWs = [0,21,3]
+dR_W = 3 #Wedge radial length [Re]
+ReKM = 6.38e+3
+dtW = 150.0 #Wedge tau [s]
 
-dtVTI = 150.0
-T0VTI = 30000.0
+#Kappa parameters for each wedge
+Kappa = 3.5
+kTScl = 0.25 #Scale factor for ion/mhd temperature
+K0psd = 10 #keV cutoff for kappa distribution
 
+#Time duration
 tMin = 33600.0
 tMax = 189000.0
 
 #Scale factors for both populations
 injScl = 2.0
 #wSums = np.array([16410.878300,21524.367016,21489.215491])
-#wSums = np.array([5487.535701,5533.957220,5916.816624])
-wSums = np.array([1,1,1])
+wSums = np.array([5487.535701,5533.957220,5916.816624])
+
+#wSums = np.array([1,1,1])
 injScls = wSums/wSums.max() #Wedge scaling
+trapScl = 2.25/(4*np.pi)#2/(4*np.pi)
 
-trapScl = 2/(4*np.pi)
-
+#---------------
 alpEn = 2.0
 
 #Smoothing defaults
 nSm = 1
-NTWin = 2
+NTWin = 1
+
+#Color defaults
+#rbAC = "darkturquoise"
+rbAC = "dodgerblue"
+rbBC = "magenta"
+CME_C = "darkorange"
+
+#Label defaults
+pLabs = ["Pre-Storm","Injected","Total"]
+pCols = ["g","m","red"]
+iLabs = ["IV-0","IV-21","IV-3"]
+iCols = ["b","g","r"]
+
+#VTI slice defaults
+VTIDir = Base + "/eqSlc/"
+dtVTI = 150.0
+T0VTI = 30000.0
 
 #Defaults for RB data
 fOrbA = Base + "/VAP/vaporbRBA.txt"
@@ -43,9 +75,8 @@ fOrbB = Base + "/VAP/vaporbRBB.txt"
 fRBa = Base + "/VAP/rbspa.cdf"
 fRBb = Base + "/VAP/rbspb.cdf"
 
-#rbAC = "darkturquoise"
-rbAC = "dodgerblue"
-rbBC = "magenta"
+#Wedge pkl information (TS data)
+fWpkl = Base + "/wPkls/tsWedge_" #Stub for wedge MHD info
 
 #Defaults for weighting info
 fRBw = Base + "/VAP/rbWgt.cdf"
@@ -61,11 +92,79 @@ def getFld(t):
 
 	return xi,yi,dBz
 
+#Calculate time-dep. injection rate for each wedge
+def wIRate(doSmooth=True,T0Cut=40000.0,nDT=1.0):
+	jtS = []
+	NumW = len(InjWs)
+	
+	for i in range(NumW):
+		fIn = fWpkl + str(InjWs[i]) + ".pkl"
+		#Get basic parameters for this wedge
+		with open(fIn,"rb") as f:
+			t = pickle.load(f) #Time [s]
+			Vst = pickle.load(f) #Earthward tail velocity [km/s]
+			kTt = pickle.load(f) #Thermal energy, kT [keV]
+			Nt  = pickle.load(f) #Number density, [#/cm3]
+			Nkt = pickle.load(f) #Number density above Kcrit
+		if (doSmooth):
+			Vst = twWin(t,Vst,nDT*dtW)
+			kTt = twWin(t,kTt,nDT*dtW)
+			Nt  = twWin(t,Nt ,nDT*dtW)
+			Nkt = twWin(t,Nkt,nDT*dtW)
+		tCut = (t<=T0Cut)
+		Vst[tCut] = 0.0
+
+		NumT = len(t)
+		jt = np.zeros(NumT) #Injection rate
+		for n in range(NumT):
+			kTe = kTt[n]*kTScl
+			nScl = (dtW*Vst[n])/(dR_W*ReKM)
+			
+			jt[n] = nScl*Nt[n]*quad(pKappa,K0psd,np.inf,args=(kTe))[0]
+			#jt[n] = nScl*Nkt[n]
+
+		jtS.append(jt)
+	
+	
+	return t,jtS
+#Calculate contributions to K intensity between L,L+dL
+def ICons(K0,L=3,dL=3,doSmooth=False,doMin=False):
+	fIns = []
+	fIn = Base + "/" + PSDir + "/KCyl_StormT.h5"
+	fIns.append(fIn)
+	NumW = len(InjWs)
+	for i in range(NumW):
+		fIn = Base + "/" + PSDir + "/KCyl_StormI_%d.h5"%(InjWs[i])
+		fIns.append(fIn)
+	I0s = np.array([trapScl,injScls[0],injScls[1],injScls[2]])
+	Ikts = []
+	Np = len(fIns)
+	for n in range(Np):
+		R,P,K,Tkc,I = kc.getCyl(fIns[n])
+		I = I0s[n]*I
+		if (doSmooth):
+			I = kc.SmoothKCyl(R,P,I,nSm)
+		k0 = np.abs(K-K0).argmin()
+		if (doMin):
+			#Get all intensity above K0
+			I = I[:,:,k0:].sum(axis=2)
+		else:
+			I = I[:,:,k0]
+		I = I.mean(axis=1)
+		
+		Rc = (R<L) | (R>L+dL)
+		I[Rc,:] = 0.0
+		Ikt = I.sum(axis=0)
+		#print(Ikt.shape)
+		Ikts.append(Ikt)
+	#Assuming same t for all
+	return Tkc,Ikts
+
 def InjCyl(doSmooth=False):
 	fIns = []
 	NumW = len(InjWs)
 	for i in range(NumW):
-		fIn = Base + "/Merge/KCyl_StormI_%d.h5"%(InjWs[i])
+		fIn = Base + "/" + PSDir + "/KCyl_StormI_%d.h5"%(InjWs[i])
 		fIns.append(fIn)
 	print(fIns)
 	print("Using wedge scaling %s"%(injScls))
@@ -76,7 +175,7 @@ def InjCyl(doSmooth=False):
 	return R,P,K,Tkc,I0
 
 def TrapCyl(doSmooth=False):
-	fIn = Base + "/Merge/KCyl_StormT.h5"
+	fIn = Base + "/" + PSDir + "/KCyl_StormT.h5"
 	R,P,K,Tkc,I0 = kc.getCyl(fIn)
 	I0 = trapScl*I0
 	if (doSmooth):
@@ -215,7 +314,7 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 	Tsc = Tsc[::Nsk]
 	return Tsc,sIkAs,sIkBs
 
-#Average over time window
+#Average over time window (given by # of cells)
 def TWin(Ik,Nw=4):
 	Nt = Ik.shape[0]
 	IkS = np.zeros(Nt)
@@ -226,6 +325,24 @@ def TWin(Ik,Nw=4):
 			i1 = np.minimum(i+Nw,Nt-1)
 			IkS[i] = Ik[i0:i1].mean()
 	return IkS
+
+#Average over window (of size dt), on the time-series (t,Q)
+def twWin(t,Q,dt):
+	#Window time series t,Q based on window size dt
+	Nt = len(t)
+	Qw =  np.zeros(Nt)
+	Qw[:] = Q[:]
+	J = (Q>0)
+	for i in range(Nt):
+		t0 = t[i]
+		I = (np.abs(t-t0) <= dt)
+		IJ = I & J
+		if (IJ.sum() > 0):
+			Qw[i] = Q[IJ].mean()
+		else:
+			Qw[i] = 0.0
+		
+	return Qw
 
 #Get DST
 def GetDST():
@@ -277,3 +394,20 @@ def GetRBPSD():
 	K = K[Ik]
 	Ilk = Ilk[:,Ik]
 	return L,K,Ilk
+
+#Kappa distribution (for energy), using kT in keV
+#See equation 3.8 in space science review paper, livadiotis 2013
+def pKappa(K,kT):
+	scl = (Kappa*kT)
+	m = 2*Kappa+2.0
+	n = 3.0
+	x = K/scl
+	B1 = gamma(m/2)
+	B2 = gamma(n/2)
+	B3 = gamma(m/2 + n/2)
+	A1 = x**(n/2 - 1)
+	A2 = (1+x)**( -(m+n)/2 )
+	B = B3/(B1*B2)
+	F = B*A1*A2/scl
+
+	return F	

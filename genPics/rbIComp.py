@@ -13,6 +13,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 
+lfmv.ppInit()
 #K-Lines
 KLs = [3000,2000,1000,500,250,75]
 vMins = [1.0e-2,1.0e-1,1.0e+0,1.0e+1,1.0e+2,1.0e+3]
@@ -21,9 +22,10 @@ vMaxs = [1.0e+2,1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+7]
 #vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
+#cMapP = "rainbow"
 
 doPanelFig = True
-doLimPanelFig = True
+doLimPanelFig = False
 doLineFig = True
 Nk2D = 80
 
@@ -57,7 +59,9 @@ Tkl,simaIKs,simbIKs = pS.GetSimRBKt(SimKC_tot,rbDat,KLs)
 _  ,simaIKs_trp,simbIKs_trp = pS.GetSimRBKt(SimKC_trp,rbDat,KLs)
 _  ,simaIKs_inj,simbIKs_inj = pS.GetSimRBKt(SimKC_inj,rbDat,KLs)
 
-Labs = ["NULL","Initial","Injected","Combined"]
+#Labs = ["NULL","Initial","Injected","Combined"]
+Labs = ["NULL","Combined","Initial","Injected"]
+
 rbStrs = ["A","B"]
 Nrb = 2
 
@@ -72,15 +76,16 @@ for n in range(Nrb):
 	#Add trapped/injected/total
 	aT.append(Ts)
 	aK.append(K)
+	aI.append(Ik_tot[n])
+
+	aT.append(Ts)
+	aK.append(K)
 	aI.append(Ik_trp[n])
 
 	aT.append(Ts)
 	aK.append(K)
 	aI.append(Ik_inj[n])
 
-	aT.append(Ts)
-	aK.append(K)
-	aI.append(Ik_tot[n])
 
 	if (n == 0):
 		rbIKs = rbaIKs
@@ -95,6 +100,8 @@ for n in range(Nrb):
 	#-------------------
 	#Panel figure
 	if (doPanelFig):
+		#Change ordering to Data/Comb/Init/Inj
+
 		Np = 4
 		figSize = (16,16)
 		vNorm = vNormP
@@ -102,7 +109,7 @@ for n in range(Nrb):
 		figName = "IComp2D_%s.png"%(rbStrs[n])
 
 		fig = plt.figure(figsize=figSize)
-		gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,10,10,1,1])
+		gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,10,10,1,1],hspace=0.05)
 		for npp in range(Np):
 			#print(aT[np].shape,aK[np].shape,aI[np].shape)
 			Ax = fig.add_subplot(gs[npp,0])
@@ -126,8 +133,9 @@ for n in range(Nrb):
 		#Do colorbar
 		AxC = fig.add_subplot(gs[-1,0])
 		cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
-		cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
-
+		#cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+		cb.set_label("Intensity [cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]",fontsize="large")
+		#'\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}'
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)
 		plt.close('all')
@@ -170,7 +178,7 @@ for n in range(Nrb):
 			#Do colorbar
 			AxC = fig.add_subplot(gs[-1,0])
 			cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
-			cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
+			cb.set_label("Intensity [cm-2 sr-1 s-1 keV-1]",fontsize="large")
 
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)
@@ -185,20 +193,22 @@ for n in range(Nrb):
 		LWrb = 2
 		LWsim = 1.5
 		LWsim_c = 0.75
+		Leg = ['Data','Model']
 		#height_ratios=[10,10,10,10,1,1]
 		#HRs = 10*np.ones(Np+2)
 		#HRs[0] = 1; HRs[-1] = 1
 
 		fig = plt.figure(figsize=figSize)
-		gs = gridspec.GridSpec(Np,1,hspace=0.2)#,height_ratios=HRs)
+		gs = gridspec.GridSpec(Np,1,hspace=0.15)#,height_ratios=HRs)
 		Trb = kc.Ts2date(Tsc,pS.T0Str)
 		Tsim = kc.Ts2date(Tkl,pS.T0Str)
 
 		for npp in range(Np):
 			Ax = fig.add_subplot(gs[npp,0])
-			Ax.semilogy(Trb,rbIKs[npp],'k',linewidth=LWrb)
-			Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
-			Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
+			#Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWrb)
+			Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWsim)
+			#Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
+			#Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
 			Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
 			Ax.set_ylim([vMins[npp],vMaxs[npp]])
 
@@ -219,10 +229,13 @@ for n in range(Nrb):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))	
-				Ax.tick_params(axis='x', which='major', pad=15)		
-		SupS = "Intensity Comparison (%s)"%(Labs[0])
-		plt.suptitle(SupS)
-
+				Ax.tick_params(axis='x', which='major', pad=15)
+				#Add legend to bottom
+				Ax.legend(Leg,loc='upper right',ncol=2)
+			Ax.set_ylabel('\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}')	
+		#SupS = "Intensity Comparison (%s)\n"%(Labs[0]) + r"\textcolor{blue}{Data}/\textcolor{red}{Model}"
+		#plt.suptitle("Intensity Comparison (%s)\n"%(Labs[0]) + r'\textcolor{blue}{Data}/\textcolor{red}{Model}')
+		plt.suptitle("Intensity Comparison (%s)"%(Labs[0]))
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)
 		plt.close('all')

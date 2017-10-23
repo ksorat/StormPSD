@@ -48,8 +48,8 @@ tsLabs = ["Midnight","2100","0300"]
 #dt = 3000.0
 #dt = 600.0
 #dtW = 3000.0
-dt = 150.0
-dtW = 2*dt
+dt = 150.0*2
+dtW = dt
 
 NumPop = len(tsID)
 
