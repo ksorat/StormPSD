@@ -41,7 +41,7 @@ ReKM = 6.38e+3
 #Uniform parameters
 T0 = 33600.0
 Tf = 197000.0
-dt = 150.0*2
+dt = 150.0
 Rin = 2
 Rout = 18
 Nth = 36 #Number of threads
