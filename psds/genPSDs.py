@@ -220,7 +220,7 @@ for i in range(NumPSD):
 		IDi = IDs[i]
 		RunP = "RunPSD_%s.pbs"%(IDi)
 		with open(RunP,"w") as fID:
-			fID.write("#!/bin/bash")
+			fID.write("#!/bin/bash\n\n")
 			fID.write("#PBS -A %s\n"%(pS))
 			fID.write("#PBS -N %s\n"%(IDi))
 			fID.write("#PBS -j oe\n")
