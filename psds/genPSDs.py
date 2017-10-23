@@ -228,7 +228,7 @@ for i in range(NumPSD):
 			fID.write("#PBS -l walltime=12:00:00\n")
 			fID.write("#PBS -l select=1:ncpus=72:ompthreads=72\n")
 			fID.write("\n\n")
-			fID.write("source ~/.bashrc")
+			fID.write("source ~/.bashrc\n")
 			fID.write("module restore lfmtp\n")
 			fID.write("module list\n")
 			fID.write("hostname\n")
