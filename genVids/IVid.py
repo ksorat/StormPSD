@@ -14,12 +14,16 @@ import cPickle as pickle
 from matplotlib.patches import Wedge
 
 doTest = False
+doDark = True
+
 NvSkp = 1 #Video frame skip
+nMin = 10
+nMax = 1000
 
 vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
 cMapP = "gnuplot"
-#cMapP = "nipy_spectral"
+
 KBds = [75,4.0e+3]
 def pI2D(Ax,T,K,I,Lab="Stupid",doX=False,tC='r'):
 	Tp = kc.Ts2date(T,pS.T0Str)
@@ -118,20 +122,24 @@ rI = (R>Rcut).argmax()
 dMin = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(seconds=pS.tMin)
 dMax = datetime.datetime.strptime(pS.T0Str,kc.T0Fmt) + datetime.timedelta(seconds=pS.tMax)
 
-#for n in range(0,Nkc):
-nMin = 10
-nMax = 1000
 nVid = 0
 
 TINY = 1.0e-8
 I0[I0<TINY] = TINY
+#-------------------
+#Flip for dark version
+if (doDark):
+	plt.style.use('dark_background')
+	dstC = 'w'
+else:
+	dstC = 'k'
 
 print("Starting video ...")
 if (doTest):
 	nMin = 500
 	nMax = 501
-for n in range(nMin,nMax):
-#for n in range(500,501):
+	NvSkp = 1
+for n in range(nMin,nMax,NvSkp):
 	#------------------
 	#Setup figure
 	fig = plt.figure(figsize=figSize)
@@ -221,14 +229,6 @@ for n in range(nMin,nMax):
 	iRB = max(0,nRB-Ntrk*Nskp)
 	AxM.plot(Xrb[0][iRB:nRB],Yrb[0][iRB:nRB],color=pS.rbAC,linewidth=lwTRK)
 	AxM.plot(Xrb[1][iRB:nRB],Yrb[1][iRB:nRB],color=pS.rbBC,linewidth=lwTRK)
-	# for i in range(Ntrk):
-	# 	iRB = nRB-(i+1)*Nskp
-	# 	if (iRB<0):
-	# 		continue
-	# 	else:
-	# 		msTrk = mSize/(i+2.0)
-	# 		AxM.plot(Xrb[0][iRB],Yrb[0][iRB],color=pS.rbAC,marker="o",markersize=msTrk,alpha=alTrk)
-	# 		AxM.plot(Xrb[1][iRB],Yrb[1][iRB],color=pS.rbBC,marker="o",markersize=msTrk,alpha=alTrk)
 
 	#Plot RB points
 	AxM.plot(Xrb[0][nRB],Yrb[0][nRB],color=pS.rbAC,marker="o",markersize=mSize)
@@ -259,8 +259,8 @@ for n in range(nMin,nMax):
 
 	#-----------------------
 	#DST plot
-	AxDST.plot(tdstP,dst,'k')
-	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color='k',linewidth=lwDST)
+	AxDST.plot(tdstP,dst,dstC)
+	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=dstC,linewidth=lwDST)
 	AxDST.yaxis.tick_right()
 	AxDST.yaxis.set_label_position("right")
 	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))

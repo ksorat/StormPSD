@@ -44,7 +44,7 @@ Tf = 197000.0
 dt = 150.0*2
 Rin = 2
 Rout = 18
-Nth = 20 #Number of threads
+Nth = 36 #Number of threads
 
 doLogR = True
 if (doTest):
@@ -211,46 +211,56 @@ for i in range(NumPSD):
 
 
 #Generate runners
+#pS = "P28100045"
+pS = "UJHB0010"
+
 #Individual PSD
 for i in range(NumPSD):
 	if (doID[i]):
 		IDi = IDs[i]
-		RunP = "RunPSD_%s.sh"%(IDi)
+		RunP = "RunPSD_%s.pbs"%(IDi)
 		with open(RunP,"w") as fID:
 			fID.write("#!/bin/bash")
+			fID.write("#PBS -A %s\n"%(pS))
+			fID.write("#PBS -N %s\n"%(IDi))
+			fID.write("#PBS -j oe\n")
+			fID.write("#PBS -q regular\n")
+			fID.write("#PBS -l walltime=12:00:00\n")
+			fID.write("#PBS -l select=1:ncpus=72:ompthreads=72\n")
 			fID.write("\n\n")
+			fID.write("source ~/.bashrc")
 			fID.write("module restore lfmtp\n")
 			fID.write("module list\n")
 			fID.write("hostname\n")
 			fID.write("date\n")
 			fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-			fID.write("export KMP_STACKSIZE=128M\n")
-			ComS = "psd.x %s.xml\n"%IDi
+			#fID.write("export KMP_STACKSIZE=128M\n")
+			ComS = "psd.x %s.xml > %s.out\n"%(IDi,IDi)
 			fID.write(ComS)
 			ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
 			fID.write(ComS)
 		os.chmod(RunP, 0744)
 	
 #Sub all PSDs
-RunF = "SubPSDs.sh"
-#wcS = "12:00"
-#qS = "regular"
-wcS = "24:00"
-qS = "geyser"
+# RunF = "SubPSDs.sh"
+# #wcS = "12:00"
+# #qS = "regular"
+# wcS = "24:00"
+# qS = "geyser"
 
 
-pS = "P28100045"
-with open(RunF,"w") as fID:
-	fID.write("#!/bin/bash")
-	fID.write("\n\n")
 
-	for i in range(NumPSD):
-		if (doID[i]):
-			IDi = IDs[i]
-			logF = "PSD_%s.log"%(IDi)
-			jobS = "PSD%s"%(IDi)
-			ComS = "bsub -a poe -P " + pS + " -W " + wcS + " -n 1 -q " + qS + " -J " + jobS + " -e %s -o %s"%(logF,logF)
-			ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
-			fID.write(ComS)
-os.chmod(RunF, 0744)
+# with open(RunF,"w") as fID:
+# 	fID.write("#!/bin/bash")
+# 	fID.write("\n\n")
+
+# 	for i in range(NumPSD):
+# 		if (doID[i]):
+# 			IDi = IDs[i]
+# 			logF = "PSD_%s.log"%(IDi)
+# 			jobS = "PSD%s"%(IDi)
+# 			ComS = "bsub -a poe -P " + pS + " -W " + wcS + " -n 1 -q " + qS + " -J " + jobS + " -e %s -o %s"%(logF,logF)
+# 			ComS = ComS + " \"RunPSD_%s.sh\" "%(IDi) + "\n"
+# 			fID.write(ComS)
+# os.chmod(RunF, 0744)
 
