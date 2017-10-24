@@ -19,7 +19,7 @@ figQ = 300 #DPI
 #Globals
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 #PSDir = "Merge_LC"
-PSDir = "Merge"
+PSDir = "MergeFin"
 
 #Injection wedges
 InjWs = [0,21,3]
@@ -37,13 +37,13 @@ tMin = 33600.0
 tMax = 189000.0
 
 #Scale factors for both populations
-injScl = 2.0
+injScl = 2.25
 #wSums = np.array([16410.878300,21524.367016,21489.215491])
 wSums = np.array([5487.535701,5533.957220,5916.816624])
 
 #wSums = np.array([1,1,1])
 injScls = wSums/wSums.max() #Wedge scaling
-trapScl = 2.25/(4*np.pi)#2/(4*np.pi)
+trapScl = 2.0/(4*np.pi)#2/(4*np.pi)
 
 #---------------
 alpEn = 2.0
@@ -136,7 +136,7 @@ def ICons(K0,L=3,dL=3,doSmooth=False,doMin=False):
 	for i in range(NumW):
 		fIn = Base + "/" + PSDir + "/KCyl_StormI_%d.h5"%(InjWs[i])
 		fIns.append(fIn)
-	I0s = np.array([trapScl,injScls[0],injScls[1],injScls[2]])
+	I0s = np.array([trapScl,injScl*injScls[0],injScl*injScls[1],injScl*injScls[2]])
 	Ikts = []
 	Np = len(fIns)
 	for n in range(Np):

@@ -207,8 +207,8 @@ for n in range(Nrb):
 			Ax = fig.add_subplot(gs[npp,0])
 			#Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWrb)
 			Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWsim)
-			#Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
-			#Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
+			Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
+			Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
 			Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
 			Ax.set_ylim([vMins[npp],vMaxs[npp]])
 
