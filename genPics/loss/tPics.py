@@ -83,7 +83,7 @@ Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 Ax.xaxis.set_major_locator(mdates.HourLocator(np.arange(0,25,4)))
 
 plt.xlim(Tmin,Tmax)
-plt.ylim(10,1.0e+5)
+plt.ylim(1.0e+2,1.0e+5)
 #plt.hist(Tmp ,Nt,alpha=Al,log=True)
 plt.legend(Leg)
 plt.xlabel("Loss Time")
