@@ -82,7 +82,7 @@ for n in range(NumPop):
 		wNkt = pS.twWindow(t,Nkt,dtW)
 
 		if (doSmoothTS):
-			print("Using smoothed TS with dtW = %f"(%dtW))
+			print("Using smoothed TS with dtW = %f"%(dtW))
 			nScl = (dt*wVst)/(dR_W*ReKM)
 			dOut[1,:] = nScl*wNt
 			dOut[2,:] = wkTt
