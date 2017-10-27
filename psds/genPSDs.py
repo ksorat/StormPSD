@@ -76,10 +76,10 @@ for n in range(NumPop):
 		dOut = np.zeros((3,N))
 		dOut[0,:] = t
 
-		wVst = pS.twWindow(t,Vst,dtW)
-		wkTt = pS.twWindow(t,kTt,dtW)
-		wNt  = pS.twWindow(t,Nt ,dtW)
-		wNkt = pS.twWindow(t,Nkt,dtW)
+		wVst = pS.twWin(t,Vst,dtW)
+		wkTt = pS.twWin(t,kTt,dtW)
+		wNt  = pS.twWin(t,Nt ,dtW)
+		wNkt = pS.twWin(t,Nkt,dtW)
 
 		if (doSmoothTS):
 			print("Using smoothed TS with dtW = %f"%(dtW))
