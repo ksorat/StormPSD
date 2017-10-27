@@ -37,20 +37,21 @@ tMin = 33600.0
 tMax = 189000.0
 
 #Scale factors for both populations
-injScl = 2.25
+injScl = 2.0
 #wSums = np.array([16410.878300,21524.367016,21489.215491])
 wSums = np.array([5487.535701,5533.957220,5916.816624])
 
 #wSums = np.array([1,1,1])
 injScls = wSums/wSums.max() #Wedge scaling
-trapScl = 2.0/(4*np.pi)#2/(4*np.pi)
+trapScl = 1.5/(4*np.pi)#2/(4*np.pi)
 
 #---------------
 alpEn = 2.0
 
 #Smoothing defaults
+#nSm = 1
 nSm = 1
-NTWin = 1
+NTWin = 2
 
 #Color defaults
 #rbAC = "darkturquoise"
@@ -315,27 +316,34 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 	return Tsc,sIkAs,sIkBs
 
 #Average over time window (given by # of cells)
-def TWin(Ik,Nw=4):
-	Nt = Ik.shape[0]
-	IkS = np.zeros(Nt)
-	IkS[:] = Ik[:]
-	if (Nw>0):
-		for i in range(Nt):
-			i0 = np.maximum(i-Nw,0)
-			i1 = np.minimum(i+Nw,Nt-1)
-			IkS[i] = Ik[i0:i1].mean()
+# def TWin(Ik,Nw=4):
+# 	Nt = Ik.shape[0]
+# 	IkS = np.zeros(Nt)
+# 	IkS[:] = Ik[:]
+# 	if (Nw>0):
+# 		for i in range(Nt):
+# 			i0 = np.maximum(i-Nw,0)
+# 			i1 = np.minimum(i+Nw,Nt-1)
+# 			IkS[i] = Ik[i0:i1].mean()
+# 	return IkS
+
+#Different averaging over time window, use gaussian filter
+def TWin(Ik,Sig=1,Nw=0):
+	import scipy.ndimage.filters as sfil
+
+	IkS = sfil.gaussian_filter1d(Ik,sigma=Sig)
 	return IkS
 
 #Average over window (of size dt), on the time-series (t,Q)
 def twWin(t,Q,dt):
-	#Window time series t,Q based on window size dt
+	#Window time series t,Q based on window size dt/2
 	Nt = len(t)
 	Qw =  np.zeros(Nt)
 	Qw[:] = Q[:]
 	J = (Q>0)
 	for i in range(Nt):
 		t0 = t[i]
-		I = (np.abs(t-t0) <= dt)
+		I = (np.abs(t-t0) <= dt/2)
 		IJ = I & J
 		if (IJ.sum() > 0):
 			Qw[i] = Q[IJ].mean()

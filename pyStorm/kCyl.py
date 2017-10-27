@@ -230,36 +230,54 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 #SimKC = [R,P,K,Tkc,Is]
 #rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
 
-def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
-	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
-	R,P,K,Tkc,Ikc = SimKC
+# def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
+# 	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
+# 	R,P,K,Tkc,Ikc = SimKC
 
 	
-	IkcS = np.zeros(Ikc.shape)
-	IkcS[:] = Ikc[:]
-	#IkcS = Ikc
-	#Now apply smoothing window
-	Nr = len(R)
-	Np = len(P)
-	Nt = len(Tsc)
-	Nk = len(Ksc)
+# 	IkcS = np.zeros(Ikc.shape)
+# 	IkcS[:] = Ikc[:]
+# 	#IkcS = Ikc
+# 	#Now apply smoothing window
+# 	Nr = len(R)
+# 	Np = len(P)
+# 	Nt = len(Tsc)
+# 	Nk = len(Ksc)
 
-	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
-	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-	IkcS = SmoothKCyl(R,P,IkcS,Niter=Niter)
+# 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
+# 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
+# 	IkcS = SmoothKCyl(R,P,IkcS,Niter=Niter)
 
-	Ii = GetInterp(R,P,K,Tkc,IkcS)
-	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl,en=en)
-
-
-	IscS = np.zeros(Isc.shape)
-	IscS[:] = Isc[:]
-	for n in range(NiterT):
-		IscS = SmoothIterT(IscS)
-
-	return IkcS,IscS
+# 	Ii = GetInterp(R,P,K,Tkc,IkcS)
+# 	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl,en=en)
 
 
+# 	IscS = np.zeros(Isc.shape)
+# 	IscS[:] = Isc[:]
+# 	for n in range(NiterT):
+# 		IscS = SmoothIterT(IscS)
+
+# 	return IkcS,IscS
+
+
+def SmoothKCyl_Old(R,P,Ikc,Niter=1,Sig=0.25):
+	import scipy.ndimage.filters as sfil
+
+	SigL = 0.5
+	SigP = 0.75
+	Sig0 = 1
+	Nr = Ikc.shape[0]
+	Np = Ikc.shape[1]
+	Nk = Ikc.shape[2]
+	Nt = Ikc.shape[3]
+
+	IkS = np.zeros_like(Ikc)
+	for k in range(Nk):
+		for n in range(Nt):
+			InkS = sfil.gaussian_filter(Ikc[:,:,k,n],mode='wrap',sigma=[SigL,SigP],truncate=Sig0)
+			IkS[:,:,k,n] = InkS
+	#IkS = sfil.gaussian_filter1d(Ikc,axis=1,mode='wrap',sigma=Sig,truncate=2)
+	return IkS
 
 def SmoothKCyl(R,P,Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
@@ -299,6 +317,7 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 			if (j==Np-1):
 				jP = 0
 
+			#Method 1
 			# a00,aCj,aCip,aCim,aDp,aDm = getWeights(xx,yy,i,j,iM,iP,jM,jP)
 			# aScl = a00 + 2*aCj + aCip + aCim + 2*aDp + 2*aDm
 
@@ -308,7 +327,7 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 			# 				 aDp*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:]) +
 			# 				 aDm*(Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
 			# 				)/aScl
-
+			#Method 2
 			IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
 							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
 							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
@@ -351,6 +370,7 @@ def SmoothIterT(Isc):
 	for n in range(1,Nt-1):
 		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
 	return IscS
+	
 #Get Intensity from RBSP CDF
 def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,CutR=True):
 	from spacepy import pycdf

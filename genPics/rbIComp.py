@@ -12,6 +12,7 @@ from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
+from matplotlib.ticker import MaxNLocator
 
 lfmv.ppInit()
 #K-Lines
@@ -19,15 +20,18 @@ KLs = [3000,2000,1000,500,250,75]
 vMins = [1.0e-2,1.0e-1,1.0e+0,1.0e+1,1.0e+2,1.0e+3]
 vMaxs = [1.0e+2,1.0e+3,1.0e+4,1.0e+5,1.0e+6,1.0e+7]
 
+#print(plt.style.available)
 #vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
-#cMapP = "rainbow"
-
+#cMapP = "nipy_spectral"
+#cMapP = "gist_rainbow"
 doPanelFig = True
 doLimPanelFig = False
 doLineFig = True
 Nk2D = 80
+
+#plt.style.use('ggplot')
 
 #-------------------
 #Get data
@@ -129,6 +133,7 @@ for n in range(Nrb):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
+			Ax.grid(color='silver',axis='y',linewidth=1)#,alpha=0.5)
 
 		#Do colorbar
 		AxC = fig.add_subplot(gs[-1,0])
@@ -207,10 +212,17 @@ for n in range(Nrb):
 			Ax = fig.add_subplot(gs[npp,0])
 			#Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWrb)
 			Ax.semilogy(Trb,rbIKs[npp],'b',linewidth=LWsim)
+			Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
 			Ax.semilogy(Tsim,simIKs_trp[npp],color='g',linewidth=LWsim_c)
 			Ax.semilogy(Tsim,simIKs_inj[npp],color='m',linewidth=LWsim_c)
 			Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
+
 			Ax.set_ylim([vMins[npp],vMaxs[npp]])
+
+			#Ax.yaxis.set_major_locator(MaxNLocator(4))
+			pMin = np.log10(vMins[npp])
+			pMax = np.log10(vMaxs[npp])
+			Ax.yaxis.set_ticks(10**np.arange(pMin,pMax+1))
 
 			K0 = KLs[npp]
 			if (K0>=1000):
@@ -224,15 +236,17 @@ for n in range(Nrb):
 				Ax.xaxis.tick_top()
 				Ax.xaxis.set_label_position('top')
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
-				Ax.tick_params(axis='x', which='major', pad=15)
+				#Ax.tick_params(axis='x', which='major', pad=15)
 			elif (npp<Np-1):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))	
-				Ax.tick_params(axis='x', which='major', pad=15)
+				#Ax.tick_params(axis='x', which='major', pad=15)
+				
 				#Add legend to bottom
 				Ax.legend(Leg,loc='upper right',ncol=2)
 			Ax.set_ylabel('\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}')	
+			Ax.set_xlim(Tsim[0],Tsim[-1])
 		#SupS = "Intensity Comparison (%s)\n"%(Labs[0]) + r"\textcolor{blue}{Data}/\textcolor{red}{Model}"
 		#plt.suptitle("Intensity Comparison (%s)\n"%(Labs[0]) + r'\textcolor{blue}{Data}/\textcolor{red}{Model}')
 		plt.suptitle("Intensity Comparison (%s)"%(Labs[0]))

@@ -4,23 +4,9 @@ import xml.dom.minidom
 import cPickle as pickle
 import numpy as np
 import os
+import pyStorm as pS
 
-def tWindow(t,Q,dt):
-	#Window time series t,Q based on window size dt
-	Nt = len(t)
-	Qw =  np.zeros(Nt)
-	Qw[:] = Q[:]
-	J = (Q>0)
-	for i in range(Nt):
-		t0 = t[i]
-		I = (np.abs(t-t0) <= dt)
-		IJ = I & J
-		if (IJ.sum() > 0):
-			Qw[i] = Q[IJ].mean()
-		else:
-			Qw[i] = 0.0
-		
-	return Qw
+
 
 doTest = False
 doSmoothTS = True
@@ -42,7 +28,7 @@ ReKM = 6.38e+3
 T0 = 33600.0
 Tf = 197000.0
 dt = 150.0
-Rin = 2
+Rin = 2.05
 Rout = 18
 Nth = 36 #Number of threads
 
@@ -59,7 +45,9 @@ dtFull = 0 #Num of timesteps between full output
 
 kappa = 3.5
 kTScl = 0.25
-Nr = 60
+#Nr = 60
+#Using Nr=30 for better aspect ratio
+Nr = 30
 Np = 48
 Nk = 20
 kMin = 30.0
@@ -88,12 +76,13 @@ for n in range(NumPop):
 		dOut = np.zeros((3,N))
 		dOut[0,:] = t
 
-		wVst = tWindow(t,Vst,dtW)
-		wkTt = tWindow(t,kTt,dtW)
-		wNt  = tWindow(t,Nt ,dtW)
-		wNkt = tWindow(t,Nkt,dtW)
+		wVst = pS.twWindow(t,Vst,dtW)
+		wkTt = pS.twWindow(t,kTt,dtW)
+		wNt  = pS.twWindow(t,Nt ,dtW)
+		wNkt = pS.twWindow(t,Nkt,dtW)
 
 		if (doSmoothTS):
+			print("Using smoothed TS with dtW = %f"(%dtW))
 			nScl = (dt*wVst)/(dR_W*ReKM)
 			dOut[1,:] = nScl*wNt
 			dOut[2,:] = wkTt
@@ -223,7 +212,7 @@ for i in range(NumPSD):
 			fID.write("#!/bin/bash\n\n")
 			fID.write("#PBS -A %s\n"%(pS))
 			fID.write("#PBS -N %s\n"%(IDi))
-			#fID.write("#PBS -j oe\n")
+			fID.write("#PBS -j oe\n")
 			fID.write("#PBS -q regular\n")
 			fID.write("#PBS -l walltime=12:00:00\n")
 			fID.write("#PBS -l select=1:ncpus=72:ompthreads=72\n")
@@ -234,9 +223,9 @@ for i in range(NumPSD):
 			fID.write("hostname\n")
 			fID.write("date\n")
 			fID.write("export OMP_NUM_THREADS=%d\n"%Nth)
-			#fID.write("export KMP_STACKSIZE=128M\n")
-			#ComS = "omplace -nt $OMP_NUM_THREADS psd.x %s.xml > %s.out\n"%(IDi,IDi)
-			ComS = "psd.x %s.xml > %s.out\n"%(IDi,IDi)
+			fID.write("export KMP_STACKSIZE=128M\n")
+			ComS = "omplace -nt $OMP_NUM_THREADS psd.x %s.xml > %s.out\n"%(IDi,IDi)
+			#ComS = "psd.x %s.xml > %s.out\n"%(IDi,IDi)
 			fID.write(ComS)
 			ComS = "mv %s_r_phi_k_Slice3D#1.h5 KCyl_%s.h5\n"%(IDi,IDi)
 			fID.write(ComS)
