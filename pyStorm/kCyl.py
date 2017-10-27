@@ -229,54 +229,32 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 
 
 
-def SmoothKCyl_Old(R,P,Ikc,Niter=1,L0=0.5):
+def SmoothKCyl_Old(R,P,Ikc0,Niter=1,L0=1.0):
 	import kSmooth
 
-	Nr = Ikc.shape[0]
-	Np = Ikc.shape[1]
-	Nk = Ikc.shape[2]
-	Nt = Ikc.shape[3]
+	Nr = Ikc0.shape[0]
+	Np = Ikc0.shape[1]
+	Nk = Ikc0.shape[2]
+	Nt = Ikc0.shape[3]
 
-	IkS = np.zeros_like(Ikc,order='F')
+	
+	Ikf0 = np.zeros_like(Ikc0,order='F')
+	IkfS = np.zeros_like(Ikc0,order='F')
 
-	IkS[:] = Ikc[:]
+	IkcS = np.zeros_like(Ikc0)
 
-	kSmooth.ksmooth.smoothcyl(R,P,Ikc,IkS,L0,Nr,Np,Nk,Nt)
-	return IkS
+	np.copyto(Ikf0,Ikc0)
+	np.copyto(IkfS,Ikc0)
+	kSmooth.ksmooth.smoothcyl(R,P,Ikf0,IkfS,L0,Nr,Np,Nk,Nt)
 
-	#print("Sums are %f/%f"%(Ikc.sum(),IkS.sum()))
-	#print(Ikc.shape)
-	#print(IkS.shape)
-	# #Create spatial mesh (centered)
-	# xx = np.zeros((Nr,Np))
-	# yy = np.zeros((Nr,Np))
-	# rScl = np.zeros((Nr,Np))
-	# wgt = np.zeros((Nr,Np))
+	np.copyto(IkcS,IkfS)
 
-	# for i in range(Nr):
-	# 	for j in range(Np):
-	# 		xx[i,j] = R[i]*np.cos(P[j])
-	# 		yy[i,j] = R[i]*np.sin(P[j])
+	Ikc0[:] = IkcS[:]
+	for n in range(1,Nt-1):
+		IkcS[:,:,:,n] = (a0*Ikc0[:,:,:,n]+aC*Ikc0[:,:,:,n-1]+aC*Ikc0[:,:,:,n+1])/aScl1D	
 
-	# #Loop over each mesh-point and calculate relevant weights, do all energy/time slices at once
-	# for i in range(Nr):
-	# 	for j in range(Np):
-	# 		#Calculate dimensionless distance to each other point
-	# 		x0 = xx[i,j]
-	# 		y0 = yy[i,j]
-	# 		rScl = np.sqrt( (xx-x0)**2.0 + (yy-y0)**2.0 )/L0
+	return IkcS
 
-	# 		#Calculate weights
-	# 		wgt[:,:] = 0.0
-	# 		I = (rScl<=1)
-	# 		wgt[I] = 0.75*(1-rScl[I]**2.0)
-	# 		w0 = wgt.sum()
-
-	# 		#Lazy for now,
-	# 		for k in range(Nk):
-	# 			for n in range(Nt):
-	# 				IkS[i,j,k,n] = (wgt*Ikc[:,:,k,n]).sum()/w0
-	# return IkS
 
 def SmoothKCyl(R,P,Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
@@ -305,12 +283,16 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 	IkcS[:] = Ikc[:]
 
 
-	for i in range(1,Nr-1):
+	for i in range(0,Nr):
 		for j in range(Np):
 			iM = i-1
 			iP = i+1
 			jM = j-1
 			jP = j+1
+			if (i==0):
+				iM = 0
+			if (i==Nr-1):
+				iP = Nr-1
 			if (j==0):
 				jM = Np-1
 			if (j==Np-1):
@@ -333,9 +315,10 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 							 aD*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:] + Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
 							 )/aScl2D
 
-	Ikc[:] = IkcS[:]
-	for n in range(1,Nt-1):
-		IkcS[:,:,:,n] = (a0*Ikc[:,:,:,n]+aC*Ikc[:,:,:,n-1]+aC*Ikc[:,:,:,n+1])/aScl1D	
+	if (doT):
+		Ikc[:] = IkcS[:]
+		for n in range(1,Nt-1):
+			IkcS[:,:,:,n] = (a0*Ikc[:,:,:,n]+aC*Ikc[:,:,:,n-1]+aC*Ikc[:,:,:,n+1])/aScl1D	
 	return IkcS
 
 #Weight function

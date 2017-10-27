@@ -50,7 +50,8 @@ module kSmooth
                 rScl = sqrt( (xx-x0)**2.0 + (yy-y0)**2.0 )/L0
                 wgt = 0.0
                 where (rScl<=1.0)
-                    wgt = 0.75*(1-rScl**2.0)
+                    !wgt = 0.75*(1-rScl**2.0)
+                    wgt = (1-rScl**3.0)**3.0
                 end where
                 w0 = sum(wgt)
                 do n=1,Nt
