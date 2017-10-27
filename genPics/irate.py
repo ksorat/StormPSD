@@ -12,7 +12,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 
-nDT = 3
+nDT = 1
 figSize = (12,6)
 datemin = datetime.datetime.strptime("2013-03-17T04:00:00Z",kc.T0Fmt)
 #datemax = datetime.datetime.strptime("2013-03-18T06:00:00Z",kc.T0Fmt)
@@ -31,11 +31,14 @@ Ax = plt.gca()
 NumW = len(aJt)
 for i in range(NumW):
 	plt.plot(Tp,aJt[i],color=pS.iCols[i],linewidth=LW)
-Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))	
+	#plt.semilogy(Tp,aJt[i],color=pS.iCols[i],linewidth=LW)
+Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+Ax.set_ylim([0.0,1.0e-1])
 #Ax.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
 Ax.axvline(dCME,color=pS.CME_C,linewidth=cmeLW)
 Ax.annotate('CME',color=pS.CME_C,xy=(dCME,0.03),xytext=(20,0),textcoords='offset pixels',fontsize=FS)
 Ax.set_xlim(datemin,datemax)
+
 plt.legend(pS.iLabs,fontsize=FS)
 plt.ylabel("Injection Rate",fontsize=FS)
 plt.savefig("WedgeInj.png",dpi=pS.figQ)

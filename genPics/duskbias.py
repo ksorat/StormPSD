@@ -45,6 +45,7 @@ for i in range(4):
 	plt.semilogy(Tp,Ikts[i]/I0,color=Col[i],linewidth=LW)
 
 plt.ylim([1.0e+2,2.0e+4])
+plt.ylim([5.0e+1,2.5e+4])
 plt.ylabel("Intensity [cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]",fontsize="large")
 Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))	
 #Ax.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
