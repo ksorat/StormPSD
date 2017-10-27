@@ -1,7 +1,7 @@
 #Various routines to deal with K-Cylinders from PSDs
 import numpy as np
 import datetime
-from pylab import *
+#from pylab import *
 Re = 6.38e+3 #Earth radius [km]
 Rmin = 1.95 #Minimum worthwhile radius
 
