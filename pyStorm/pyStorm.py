@@ -4,7 +4,6 @@ import numpy as np
 import datetime
 import kCyl as kc
 import os
-import lfmViz as lfmv
 import scipy
 import scipy.interpolate
 from scipy.special import gamma
@@ -83,6 +82,7 @@ fWpkl = Base + "/wPkls/tsWedge_" #Stub for wedge MHD info
 fRBw = Base + "/VAP/rbWgt.cdf"
 
 def getFld(t):
+	import lfmViz as lfmv
 	tSlc = np.int( (t-T0VTI)/dtVTI )
 	vtiFile = VTIDir + "eqSlc.%04d.vti"%(tSlc)
 
