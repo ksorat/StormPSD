@@ -67,7 +67,7 @@ _  ,simaIKs_inj,simbIKs_inj = pS.GetSimRBKt(SimKC_inj,rbDat,KLs)
 Labs = ["NULL","Combined","Initial","Injected"]
 
 rbStrs = ["A","B"]
-Nrb = 2
+Nrb = 1
 
 for n in range(Nrb):
 	Labs[0] = "RBSP-" + rbStrs[n].upper()

@@ -19,6 +19,7 @@ figQ = 300 #DPI
 Base = os.path.expanduser('~') + "/Work/StormPSD/Data"
 #PSDir = "Merge_LC"
 PSDir = "MergeFin"
+#PSDir = "MergeCoarse"
 
 #Injection wedges
 InjWs = [0,21,3]
@@ -38,6 +39,8 @@ tMax = 189000.0
 #Scale factors for both populations
 injScl = 2.0
 #wSums = np.array([16410.878300,21524.367016,21489.215491])
+#wSums = np.array([14991.983894,19001.323694,18505.968065]) #Most recent from Cheyenne
+
 wSums = np.array([5487.535701,5533.957220,5916.816624])
 
 #wSums = np.array([1,1,1])
@@ -50,7 +53,8 @@ alpEn = 2.0
 #Smoothing defaults
 #nSm = 1
 nSm = 1
-NTWin = 2
+NTWin = 1
+
 
 #Color defaults
 #rbAC = "darkturquoise"
@@ -94,7 +98,7 @@ def getFld(t):
 	return xi,yi,dBz
 
 #Calculate time-dep. injection rate for each wedge
-def wIRate(doSmooth=True,T0Cut=40000.0,nDT=1.0):
+def wIRate(doSmooth=True,T0Cut=30000.0,nDT=1.0):
 	jtS = []
 	NumW = len(InjWs)
 	
@@ -300,8 +304,8 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 	Ksc = np.array(Ks)
 	#Already smoothed if gonna smooth
 	Ii = kc.GetInterp(R,P,K,Tkc,Ikc)
-	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=alpEn)#,L=Lrb[0])
-	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=alpEn)#,L=Lrb[1])
+	IkA = kc.InterpI_XYZ(Ii,Xrb[0],Yrb[0],Zrb[0],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[0])
+	IkB = kc.InterpI_XYZ(Ii,Xrb[1],Yrb[1],Zrb[1],Tsc,Ksc,doScl=True,en=alpEn,L=Lrb[1])
 
 	sIkAs = []
 	sIkBs = []
@@ -328,10 +332,11 @@ def GetSimRBKt(SimKC,rbDat,Ks,Nsk=1):
 # 	return IkS
 
 #Different averaging over time window, use gaussian filter
-def TWin(Ik,Sig=1,Nw=0):
+def TWin(Ik,Nw=0,SigE=2):
 	import scipy.ndimage.filters as sfil
 
-	IkS = sfil.gaussian_filter1d(Ik,sigma=Sig)
+	Sig = Nw
+	IkS = sfil.gaussian_filter1d(Ik,sigma=Sig,mode='nearest',truncate=SigE)
 	return IkS
 
 #Average over window (of size dt), on the time-series (t,Q)

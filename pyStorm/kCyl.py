@@ -3,7 +3,7 @@ import numpy as np
 import datetime
 #from pylab import *
 Re = 6.38e+3 #Earth radius [km]
-Rmin = 1.95 #Minimum worthwhile radius
+Rmin = 2.05 #Minimum worthwhile radius
 
 #Expecting format: Year,Month,Day,Hour,Minute,Second, SMX [KM], SMY [KM], SMZ [KM]
 T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
@@ -13,6 +13,7 @@ a0 = np.exp(0)
 #aC = np.exp(-0.5)
 #aD = np.exp(-1.0)
 aC = np.exp(-1.0)
+#aD = np.exp(-np.sqrt(2))
 aD = np.exp(-2.0)
 
 aScl2D = a0+4*aC+4*aD
@@ -145,7 +146,7 @@ def getCyl(fIn,fVar="f"):
 		return R,P,K,t,I
 
 #Create interpolator for K-Cylinder
-def GetInterp(R,P,K,t,I,imeth="linear",fillVal=None):
+def GetInterp(R,P,K,t,I,imeth="linear",fillVal=0):
 	import scipy
 	import scipy.interpolate
 	Irpkt = scipy.interpolate.RegularGridInterpolator((R,P,K,t),I,method=imeth,bounds_error=False,fill_value=fillVal)
@@ -153,30 +154,30 @@ def GetInterp(R,P,K,t,I,imeth="linear",fillVal=None):
 	return Irpkt
 
 
-#Interpolate intensities at trajectories
-def InterpI(Ii,Xsc,Ysc,Tsc,K):
-	Rsc = np.sqrt(Xsc**2.0+Ysc**2.0)
-	Psc = np.arctan2(Ysc,Xsc)
-	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
+# #Interpolate intensities at trajectories
+# def InterpI(Ii,Xsc,Ysc,Tsc,K):
+# 	Rsc = np.sqrt(Xsc**2.0+Ysc**2.0)
+# 	Psc = np.arctan2(Ysc,Xsc)
+# 	iP = (Psc<0); Psc[iP] = Psc[iP]+2*np.pi
 
-	Nsc = len(Tsc)
-	Nk = len(K)
-	#Create arrays
-	iPts = np.zeros((Nk,4))
-	Isc = np.zeros((Nsc,Nk))
-	for i in range(Nsc):
-		#Evaluate for all energies at this point
-		iPts[:,0] = Rsc[i]
-		iPts[:,1] = Psc[i]
-		iPts[:,2] = K
-		iPts[:,3] = Tsc[i]
-		Isc[i,:] = Ii(iPts)
-		# if (Rsc[i]<=Rmin):
-		# 	Isc[i,:] = 0.0
-		# else:
-		# 	Isc[i,:] = Ii(iPts)
+# 	Nsc = len(Tsc)
+# 	Nk = len(K)
+# 	#Create arrays
+# 	iPts = np.zeros((Nk,4))
+# 	Isc = np.zeros((Nsc,Nk))
+# 	for i in range(Nsc):
+# 		#Evaluate for all energies at this point
+# 		iPts[:,0] = Rsc[i]
+# 		iPts[:,1] = Psc[i]
+# 		iPts[:,2] = K
+# 		iPts[:,3] = Tsc[i]
+# 		Isc[i,:] = Ii(iPts)
+# 		# if (Rsc[i]<=Rmin):
+# 		# 	Isc[i,:] = 0.0
+# 		# else:
+# 		# 	Isc[i,:] = Ii(iPts)
 
-	return Isc
+# 	return Isc
 
 #Interpolate intensities at dipole-projection and attenuate model intensity for latitude
 def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
@@ -197,7 +198,7 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 		#plt.show()
 		Req = L
 		#Lam = np.arctan(L/Z)
-
+	Req = L
 	#Calculate attention factor from latitude
 	cL = np.cos(Lam)
 	sL = np.sin(Lam)
@@ -226,58 +227,56 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 	return Isc
 
 
-#Interpolate intensities from KCyl onto RB trajectory
-#SimKC = [R,P,K,Tkc,Is]
-#rbDat = [Xsc,Ysc,Zsc,Tsc,Ksc]
-
-# def InterpSmooth(SimKC,rbDat,Niter=1,NiterT=1,doZScl=True,en=2.0):
-# 	Xsc,Ysc,Zsc,Tsc,Ksc = rbDat
-# 	R,P,K,Tkc,Ikc = SimKC
-
-	
-# 	IkcS = np.zeros(Ikc.shape)
-# 	IkcS[:] = Ikc[:]
-# 	#IkcS = Ikc
-# 	#Now apply smoothing window
-# 	Nr = len(R)
-# 	Np = len(P)
-# 	Nt = len(Tsc)
-# 	Nk = len(Ksc)
-
-# 	print("Interpolating from KCyl onto T,K grid of size (%d,%d)\n"%(Nt,Nk))
-# 	print("\tdtRB = %f"%(Tsc[1]-Tsc[0]))
-# 	IkcS = SmoothKCyl(R,P,IkcS,Niter=Niter)
-
-# 	Ii = GetInterp(R,P,K,Tkc,IkcS)
-# 	Isc = InterpI_XYZ(Ii,Xsc,Ysc,Zsc,Tsc,Ksc,doScl=doZScl,en=en)
 
 
-# 	IscS = np.zeros(Isc.shape)
-# 	IscS[:] = Isc[:]
-# 	for n in range(NiterT):
-# 		IscS = SmoothIterT(IscS)
+def SmoothKCyl_Old(R,P,Ikc,Niter=1,L0=0.5):
+	import kSmooth
 
-# 	return IkcS,IscS
-
-
-def SmoothKCyl_Old(R,P,Ikc,Niter=1,Sig=0.25):
-	import scipy.ndimage.filters as sfil
-
-	SigL = 0.5
-	SigP = 0.75
-	Sig0 = 1
 	Nr = Ikc.shape[0]
 	Np = Ikc.shape[1]
 	Nk = Ikc.shape[2]
 	Nt = Ikc.shape[3]
 
-	IkS = np.zeros_like(Ikc)
-	for k in range(Nk):
-		for n in range(Nt):
-			InkS = sfil.gaussian_filter(Ikc[:,:,k,n],mode='wrap',sigma=[SigL,SigP],truncate=Sig0)
-			IkS[:,:,k,n] = InkS
-	#IkS = sfil.gaussian_filter1d(Ikc,axis=1,mode='wrap',sigma=Sig,truncate=2)
+	IkS = np.zeros_like(Ikc,order='F')
+
+	IkS[:] = Ikc[:]
+
+	kSmooth.ksmooth.smoothcyl(R,P,Ikc,IkS,L0,Nr,Np,Nk,Nt)
 	return IkS
+
+	#print("Sums are %f/%f"%(Ikc.sum(),IkS.sum()))
+	#print(Ikc.shape)
+	#print(IkS.shape)
+	# #Create spatial mesh (centered)
+	# xx = np.zeros((Nr,Np))
+	# yy = np.zeros((Nr,Np))
+	# rScl = np.zeros((Nr,Np))
+	# wgt = np.zeros((Nr,Np))
+
+	# for i in range(Nr):
+	# 	for j in range(Np):
+	# 		xx[i,j] = R[i]*np.cos(P[j])
+	# 		yy[i,j] = R[i]*np.sin(P[j])
+
+	# #Loop over each mesh-point and calculate relevant weights, do all energy/time slices at once
+	# for i in range(Nr):
+	# 	for j in range(Np):
+	# 		#Calculate dimensionless distance to each other point
+	# 		x0 = xx[i,j]
+	# 		y0 = yy[i,j]
+	# 		rScl = np.sqrt( (xx-x0)**2.0 + (yy-y0)**2.0 )/L0
+
+	# 		#Calculate weights
+	# 		wgt[:,:] = 0.0
+	# 		I = (rScl<=1)
+	# 		wgt[I] = 0.75*(1-rScl[I]**2.0)
+	# 		w0 = wgt.sum()
+
+	# 		#Lazy for now,
+	# 		for k in range(Nk):
+	# 			for n in range(Nt):
+	# 				IkS[i,j,k,n] = (wgt*Ikc[:,:,k,n]).sum()/w0
+	# return IkS
 
 def SmoothKCyl(R,P,Ikc,Niter=1):
 	IkcS = np.zeros(Ikc.shape)
@@ -327,6 +326,7 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 			# 				 aDp*(Ikc[iP,jP,:,:] + Ikc[iP,jM,:,:]) +
 			# 				 aDm*(Ikc[iM,jP,:,:] + Ikc[iM,jM,:,:])
 			# 				)/aScl
+
 			#Method 2
 			IkcS[i,j,:,:] = (a0*Ikc[i,j,:,:] + 
 							 aC*(Ikc[iP,j,:,:] + Ikc[iM,j,:,:] + Ikc[i,jP,:,:] + Ikc[i,jM,:,:]) +
@@ -340,13 +340,13 @@ def SmoothIter(Ikc,xx,yy,doT=True):
 
 #Weight function
 #Order: a0,aCj,aCip,aCim,aDp,aDm
-def getWeights(xx,yy,i,j,iM,iP,jM,jP):
+def getWeights(xx,yy,i,j,iM,iP,jM,jP,L=2.0):
 	x0 = xx[i,j]
 	y0 = yy[i,j]
 	Is = [i,i,iP,iM,iP,iM]
 	Js = [j,jP,j,j,jP,jP]
 	#Use main diagonal for L
-	L = np.sqrt( (xx[iM,jM]-xx[iP,jP])**2.0 + (yy[iM,jM]-yy[iP,jP])**2.0)
+	#L = np.sqrt( (xx[iM,jM]-xx[iP,jP])**2.0 + (yy[iM,jM]-yy[iP,jP])**2.0)
 	#L = np.sqrt( (xx[i,jP]-xx[i,jM])**2.0 + (yy[i,jP]-yy[i,jM])**2.0)
 
 	A = np.zeros(6)
@@ -363,13 +363,13 @@ def getWeights(xx,yy,i,j,iM,iP,jM,jP):
 	return A[0],A[1],A[2],A[3],A[4],A[5]
 
 #Does one time iteration of smoothing on IscS
-def SmoothIterT(Isc):
-	Nt = Isc.shape[0]
-	IscS = np.zeros(Isc.shape)
-	IscS[:] = Isc[:]
-	for n in range(1,Nt-1):
-		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
-	return IscS
+# def SmoothIterT(Isc):
+# 	Nt = Isc.shape[0]
+# 	IscS = np.zeros(Isc.shape)
+# 	IscS[:] = Isc[:]
+# 	for n in range(1,Nt-1):
+# 		IscS[n,:] = (a0*Isc[n,:] + aC*Isc[n+1,:] + aC*Isc[n-1,:])/aScl1D
+# 	return IscS
 	
 #Get Intensity from RBSP CDF
 def GetRBSP(fIn,T0S,tMin=None,tMax=None,rbID="rbspa",rbSK=1,CutR=True):
