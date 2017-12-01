@@ -13,8 +13,8 @@ import lfmViz as lfmv
 import cPickle as pickle
 from matplotlib.patches import Wedge
 
-doTest = False
-doDark = True
+doTest = True
+doDark = False
 
 NvSkp = 1 #Video frame skip
 nMin = 10
@@ -74,7 +74,7 @@ lwDST = 1.5
 lwRB = 1.5
 NumT = 500
 Nsk = 1
-
+cmeLW = 2
 
 #-------------------
 #Get data
@@ -96,6 +96,15 @@ rbDat = [Tsc,Xrb,Yrb,Zrb,Lrb]
 Nk2D = 80
 Ksim = np.logspace(1,np.log10(5000),Nk2D)
 Tsims,Iksims = pS.GetSim_I2D(SimKC,rbDat,Ksim)
+
+#Get injection rates
+nDT = 3
+tIR,aJt = pS.wIRate(nDT=nDT)
+NumW = len(aJt)
+datemin = datetime.datetime.strptime("2013-03-17T04:00:00Z",kc.T0Fmt)
+#datemax = datetime.datetime.strptime("2013-03-18T06:00:00Z",kc.T0Fmt)
+datemax = datetime.datetime.strptime("2013-03-18T12:00:00Z",kc.T0Fmt)
+dCME = datetime.datetime.strptime(pS.CME_T0Str,kc.T0Fmt)
 
 
 #Prep counters
@@ -204,7 +213,9 @@ for n in range(nMin,nMax,NvSkp):
 
 	AxDST = fig.add_subplot(gs[4,4:])
 	AxDST.set_position([x0,y0DST,dX,dYDST])
-	
+	AxIR = AxDST.twinx()
+	AxIR.set_position([x0,y0DST,dX,dYDST])
+
 	AxNull = fig.add_subplot(gs[6,5])
 	AxNull.set_visible(False)
 
@@ -223,7 +234,7 @@ for n in range(nMin,nMax,NvSkp):
 	AxM.set_title(TitS)
 	#Field contours
 	Xc,Yc,dBz = pS.getFld(Tkc[n])
-	AxM.contour(Xc,Yc,dBz,Vc,cmap=cMapC,alpha=cAl,linewidth=cLW)
+	AxM.contour(Xc,Yc,dBz,Vc,cmap=cMapC,alpha=cAl,linewidths=cLW)
 
 	#Plot tracks (do before RB current)
 	iRB = max(0,nRB-Ntrk*Nskp)
@@ -258,15 +269,37 @@ for n in range(nMin,nMax,NvSkp):
 
 
 	#-----------------------
+
 	#DST plot
-	AxDST.plot(tdstP,dst,dstC)
+	dstCol = 'darkorange'
+	#AxDST.plot(tdstP,dst,dstC)
+	AxDST.plot(tdstP,dst,dstCol)
 	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=dstC,linewidth=lwDST)
 	AxDST.yaxis.tick_right()
+	AxDST.tick_params('y',colors=dstCol)
 	AxDST.yaxis.set_label_position("right")
 	AxDST.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 	AxDST.set_xlim(dMin,dMax)
 	AxDST.xaxis.set_major_locator(mdates.HourLocator(interval=6))
-	AxDST.set_ylabel("DST [nT]")
+	AxDST.set_ylabel("Dst [nT]",color=dstCol)
+
+	
+	TpIR = kc.Ts2date(tIR,pS.T0Str) 
+	for i in range(NumW):
+		AxIR.plot(TpIR,aJt[i],color=pS.iCols[i],linewidth=0.5)
+	AxIR.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+	AxIR.set_xlim(dMin,dMax)
+	AxIR.xaxis.set_major_locator(mdates.HourLocator(interval=6))
+	AxIR.set_xlim(dMin,dMax)
+	AxIR.set_ylim(0,0.05)
+	AxIR.yaxis.tick_left()
+	AxIR.yaxis.set_label_position("left")
+
+	AxIR.set_ylabel("Injection Rate")
+
+
+	#----------------------------
+	#Finalize
 
 	fOut = "Data/Vid.%04d.png"%nVid
 	plt.savefig(fOut,dpi=dpiQ)
