@@ -43,7 +43,7 @@ I0 = 1.0
 dCME = datetime.datetime.strptime(pS.CME_T0Str,kc.T0Fmt)
 for i in range(4):
 	plt.semilogy(Tp,Ikts[i]/I0,color=Col[i],linewidth=LW)
-
+	print(Ikts[i][-1])
 plt.ylim([1.0e+2,2.0e+4])
 plt.ylim([5.0e+1,2.5e+4])
 plt.ylabel("Intensity [cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]",fontsize="large")
