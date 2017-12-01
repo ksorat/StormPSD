@@ -52,15 +52,19 @@ dpiQ = 300
 #Visual defaults
 figSize = (16.0,7.8)
 vNorm = LogNorm(vmin=1.0e-2,vmax=1.0e+3)
+#vNorm = LogNorm(vmin=1.0e-2,vmax=1.0e+4)
 cMap = "viridis"
+#cMap = "inferno"
 
 #Field contours
 cMapC = "RdGy"
+#cMapC = "BrBG"
 cAl = 0.75
 cLW = 1.0
 NumC = 13
-Vc = np.linspace(-35,35,NumC)
-vcNorm = Normalize(vmin=Vc.min(),vmax=Vc.max())
+dB0 = 35
+Vc = np.linspace(-dB0,dB0,NumC)
+vcNorm = Normalize(vmin=-dB0,vmax=dB0)
 
 #RB positions/tracks
 mSize = 12
@@ -242,8 +246,8 @@ for n in range(nMin,nMax,NvSkp):
 	AxM.plot(Xrb[1][iRB:nRB],Yrb[1][iRB:nRB],color=pS.rbBC,linewidth=lwTRK)
 
 	#Plot RB points
-	AxM.plot(Xrb[0][nRB],Yrb[0][nRB],color=pS.rbAC,marker="o",markersize=mSize)
-	AxM.plot(Xrb[1][nRB],Yrb[1][nRB],color=pS.rbBC,marker="o",markersize=mSize)
+	AxM.plot(Xrb[0][nRB],Yrb[0][nRB],color=pS.rbAC,marker="o",markersize=mSize,markeredgecolor='k')
+	AxM.plot(Xrb[1][nRB],Yrb[1][nRB],color=pS.rbBC,marker="o",markersize=mSize,markeredgecolor='k')
 
 
 	lfmv.addEarth2D(ax=AxM)

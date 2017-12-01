@@ -10,11 +10,11 @@ T0Fmt = "%Y-%m-%dT%H:%M:%SZ"
 
 #Smoothing parameters for center, cross, diagonals
 a0 = np.exp(0)
-#aC = np.exp(-0.5)
-#aD = np.exp(-1.0)
-aC = np.exp(-1.0)
+aC = np.exp(-0.5)
+aD = np.exp(-1.0)
+#aC = np.exp(-1.0)
 #aD = np.exp(-np.sqrt(2))
-aD = np.exp(-2.0)
+#aD = np.exp(-2.0)
 
 aScl2D = a0+4*aC+4*aD
 aScl1D = a0+2*aC
