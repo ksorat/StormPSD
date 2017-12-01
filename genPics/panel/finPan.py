@@ -13,6 +13,7 @@ import matplotlib.dates as mdates
 import lfmViz as lfmv
 from matplotlib.patches import Wedge
 from matplotlib.patches import ConnectionPatch
+from matplotlib.patches import ConnectionStyle
 
 lfmv.ppInit()
 
@@ -191,10 +192,11 @@ for n in range(Nt):
 		if (k == 0):
 			#Add connection for time matching
 			nT = mdates.date2num(Tp[n])
-			xyCon = (nT,0.0)
-			xyAx = (0.0,SMxy)
-
-			ConT = ConnectionPatch(xyA=xyAx,xyB=xyCon,coordsA="data",coordsB="data",axesA=Ax,axesB=AxCon,color='k')
+			xyCon = (nT,-0*0.05)
+			xyAx = (0.0,SMxy+0*0.05)
+			#ConSty = ConnectionStyle("Arc")
+			#ConT = ConnectionPatch(connectionstyle=ConSty,xyA=xyAx,xyB=xyCon,coordsA="data",coordsB="data",axesA=Ax,axesB=AxCon,color='k')
+			ConT = ConnectionPatch(arrowstyle="<|-",xyA=xyAx,xyB=xyCon,coordsA="data",coordsB="data",axesA=Ax,axesB=AxCon,color='grey')
 			Ax.add_artist(ConT)
 
 		if (k == Nk-1):
