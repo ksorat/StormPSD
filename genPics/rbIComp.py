@@ -13,6 +13,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
 import lfmViz as lfmv
 from matplotlib.ticker import MaxNLocator
+from matplotlib.ticker import LogLocator
 
 lfmv.ppInit()
 #K-Lines
@@ -26,8 +27,9 @@ vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
 #cMapP = "nipy_spectral"
 #cMapP = "gist_rainbow"
-doPanelFig = True
-doLimPanelFig = False
+doTitle = False
+doPanelFig = False
+doLimPanelFig = True
 doLineFig = True
 Nk2D = 80
 
@@ -148,18 +150,18 @@ for n in range(Nrb):
 	#-------------------
 	#Limited Panel figure
 	if (doLimPanelFig):
-		doCbar = False
+		doCbar = True
 		LimLabs = [Labs[0],"Simulation"]
 		Np = 2
 		figSize = (16,10)
 		vNorm = vNormP
 		cMap = cMapP
-		figName = "ICompLim2D_%s.png"%(rbStrs[n])
+		figName = "I2D_%s.png"%(rbStrs[n])
 
 		fig = plt.figure(figsize=figSize)
 		gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,1,1])
 		npan = 0
-		for npp in [0,3]:
+		for npp in [0,1]:
 			#print(aT[np].shape,aK[np].shape,aI[np].shape)
 			Ax = fig.add_subplot(gs[npan,0])
 			Tp = kc.Ts2date(aT[npp],pS.T0Str)
@@ -177,8 +179,10 @@ for n in range(Nrb):
 			elif (npp<Np-1):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
-				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
+				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+			Ax.tick_params(labelright=True,right=True,which='both')
 			npan = npan+1
+			
 		if (doCbar):
 			#Do colorbar
 			AxC = fig.add_subplot(gs[-1,0])
@@ -194,7 +198,7 @@ for n in range(Nrb):
 	if (doLineFig):
 		Np = len(KLs)
 		figSize = (12,12)
-		figName = "ICompKs_%s.png"%(rbStrs[n])
+		figName = "ILine_%s.png"%(rbStrs[n])
 		LWrb = 2
 		LWsim = 1.5
 		LWsim_c = 0.75
@@ -218,11 +222,20 @@ for n in range(Nrb):
 			#Ax.semilogy(Tsim,simIKs[npp],color='r',linewidth=LWsim)
 
 			Ax.set_ylim([vMins[npp],vMaxs[npp]])
-
-			#Ax.yaxis.set_major_locator(MaxNLocator(4))
 			pMin = np.log10(vMins[npp])
 			pMax = np.log10(vMaxs[npp])
-			Ax.yaxis.set_ticks(10**np.arange(pMin,pMax+1))
+
+			majTicks = 10**np.arange(pMin,pMax+1)
+			minTicks = []
+			#Crazy annoying way of setting minor ticks
+			for i in range(4):
+				for j in range(2,10):
+					minTicks.append(j*majTicks[i])
+			minTicks = np.array(minTicks)
+
+			Ax.yaxis.set_ticks(majTicks,minor=False)
+			Ax.yaxis.set_ticks(minTicks,minor=True)
+			
 
 			K0 = KLs[npp]
 			if (K0>=1000):
@@ -245,11 +258,14 @@ for n in range(Nrb):
 				
 				#Add legend to bottom
 				Ax.legend(Leg,loc='upper right',ncol=2)
+			Ax.tick_params(labelright=True,right=True,which='both')
 			Ax.set_ylabel('\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}')	
 			Ax.set_xlim(Tsim[0],Tsim[-1])
 		#SupS = "Intensity Comparison (%s)\n"%(Labs[0]) + r"\textcolor{blue}{Data}/\textcolor{red}{Model}"
 		#plt.suptitle("Intensity Comparison (%s)\n"%(Labs[0]) + r'\textcolor{blue}{Data}/\textcolor{red}{Model}')
-		plt.suptitle("Intensity Comparison (%s)"%(Labs[0]))
+		
+		if (doTitle):
+			plt.suptitle("Intensity Comparison (%s)"%(Labs[0]),fontsize="x-large")
 		#Save and close
 		plt.savefig(figName,dpi=pS.figQ)
 		plt.close('all')

@@ -65,7 +65,7 @@ CME_C = "darkorange"
 #Label defaults
 pLabs = ["Pre-Storm","Injected","Total"]
 pCols = ["g","m","red"]
-iLabs = ["IV-0","IV-21","IV-3"]
+iLabs = ["IV-24","IV-21","IV-03"]
 iCols = ["b","g","r"]
 
 #VTI slice defaults
@@ -133,7 +133,7 @@ def wIRate(doSmooth=True,T0Cut=30000.0,nDT=1.0):
 	
 	return t,jtS
 #Calculate contributions to K intensity between L,L+dL
-def ICons(K0,L=3,dL=3,doSmooth=False,doMin=False):
+def ICons(K0,K1=1.0e+6,L=3,dL=3,doSmooth=False,doMin=False):
 	fIns = []
 	fIn = Base + "/" + PSDir + "/KCyl_StormT.h5"
 	fIns.append(fIn)
@@ -149,17 +149,27 @@ def ICons(K0,L=3,dL=3,doSmooth=False,doMin=False):
 		I = I0s[n]*I
 		if (doSmooth):
 			I = kc.SmoothKCyl(R,P,I,nSm)
-		k0 = np.abs(K-K0).argmin()
-		if (doMin):
-			#Get all intensity above K0
-			I = I[:,:,k0:].sum(axis=2)
-		else:
-			I = I[:,:,k0]
+		#k0 = np.abs(K-K0).argmin()
+		#kF = (K-K1)>=
+		#print(K0,K1)
+		Kc = (K>=K0) & (K<=K1)
+		print(K)
+		#print(Kc)
+		I = I[:,:,Kc].mean(axis=2)
+		# if (doMin):
+		# 	#Get all intensity above K0
+		# 	#I = I[:,:,k0:].sum(axis=2)
+		# 	I = I[:,:,k0:].sum(axis=2)
+		# else:
+		# 	I = I[:,:,k0]
 		I = I.mean(axis=1)
 		
-		Rc = (R<L) | (R>L+dL)
-		I[Rc,:] = 0.0
-		Ikt = I.sum(axis=0)
+		#Rc = (R<L) | (R>L+dL)
+		#I[Rc,:] = 0.0
+		#Ikt = I.sum(axis=0)
+		Rc = (R>= L) & (R<=L+dL)
+		Ikt = I[Rc,:].mean(axis=0)
+
 		#print(Ikt.shape)
 		Ikts.append(Ikt)
 	#Assuming same t for all

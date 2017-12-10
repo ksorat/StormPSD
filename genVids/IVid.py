@@ -13,8 +13,9 @@ import lfmViz as lfmv
 import cPickle as pickle
 from matplotlib.patches import Wedge
 
-doTest = True
+doTest = False
 doDark = False
+doGreyT = True #Use grey line for time
 
 NvSkp = 1 #Video frame skip
 nMin = 10
@@ -22,7 +23,7 @@ nMax = 1000
 
 vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
-cMapP = "gnuplot"
+#cMapP = "gnuplot"
 
 KBds = [75,4.0e+3]
 def pI2D(Ax,T,K,I,Lab="Stupid",doX=False,tC='r'):
@@ -79,6 +80,13 @@ lwRB = 1.5
 NumT = 500
 Nsk = 1
 cmeLW = 2
+
+if (doGreyT):
+	rbBC = 'slategrey'
+	rbAC = 'slategrey'
+else:
+	rbBC = pS.rbBC
+	rbAC = pS.rbAC
 
 #-------------------
 #Get data
@@ -145,12 +153,13 @@ if (doDark):
 	plt.style.use('dark_background')
 	dstC = 'w'
 else:
-	dstC = 'k'
+	dstC = 'slategrey'
 
 print("Starting video ...")
 if (doTest):
 	nMin = 500
 	nMax = 501
+	nVid = 1
 	NvSkp = 1
 for n in range(nMin,nMax,NvSkp):
 	#------------------
@@ -171,14 +180,6 @@ for n in range(nMin,nMax,NvSkp):
 	AxM.set_aspect('equal')
 	AxM.set_xlim(-15.5,12.5)
 	AxM.set_ylim(-15,15)
-
-	#Add wedge markers
-	wLW = 1.5
-	w1 = Wedge((0,0), 12,170,190, width=3.0,fill=False,ec='b',linewidth=wLW)
-	w2 = Wedge((0,0), 12,125,145, width=3.0,fill=False,ec='lime',linewidth=wLW)
-	w3 = Wedge((0,0), 12,215,235, width=3.0,fill=False,ec='r',linewidth=wLW)
-	for w in [w1,w2,w3]:
-		AxM.add_artist(w)
 
 	#Add RB labels
 	rbFS = 14
@@ -240,6 +241,14 @@ for n in range(nMin,nMax,NvSkp):
 	Xc,Yc,dBz = pS.getFld(Tkc[n])
 	AxM.contour(Xc,Yc,dBz,Vc,cmap=cMapC,alpha=cAl,linewidths=cLW)
 
+	#Add wedge markers (after field contours)
+	wLW = 1.5
+	w1 = Wedge((0,0), 12,170,190, width=3.0,fill=False,ec='b',linewidth=wLW)
+	w2 = Wedge((0,0), 12,125,145, width=3.0,fill=False,ec='lime',linewidth=wLW)
+	w3 = Wedge((0,0), 12,215,235, width=3.0,fill=False,ec='r',linewidth=wLW)
+	for w in [w1,w2,w3]:
+		AxM.add_artist(w)
+
 	#Plot tracks (do before RB current)
 	iRB = max(0,nRB-Ntrk*Nskp)
 	AxM.plot(Xrb[0][iRB:nRB],Yrb[0][iRB:nRB],color=pS.rbAC,linewidth=lwTRK)
@@ -255,19 +264,23 @@ for n in range(nMin,nMax,NvSkp):
 	#I2D Plots
 	pI2D(AxRBaa,Trbs[0],Krbs[0],Irbs[0],tC=pS.rbAC,Lab='Data',doX=True)
 	pI2D(AxRBa ,Tsims[0],Ksim,Iksims[0],tC=pS.rbAC,Lab='Model' )
-	AxRBaa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
-	AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbAC,linewidth=lwRB)
+
+	if (nVid>0):
+		AxRBaa.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=rbAC,linewidth=lwRB)
+		AxRBa.axvline(kc.Date2Num(Tkc[n],pS.T0Str), color=rbAC,linewidth=lwRB)
 
 	pI2D(AxRBba,Trbs[1],Krbs[1],Irbs[1],tC=pS.rbBC,Lab='Data')
 	pI2D(AxRBb ,Tsims[1],Ksim,Iksims[1],tC=pS.rbBC,Lab='Model' )
-	AxRBba.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
-	AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
+	if (nVid>0):
+		AxRBba.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=rbBC,linewidth=lwRB)
+		AxRBb.axvline(kc.Date2Num(Tkc[n],pS.T0Str), color=rbBC,linewidth=lwRB)
 
 	#Add double labels
 	rb1DX = -0.055
 	rb1DY = -0.05
 	rbFS = 18
 	#rbAbox = dict(boxstyle="darrow", ec=pS.rbAC, lw=2)
+
 	AxRBaa.text(rb1DX,rb1DY,"RBSP-A",color=pS.rbAC,rotation='vertical',transform=AxRBaa.transAxes,fontsize=rbFS,va="center",ha='center')
 	AxRBba.text(rb1DX,rb1DY,"RBSP-B",color=pS.rbBC,rotation='vertical',transform=AxRBba.transAxes,fontsize=rbFS,va="center",ha='center')
 
@@ -276,9 +289,10 @@ for n in range(nMin,nMax,NvSkp):
 
 	#DST plot
 	dstCol = 'darkorange'
-	#AxDST.plot(tdstP,dst,dstC)
+	
 	AxDST.plot(tdstP,dst,dstCol)
-	AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=dstC,linewidth=lwDST)
+	if (nVid>0):
+		AxDST.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=dstC,linewidth=lwDST)
 	AxDST.yaxis.tick_right()
 	AxDST.tick_params('y',colors=dstCol)
 	AxDST.yaxis.set_label_position("right")
