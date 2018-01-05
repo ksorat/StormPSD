@@ -63,7 +63,7 @@ rbBC = "magenta"
 CME_C = "darkorange"
 
 #Label defaults
-pLabs = ["Pre-Storm","Injected","Total"]
+pLabs = ["PRE","Injected","Total"]
 pCols = ["g","m","red"]
 iLabs = ["IV-24","IV-21","IV-03"]
 iCols = ["b","g","r"]
@@ -390,7 +390,7 @@ def GetRBPSD():
 	#Silly hard-coded numbers to find orbit
 	i0 = 7400
 	i1 = 10500
-
+	print("Using L3 from %s to %s"%(str(Tdt[i0]),str(Tdt[i1])))
 	iMin = L[i0:i1].argmin()
 	iMax = L[i0:i1].argmax()
 

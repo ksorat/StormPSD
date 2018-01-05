@@ -16,14 +16,12 @@ import lfmViz as lfmv
 #K0 value
 LW = 1.5
 cmeLW = 2
-L0 = 3.0
-L1 = 6.0
-K0 = 1000
 
 L0 = 2.1
-L1 = 7.0
+L1 = 6.0
 K0 = 1000.0
 K1 = 1100.0
+
 figSize = (12,8)
 FS = "large"
 Col = ["k","b","g","r"]

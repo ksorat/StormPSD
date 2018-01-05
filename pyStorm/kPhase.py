@@ -22,7 +22,7 @@ def getPSD(fIn,fVar="f"):
 		R  = np.array(hf.get("Cr").value)
 		P  = np.array(hf.get("Cphi").value)
 		K  = np.array(hf.get("Ck").value)
-		A = np.array(hf.get("Calpha").value)
+		A  = np.array(hf.get("Calpha").value)
 
 		dG = hf.get("dG").value.T
 		dG = dG.squeeze()

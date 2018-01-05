@@ -30,8 +30,8 @@ lfmv.ppInit()
 Rcrit = 2.1
 Zcrit = 7.0
 TCrit = 35000.0
-KCrit0 = 1000.0
-KCrit1 = 2500.0
+KCrit0 = 750.0
+KCrit1 = 5000.0
 
 #Load trapped data from PKL
 with open(fPkl,"rb") as f:
@@ -61,10 +61,12 @@ Req = np.sqrt(Xeq**2.0 + Yeq**2.0)
 Iatm = (R<=Rcrit) & (Teq>=TCrit) & (Req>=Rcrit)
 Imp = (np.abs(Z) >= Zcrit) & (Teq>=TCrit)
 
-Tatm = Teq[Iatm]
-Tmp  = Teq[Imp]
-Patm = xy2phi(Xeq,Yeq,Iatm)
-Pmp  = xy2phi(Xeq,Yeq,Imp)
+#Get 
+P = 180.0*np.arctan2(Yeq,Xeq)/np.pi
+I = P<0
+P[I] = P[I] + 360.0
+#mlt = (P/15.0)+12
+
 
 
 #--------------
@@ -77,57 +79,93 @@ figSize = (8,8)
 dpiQ = 300
 
 #------------------
-#Histogram for time of losses
-Tfin = 180
+#Histogram for time of losses (both)
+Tfin = 120
 Ntb = 600
-Legs = ["Atmosphere","Magnetopause"]
+
+Legs = ["Magnetopause","Atmosphere"]
 Tpb = np.linspace(0,Tfin,Ntb)
 figName = "LossT.png"
 fig = plt.figure(num=1,figsize=figSize)
-TLs = [TLoss[Iatm],TLoss[Imp]]
-plt.hist(TLs,Tpb,alpha=0.75,color=['b','r'],log=True,histtype='stepfilled',cumulative=True)
+
+TLs = (TLoss[Imp],TLoss[Iatm])
+plt.hist(TLs,Tpb,alpha=1.0,log=True,histtype='bar',cumulative=True)
 plt.ylim([1,100000])
 plt.xlim([0,Tfin])
 plt.xlabel("Time after compression [m]")
-plt.ylabel("Cumulative TP's Lost")
+plt.ylabel("Cumulative TPs")
 plt.title("Losses from Initial Population")
-plt.legend(Legs)
+plt.legend(Legs,loc='upper left')
 plt.savefig(figName,dpi=dpiQ)
 lfmv.trimFig(figName)
 plt.close('all')
 
 #------------------
+#Focused view of precipitation
+Tfin = 120
+Ntb = 600
+Tpb = np.linspace(0,Tfin,Ntb)
+figName = "LossTatm.png"
+fig = plt.figure(num=1,figsize=figSize)
+plt.hist(TLoss[Iatm],Tpb)
+plt.xlim([0,Tfin])
+plt.xlabel("Time after compression [m]")
+plt.ylabel("Instantaneous TPs")
+plt.title("Precipitation Losses from Initial Population")
+plt.savefig(figName,dpi=dpiQ)
+lfmv.trimFig(figName)
+plt.close('all')
 
-# #2D histogram, MP
-# figName = "Loss2D_MP.png"
-# fig = plt.figure(figsize=figSize)
-# vNorm = LogNorm(vmin=1.0,vmax=5.0e+3)
-# plt.hist2d(Pmp,Tmp,bins=50,norm=vNorm,cmap="viridis")
-# plt.title("Magnetopause Losses")
-# plt.xlabel("MLT")
-# plt.ylabel("Time")
-# plt.colorbar()
-# plt.savefig(figName,dpi=dpiQ)
-# lfmv.trimFig(figName)
-# plt.close('all')
+#------------------
+#L/MLT of precipitation
+figName = "AtmEQ.png"
+fig = plt.figure(num=1,figsize=figSize)
+
+Nr = 30
+Np = 48*2
+rOut = 6.0*2
+vNorm = LogNorm(vmin=1.0,vmax=25)
+
+deg2rad = np.pi/180.0
+rE = np.linspace(Rcrit,rOut,Nr+1)
+pE = np.linspace(0,2*np.pi,Np+1)
+H,_,_ = np.histogram2d(Req[Iatm],deg2rad*P[Iatm],[rE,pE])
+Phi,R = np.meshgrid(pE,rE)
+xx = R*np.cos(Phi)
+yy = R*np.sin(Phi)
+plt.pcolormesh(xx,yy,H,norm=vNorm,cmap="viridis")
+plt.axis('scaled')
+lfmv.addEarth2D()
+plt.colorbar()
+plt.title("Precipitation Losses")
+plt.savefig(figName,dpi=dpiQ)
+lfmv.trimFig(figName)
+plt.close('all')
+
+#------------------
+#L/MLT of mp losses
+figName = "mpEQ.png"
+fig = plt.figure(num=1,figsize=figSize)
+
+Nr = 60*2
+Np = 96*2
+rOut = 14.0
+vNorm = LogNorm(vmin=1.0,vmax=100)
+
+deg2rad = np.pi/180.0
+rE = np.linspace(Rcrit,rOut,Nr+1)
+pE = np.linspace(0,2*np.pi,Np+1)
+H,_,_ = np.histogram2d(Req[Imp],deg2rad*P[Imp],[rE,pE])
+Phi,R = np.meshgrid(pE,rE)
+xx = R*np.cos(Phi)
+yy = R*np.sin(Phi)
+plt.pcolormesh(xx,yy,H,norm=vNorm,cmap="viridis")
+plt.axis('scaled')
+lfmv.addEarth2D()
+plt.colorbar()
+plt.title("Magnetopause Losses")
+plt.savefig(figName,dpi=dpiQ)
+lfmv.trimFig(figName)
+plt.close('all')
 
 
-# MS = 4
-# plt.plot(Xeq[Iatm],Yeq[Iatm],'b.',markersize=MS)
-# plt.plot(Xeq[Imp ],Yeq[Imp ],'r.',markersize=MS)
-
-# If = Iatm & (Req>=2.1)
-
-# T0 = 45000
-# Ntb = 1000
-# Tpb = np.linspace(0,200,Ntb)
-# #plt.hist(TLoss[Iatm],Tpb)
-
-# If = If & (TLoss <= 240)
-# tNorm = mpl.colors.Normalize(vmin=0.0,vmax=200.0)
-# plt.scatter(Xeq[If],Yeq[If],c=TLoss[If],norm=tNorm,cmap="viridis",alpha=0.5,edgecolors='k')
-# plt.axis('equal')
-# cbar = plt.colorbar()
-# cbar.set_alpha(1)
-# cbar.draw_all()
-# plt.show()
