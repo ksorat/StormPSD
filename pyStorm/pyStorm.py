@@ -65,9 +65,10 @@ CME_C = "darkorange"
 #Label defaults
 pLabs = ["PRE","Injected","Total"]
 pCols = ["g","m","red"]
-iLabs = ["IV-24","IV-21","IV-03"]
+#iLabs = ["IV-24","IV-21","IV-03"]
+iLabs = ["$I_{0}$","$I_{21}$","$I_{3}$"]
 iCols = ["b","g","r"]
-
+cmeLab = "CME Shock"
 #VTI slice defaults
 VTIDir = Base + "/eqSlc/"
 dtVTI = 150.0

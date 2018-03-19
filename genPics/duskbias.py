@@ -68,7 +68,7 @@ Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 Ax.tick_params(labeltop=False,labelright=True,right=True,which='both')
 #Ax.axvline(kc.Date2Num(Tkc[n],pS.T0Str),color=pS.rbBC,linewidth=lwRB)
 Ax.axvline(dCME,color=pS.CME_C,linewidth=cmeLW)
-Ax.annotate('CME',color=pS.CME_C,xy=(dCME,100),xytext=(10,-10),textcoords='offset pixels',fontsize=FS)
+Ax.annotate(pS.cmeLab,color=pS.CME_C,xy=(dCME,100),xytext=(10,-10),textcoords='offset pixels',fontsize=FS)
 Ax.set_xlim(datemin,datemax)
 plt.legend(Legs,loc="lower right",ncol=2,fontsize=FS)
 

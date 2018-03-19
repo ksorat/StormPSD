@@ -118,7 +118,7 @@ for i in range(NumW):
 	#pLab.append(pS.iLabs[i])
 AxIR.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 AxIR.axvline(dCME,color=pS.CME_C,linewidth=cmeLW)
-AxIR.annotate('CME',color=pS.CME_C,xy=(dCME,0.03),xytext=(20,-75),textcoords='offset pixels',fontsize=LabFS)
+AxIR.annotate(pS.cmeLab,color=pS.CME_C,xy=(dCME,0.03),xytext=(20,-25),textcoords='offset pixels',fontsize=LabFS)
 AxIR.set_xlim(datemin,datemax)
 AxIR.set_ylim(0,0.05)
 AxIR.set_ylabel("Injection Rate",fontsize=LabFS)
