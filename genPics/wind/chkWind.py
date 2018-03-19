@@ -19,6 +19,6 @@ for i in range(Nf):
 	hdffile = SD(fIn)
 	print("Reading %s"%(fIn))
 	t[i] = hdffile.attributes().get('time')
-	D3 = lfm.getHDFScl(hdffile,"rho")
+	#D3 = lfm.getHDFScl(hdffile,"rho")
 	print("\t T = %f"%(t[i]))
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
