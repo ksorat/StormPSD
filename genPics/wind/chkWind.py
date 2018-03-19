@@ -7,7 +7,7 @@ import os
 
 #lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
 lfmDir = "/glade/p/hao/wiltbemj/StPatty13/LR60-Quad-15s-AEH"
-fIns = glob.glob(lfmDir+"/*mhd_2013-03-17T0[56]-?1-*.hdf")
+fIns = glob.glob(lfmDir+"/*mhd_2013-03-17T0[56]-?0-*.hdf")
 print(lfmDir)
 #print(fIns)
 Nf = len(fIns)
@@ -19,7 +19,7 @@ for i in range(Nf):
 	fIn = fIns[i]
 	print("Reading %s"%(fIn))
 	hdffile = SD(fIn,SDC.READ)
-	print(hdffile.datasets())
+	#print(hdffile.datasets())
 	t[i] = hdffile.attributes().get('time')
 	#D3 = lfm.getHDFScl(hdffile,"rho")
 	print("\t T = %f"%(t[i]))
