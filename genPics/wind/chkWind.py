@@ -6,7 +6,7 @@ from pyhdf.SD import SD, SDC
 import os
 
 lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
-fIns = glob.glob(lfmDir+"/*17T0[56789].hdf")
+fIns = glob.glob(lfmDir+"/*17T0[56789]-*.hdf")
 print(lfmDir)
 #print(fIns)
 Nf = len(fIns)
