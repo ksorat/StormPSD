@@ -25,6 +25,7 @@ for i in range(Nf):
 	
 	#print(D3.shape)
 	N[i] = D3[:,-2,1].mean()
+	print(D3[:,-2,1])
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
 	print("\t T = %f / d = %f"%(t[i],N[i]))
 	hdffile.end()
