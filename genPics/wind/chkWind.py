@@ -24,4 +24,4 @@ for i in range(Nf):
 	#D3 = lfm.getHDFScl(hdffile,"rho")
 	print("\t T = %f"%(t[i]))
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
-	hdffile.close()
+	hdffile.end()
