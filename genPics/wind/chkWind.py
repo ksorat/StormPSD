@@ -26,7 +26,7 @@ for i in range(Nf):
 	D3 = lfm.getHDFScl(hdffile,"rho")
 	
 	#print(D3.shape)
-	N[i] = D3[:,-2,1].mean()/Mp
+	N[i] = D3[:,-2,2].mean()/Mp
 	#print(D3[:,-2,1])
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
 	print("\t T = %f / d = %f"%(t[i],N[i]))
