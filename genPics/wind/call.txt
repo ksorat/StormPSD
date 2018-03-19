@@ -1,0 +1,1 @@
+plot_lfm_sw.py sc_merge_min_23833.lst_SW-SM-DAT  2017-03-16-18-00-00 0
