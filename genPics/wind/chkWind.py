@@ -7,7 +7,7 @@ import os
 
 #lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
 lfmDir = "/glade/p/hao/wiltbemj/StPatty13/LR60-Quad-15s-AEH"
-fIns = glob.glob(lfmDir+"/*mud_2013-03-17T0[56789]-*.hdf")
+fIns = glob.glob(lfmDir+"/*mhd_2013-03-17T0[56789]-*.hdf")
 print(lfmDir)
 #print(fIns)
 Nf = len(fIns)
