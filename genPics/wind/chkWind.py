@@ -3,7 +3,7 @@ import glob
 import lfmPreproc as lfmpre
 from pyhdf.SD import SD, SDC
 
-lfmDir = "os.path.expanduser('~') + "/Work/lfmHDFs"
+lfmDir = "os.path.expanduser('~')" + "/Work/lfmHDFs"
 fIns = glob.glob(lfmDir+"/*17T*.hdf")
 
 Nf = len(fIns)
