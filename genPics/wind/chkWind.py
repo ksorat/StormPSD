@@ -1,5 +1,6 @@
 import numpy as np
 import glob
+import lfmInterp as lfm
 import lfmPreproc as lfmpre
 from pyhdf.SD import SD, SDC
 import os
@@ -7,7 +8,7 @@ import os
 lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
 fIns = glob.glob(lfmDir+"/*17T*.hdf")
 print(lfmDir)
-print(fIns)
+#print(fIns)
 Nf = len(fIns)
 
 t = np.zeros(Nf)
