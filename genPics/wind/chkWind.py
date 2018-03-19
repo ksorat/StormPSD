@@ -5,6 +5,8 @@ import lfmPreproc as lfmpre
 from pyhdf.SD import SD, SDC
 import os
 
+Mp = 1.6726219e-24
+
 #lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
 lfmDir = "/glade/p/hao/wiltbemj/StPatty13/LR60-Quad-15s-AEH"
 fIns = glob.glob(lfmDir+"/*mhd_2013-03-17T0[56]-?[028]-*.hdf")
@@ -24,8 +26,8 @@ for i in range(Nf):
 	D3 = lfm.getHDFScl(hdffile,"rho")
 	
 	#print(D3.shape)
-	N[i] = D3[:,-2,1].mean()
-	print(D3[:,-2,1])
+	N[i] = D3[:,-2,1].mean()/Mp
+	#print(D3[:,-2,1])
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
 	print("\t T = %f / d = %f"%(t[i],N[i]))
 	hdffile.end()
