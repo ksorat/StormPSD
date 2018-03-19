@@ -4,7 +4,7 @@ import lfmInterp as lfm
 import lfmPreproc as lfmpre
 from pyhdf.SD import SD, SDC
 import os
-
+from pylab import *
 Mp = 1.6726219e-24
 
 #lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
@@ -31,3 +31,7 @@ for i in range(Nf):
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
 	print("\t T = %f / d = %f"%(t[i],N[i]))
 	hdffile.end()
+
+
+plt.plot(T,N)
+plt.savefig("ToyDen.png")
