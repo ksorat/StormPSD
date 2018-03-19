@@ -18,8 +18,8 @@ N = np.zeros(Nf)
 for i in range(Nf):
 	fIn = fIns[i]
 	print("Reading %s"%(fIn))
-	hdffile = SD(fIn)
-	
+	hdffile = SD(fIn,SDC.READ)
+	print(hdffile.datasets())
 	t[i] = hdffile.attributes().get('time')
 	#D3 = lfm.getHDFScl(hdffile,"rho")
 	print("\t T = %f"%(t[i]))
