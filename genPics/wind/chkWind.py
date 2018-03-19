@@ -35,3 +35,4 @@ for i in range(Nf):
 
 plt.plot(t,N)
 plt.savefig("ToyDen.png")
+plt.close()
