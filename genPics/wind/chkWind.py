@@ -22,7 +22,9 @@ for i in range(Nf):
 	#print(hdffile.datasets())
 	t[i] = hdffile.attributes().get('time')
 	D3 = lfm.getHDFScl(hdffile,"rho")
-	print("\t T = %f"%(t[i]))
-	print(D3.shape)
+	
+	#print(D3.shape)
+	N[i] = D3[:,-1,0].mean()
 	#print("fIn = %s / T = %f"%(fIn,t[i]))
+	print("\t T = %f / d = %f"%(t[i],N[i]))
 	hdffile.end()
