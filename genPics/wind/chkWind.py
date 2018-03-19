@@ -33,5 +33,5 @@ for i in range(Nf):
 	hdffile.end()
 
 
-plt.plot(T,N)
+plt.plot(t,N)
 plt.savefig("ToyDen.png")
