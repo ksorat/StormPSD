@@ -6,7 +6,7 @@ from pyhdf.SD import SD, SDC
 import os
 
 #lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs/StPatty"
-lmfDir = "/glade/p/hao/wiltbemj/StPatty13/LR60-Quad-15s-AEH"
+lfmDir = "/glade/p/hao/wiltbemj/StPatty13/LR60-Quad-15s-AEH"
 fIns = glob.glob(lfmDir+"/*17T0[56789]-*.hdf")
 print(lfmDir)
 #print(fIns)
