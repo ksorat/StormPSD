@@ -2,8 +2,9 @@ import numpy as np
 import glob
 import lfmPreproc as lfmpre
 from pyhdf.SD import SD, SDC
+import os
 
-lfmDir = "os.path.expanduser('~')" + "/Work/lfmHDFs"
+lfmDir = os.path.expanduser('~') + "/Work/lfmHDFs"
 fIns = glob.glob(lfmDir+"/*17T*.hdf")
 print(lfmDir)
 print(fIns)
