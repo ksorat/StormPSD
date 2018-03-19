@@ -5,7 +5,8 @@ from pyhdf.SD import SD, SDC
 
 lfmDir = "os.path.expanduser('~')" + "/Work/lfmHDFs"
 fIns = glob.glob(lfmDir+"/*17T*.hdf")
-
+print(lfmDir)
+print(fIns)
 Nf = len(fIns)
 
 t = np.zeros(Nf)
