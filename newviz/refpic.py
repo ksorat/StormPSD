@@ -74,7 +74,8 @@ for nrb in range(NumRB):
 	gs = gridspec.GridSpec(Nkap,Nkt)
 	#Get simulation KCyls, only ALL
 	for nk in range(Nkap):
-		for nt in range(Nkt):
+		#for nt in range(Nkt):
+		for nt in [1]:
 			aI = []
 			aT = []
 			aK = []
@@ -116,6 +117,7 @@ for nrb in range(NumRB):
 				Ax.semilogy(Tp,Ik0,'k',linewidth=lw)
 				Ax.semilogy(Tp,Ik1,'m',linewidth=lw)
 				plt.ylim([vMins[nl],vMaxs[nl]])
+				plt.xlim([734945.2,734945.9919791666])
 				#Add labels
 				KLab = "%s keV"%(str(KLs[nl]))
 				Ax.text(0.05,0.75,KLab,transform=Ax.transAxes,fontsize='medium')
@@ -129,7 +131,8 @@ for nrb in range(NumRB):
 				else:
 					Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
 				if (nl==0):
-					TitS = "Kappa = %2.1f\nTe = %2.2fTi"%(kappas[nk],kTScls[nt])
+					#TitS = "Kappa = %2.1f\nTe = %2.2fTi"%(kappas[nk],kTScls[nt])
+					TitS = "Kappa = %2.1f"%(kappas[nk])
 					plt.title(TitS)	
 	figName = "Sweep_RB%s.png"%(rbStr)
 	plt.savefig(figName,dpi=figQ)

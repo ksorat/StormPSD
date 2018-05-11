@@ -27,6 +27,7 @@ vNormP = LogNorm(vmin=1.0,vmax=1.0e+6)
 cMapP = "gnuplot2"
 #cMapP = "nipy_spectral"
 #cMapP = "gist_rainbow"
+
 doTitle = False
 doPanelFig = False
 doLimPanelFig = True
@@ -135,6 +136,9 @@ for n in range(Nrb):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))			
+				#Save axis for later labeling
+				AxL = Ax
+
 			Ax.grid(color='silver',axis='y',linewidth=1)#,alpha=0.5)
 
 		#Do colorbar
@@ -143,7 +147,11 @@ for n in range(Nrb):
 		#cb.set_label("Intensity [cm-2 sr-1 s-1 kev-1]",fontsize="large")
 		cb.set_label("Intensity [cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]",fontsize="large")
 		#'\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}'
-		#Save and close
+		#Save to force render
+		plt.savefig(figName,dpi=pS.figQ)
+		print(Tp.shape,Lrb[n].shape)
+		pS.addLAx(AxL,Tp,Lrb[n])
+		#Save & close
 		plt.savefig(figName,dpi=pS.figQ)
 		plt.close('all')
 		lfmv.trimFig(figName)
@@ -180,6 +188,9 @@ for n in range(Nrb):
 				plt.setp(Ax.get_xticklabels(),visible=False)
 			else:
 				Ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%MZ\n%m-%d'))
+				#Save axis for later labeling
+				AxL = Ax
+
 			Ax.tick_params(labelright=True,right=True,which='both')
 			npan = npan+1
 			
@@ -189,10 +200,14 @@ for n in range(Nrb):
 			cb = mpl.colorbar.ColorbarBase(AxC,cmap=cMap,norm=vNorm,orientation='horizontal')
 			cb.set_label("Intensity [cm-2 sr-1 s-1 keV-1]",fontsize="large")
 
-		#Save and close
+		#Save to force render
+		plt.savefig(figName,dpi=pS.figQ)
+		pS.addLAx(AxL,Tp,Lrb[n])
+		#Save & close
 		plt.savefig(figName,dpi=pS.figQ)
 		plt.close('all')
-		lfmv.trimFig(figName)		
+		lfmv.trimFig(figName)
+
 	#-------------------
 	#Line figure
 	if (doLineFig):
@@ -243,6 +258,7 @@ for n in range(Nrb):
 			else:
 				KLab = "%s keV"%(str(K0))
 			Ax.text(0.025,0.8,KLab,transform=Ax.transAxes,fontsize='large')
+			Ax.set_xlim(Tsim[0],Tsim[-1])
 
 			#Set axes
 			if (npp==0):
@@ -258,16 +274,24 @@ for n in range(Nrb):
 				
 				#Add legend to bottom
 				Ax.legend(Leg,loc='upper right',ncol=2)
+				#Save axis for later labeling
+				AxL = Ax
+
+
 			Ax.tick_params(labelright=True,right=True,which='both')
 			Ax.set_ylabel('\Large{Intensity}\n\small{[cm$^{-2}$ sr$^{-1}$ s$^{-1}$ keV$^{-1}$]}')	
-			Ax.set_xlim(Tsim[0],Tsim[-1])
+			
 		#SupS = "Intensity Comparison (%s)\n"%(Labs[0]) + r"\textcolor{blue}{Data}/\textcolor{red}{Model}"
 		#plt.suptitle("Intensity Comparison (%s)\n"%(Labs[0]) + r'\textcolor{blue}{Data}/\textcolor{red}{Model}')
 		
 		if (doTitle):
 			plt.suptitle("Intensity Comparison (%s)"%(Labs[0]),fontsize="x-large")
-		#Save and close
+		#Save to force render
 		plt.savefig(figName,dpi=pS.figQ)
+		pS.addLAx(AxL,Trb,Lrb[n])
+		#Save & close
+		plt.savefig(figName,dpi=pS.figQ)
+
 		plt.close('all')
 		lfmv.trimFig(figName)
 

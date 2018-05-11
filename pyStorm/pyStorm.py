@@ -252,6 +252,7 @@ def GetRBs():
 
 #Get I(K,t) lines for RB A/B
 def GetRBKt(t,Ks):
+	TINY = 1.0e-8
 	#Get RB data
 	TrbA,KrbA,_,IrbA = kc.GetRBSP(fRBa,T0Str,tMin,tMax,"rbspa")
 	TrbB,KrbB,_,IrbB = kc.GetRBSP(fRBb,T0Str,tMin,tMax,"rbspb")
@@ -270,7 +271,8 @@ def GetRBKt(t,Ks):
 		iPts[:,1] = Ks[i]
 		IkA = Ia(iPts)
 		IkB = Ib(iPts)
-		
+		IkA[IkA<TINY] = np.nan
+		IkB[IkB<TINY] = np.nan
 		IkAs.append(IkA)
 		IkBs.append(IkB)
 	return IkAs,IkBs
@@ -419,6 +421,33 @@ def GetRBPSD():
 	Ilk = Ilk[:,Ik]
 	return L,K,Ilk
 
+#Add L position to xtick labels
+def addLAx(Ax,Trb,Lrb):
+	import matplotlib.dates as mdates
+	#xA = Ax.get_xticks().tolist()
+	#Ax.set_xticks(xA)
+
+	xtks = Ax.get_xticks()
+	xlabs = Ax.get_xticklabels()
+
+	#Convert to floats
+	T = [mdates.date2num(x) for x in Trb]
+	Ntk = len(xtks)
+	print(xlabs[0])
+	for i in range(Ntk):
+		Tk = xtks[i]
+		i0 = abs(T-Tk).argmin()
+		#print(i0)
+		#print("Tk = %f, Tm = %f"%(Tk,T[i0]))
+		#print(xlabs[i])
+		oStr = xlabs[i].get_text()
+		Ltk = Lrb[i0]
+		#print(oStr)
+		nStr = oStr + "\nL=%4.2f"%(Ltk)
+		#print(nStr)
+		xlabs[i].set_text(nStr)
+	Ax.set_xticklabels(xlabs)
+		#nStr = oStr + 
 #Kappa distribution (for energy), using kT in keV
 #See equation 3.8 in space science review paper, livadiotis 2013
 def pKappa(K,kT):

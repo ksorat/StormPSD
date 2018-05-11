@@ -171,7 +171,9 @@ for n in range(Nt):
 		if (doField):
 			#Get dBz data
 			xi,yi,dBz = pS.getFld(T0)
-			Ax.contour(xi,yi,dBz,Vc,cmap=cMapC,alpha=cAl,linewidths=cLW)
+			Ax.contour(xi,yi,dBz,Vc ,norm=vcNorm,cmap=cMapC,alpha=cAl,linewidths=cLW)
+			#Ax.contour(xi,yi,dBz,[0],norm=vcNorm,cmap=cMapC,alpha=cAl,linewidths=2*cLW)
+
 		plt.axis('scaled')
 		plt.xlim([-SMxy,SMxy])
 		plt.ylim([-SMxy,SMxy])
