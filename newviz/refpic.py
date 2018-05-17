@@ -1,5 +1,5 @@
 #Generate multi-multipanel figure for kappa/kTScl sweep
-import kCyl as kc
+import tpkCyl as kc
 import okCyl as okc
 import os
 import numpy as np
@@ -11,6 +11,7 @@ import matplotlib as mpl
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
 import matplotlib.dates as mdates
+import kaiViz as kv
 
 #Defaults
 #Time data
@@ -117,10 +118,10 @@ for nrb in range(NumRB):
 				Ax.semilogy(Tp,Ik0,'k',linewidth=lw)
 				Ax.semilogy(Tp,Ik1,'m',linewidth=lw)
 				plt.ylim([vMins[nl],vMaxs[nl]])
-				plt.xlim([734945.2,734945.9919791666])
+				plt.xlim([734945.2,734945.925])
 				#Add labels
 				KLab = "%s keV"%(str(KLs[nl]))
-				Ax.text(0.05,0.75,KLab,transform=Ax.transAxes,fontsize='medium')
+				Ax.text(0.25,0.75,KLab,transform=Ax.transAxes,fontsize='medium')
 				if (nk==0 and nl==0):
 					#Ax.xaxis.tick_top()
 					#Ax.xaxis.set_label_position('top')
@@ -135,6 +136,6 @@ for nrb in range(NumRB):
 					TitS = "Kappa = %2.1f"%(kappas[nk])
 					plt.title(TitS)	
 	figName = "Sweep_RB%s.png"%(rbStr)
-	plt.savefig(figName,dpi=figQ)
+	kv.savePic(figName)
 	plt.close('all')
 	

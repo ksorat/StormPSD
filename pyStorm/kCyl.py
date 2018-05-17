@@ -198,7 +198,9 @@ def InterpI_XYZ(Ii,X,Y,Z,Tsc,K,doScl=True,en=2.0,L=None):
 		#plt.show()
 		Req = L
 		#Lam = np.arctan(L/Z)
-	Req = L
+	Req = R/(np.cos(Lam)**2.0)
+	Lam = np.arctan(Req/Z)
+	#Req = L
 	#Calculate attention factor from latitude
 	cL = np.cos(Lam)
 	sL = np.sin(Lam)
