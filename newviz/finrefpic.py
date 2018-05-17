@@ -25,7 +25,7 @@ def grabKCyl(kStr,ktStr="b"):
 	R,P,K,Tkc,iI0 = kc.getCyl(fInI)
 	R,P,K,Tkc,tI0 = kc.getCyl(fInT)
 	I0 = kcScls[0]*tI0 + kcScls[1]*iI0
-	I0 = kc.SmoothKCyl(R,P,I0,pS.nSm)
+	I0 = kc.SmoothKCyl(R,P,I0,2*pS.nSm)
 
 	return R,P,K,Tkc,I0
 
@@ -76,17 +76,20 @@ else:
 		pickle.dump(Ik2Ds,f)
 		
 
-figSize = (8,8)
+figSize = (8,16)
 fig = plt.figure(figsize=figSize)
-HRs = [20,1]
-gs = gridspec.GridSpec(2,4,height_ratios=HRs)
-#gs = gridspec.GridSpec(1+Np+1,1,height_ratios=[10,10,10,10,1,1],hspace=0.05)
+HRs = [20,20,20,20,1]
+
+gs = gridspec.GridSpec(5,1,height_ratios=HRs)
+
 Tpc = [Trbs[rbI],Ts,Ts,Ts]
 Kpc = [Krbs[rbI],K,K,K]
 
 for i in range(4):
-	Ax = fig.add_subplot(gs[0,i])
+	Ax = fig.add_subplot(gs[i,0])
 	Tp = kc.Ts2date(Tpc[i],pS.T0Str)
 	iPC = Ax.pcolormesh(Tp,Kpc[i],Ik2Ds[i].T,norm=vN,cmap=cM)
+	plt.yscale('log')
+	plt.ylim([75,5.0e+3])
 
 plt.show()
